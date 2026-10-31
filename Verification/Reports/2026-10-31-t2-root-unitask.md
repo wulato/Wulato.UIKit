@@ -19,7 +19,7 @@
 | 项目 | 结果 | 原始证据 |
 | --- | --- | --- |
 | 修复前根 manifest/lock 校验 | 预期 FAIL：缺少 UniTask Git 来源/锁定 | [red.json](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/red.json) |
-| 修复前实际 Unity 错误 | com.cysharp.unitask@2.5.11 cannot be found | [red-editor-excerpt.log](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/red-editor-excerpt.log) |
+| 修复前实际 Unity 错误（P2 恢复原日志） | com.cysharp.unitask@2.5.11 cannot be found；原空采集已保留 | [red-editor-excerpt.log](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/red-editor-excerpt.log) |
 | 修复后实际根工程 | Unity 2022.3.62f2；UniTask 2.5.11 / Git；UIKit 0.1.0 / Embedded；uGUI 1.0.0 | [root-resolution.json](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/root-resolution.json) |
 | 根工程实际程序集 | UniTask、Wulato.UIKit.Core、Loading、UGUI 四份 Player 编译产物均存在；验证脚本成功引用 IUIContext 和 UniTask | [root-editor-resolution.log](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/root-editor-resolution.log) |
 | Python 回归 | 76/76 PASS | [python-tests.log](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/python-tests.log) |
@@ -31,3 +31,21 @@
 四宿主的 T2 契约测试和编译探针沿用既有验收；本轮只改根 manifest/lock，未声称重跑其 Unity 测试，也未进入会话执行或任何 T3 实现。
 
 本记录补充并更新原 T2 报告中“根配置无变更”的历史状态：该描述属于原提交 7d110c8，本次按用户明确授权补齐根工程依赖。
+
+## P2：恢复修复前原始错误证据
+
+原 `red-editor-excerpt.log` 实际只有 1 字节换行，不能支持此前表格中的错误引用。这是原采集读取轮转后 `Editor.log` 的遗漏；本次从仍保留错误的 `Editor-prev.log` 恢复，未重新运行修复前工程，也未生成模拟错误。
+
+来源：`/Users/tian/Library/Logs/Unity/Editor-prev.log`；采集时文件长度 `418341` 字节，整文件 SHA-256 `0d552617f48a7c8e1443a350ceb69a535418b6253f38b0d4888d52affdd54d84`。恢复范围为原文件第 513–515 行、字节区间 `[38079, 38362)`（零起点、末端不含），无内容改写：
+
+```text
+An error occurred while resolving packages:
+  Package com.wulato.uikit@file:/Users/tian/Projects/Tian/Wulato.UIKit/Packages/com.wulato.uikit has invalid dependencies or related test packages:
+    com.cysharp.unitask (dependency): Package [com.cysharp.unitask@2.5.11] cannot be found
+```
+
+三次原始失败位于第 515, 1316, 2056 行，均早于同文件第 3679 行的 `UIKIT_ROOT_DEPENDENCIES_PASS`。工程路径与本次根工程一致。恢复片段 SHA-256：`f5fafddc59c750da717b81e9a25bd845dd2c7f4414d5339c020cb2652aba2b7f`。
+
+完整提取来源与位置记录在 [red-editor-provenance.json](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/red-editor-provenance.json)；原空文件另存为 [red-editor-excerpt.original-empty.log](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/red-editor-excerpt.original-empty.log)，旧索引原样保留为 [evidence-index.before-p2.json](/Users/tian/Projects/Tian/Wulato.UIKit/Artifacts/uikit/root-dependencies/20261031T125159262468/evidence-index.before-p2.json)。现索引覆盖全部 17 个证据文件，其 SHA-256 为 `4e4d8c449fde30df34e14d734abbf9f12daed1b01380c4b611b5dca7d7b651e8`。修复后的解析、编译、Python 和 G0 原始证据未修改。
+
+本轮仅修复证据与报告；根 manifest、锁文件、主包及项目设置无变更，T3 未开始。
