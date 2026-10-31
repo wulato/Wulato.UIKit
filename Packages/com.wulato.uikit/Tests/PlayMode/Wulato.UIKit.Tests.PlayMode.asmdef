@@ -1,0 +1,12 @@
+{
+  "name": "Wulato.UIKit.Tests.PlayMode",
+  "references": [
+    "Wulato.UIKit.Core",
+    "UniTask",
+    "Wulato.UIKit.Tests.Support"
+  ],
+  "includePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

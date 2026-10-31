@@ -4,7 +4,8 @@
     "Wulato.UIKit.Core",
     "Wulato.UIKit.Loading",
     "Wulato.UIKit.UGUI",
-    "UniTask"
+    "UniTask",
+    "Wulato.UIKit.Tests.Support"
   ],
   "includePlatforms": [
     "Editor"

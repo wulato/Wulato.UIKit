@@ -19,6 +19,13 @@ namespace Wulato.UIKit
         // Bound by the engine to one current Session; null outside a Session.
         internal Action UserCloseRequest { get; set; }
         protected void RequestClose() => UserCloseRequest?.Invoke();
+        internal void InvokeCreate() => OnCreate();
+        internal bool InvokeCanClose(UICloseReason reason) => CanClose(reason);
+        internal UniTask InvokeCloseAsync(UICloseReason reason,CancellationToken token) => OnCloseAsync(reason,token);
+        internal void InvokeForegroundEntered(UIForegroundScope scope) => OnForegroundEntered(scope);
+        internal void InvokeForegroundExited() => OnForegroundExited();
+        internal void InvokeClosed(UICloseReason reason) => OnClosed(reason);
+        internal void InvokeDispose() => OnDispose();
         internal abstract UniTask InvokeOpenAsync(UIArguments args,UISessionScope session,CancellationToken cancellationToken);
     }
 }

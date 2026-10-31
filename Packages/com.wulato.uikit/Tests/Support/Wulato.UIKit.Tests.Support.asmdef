@@ -1,0 +1,11 @@
+{
+  "name": "Wulato.UIKit.Tests.Support",
+  "references": [
+    "Wulato.UIKit.Core",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
