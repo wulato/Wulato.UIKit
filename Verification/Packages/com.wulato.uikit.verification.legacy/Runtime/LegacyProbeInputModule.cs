@@ -7,7 +7,7 @@ namespace Wulato.UIKit.Verification.Legacy
     public class LegacyProbeInputModule : StandaloneInputModule
     {
         public InputGateProbe Gate;
-        public override void Process() {if(Gate==null || Gate.AllowProcessing())base.Process();}
+        public override void Process() {if(Gate==null)base.Process();else Gate.Process(()=>base.Process());}
         public void ResetForGate() { DeactivateModule(); }
         public bool AllReleased()
         {

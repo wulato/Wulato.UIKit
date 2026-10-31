@@ -8,7 +8,7 @@ namespace Wulato.UIKit.Verification.Tests
 {
     public struct RawInput
     {
-        public bool Pointer,Touch,Submit,Cancel;
+        public bool Pointer,Touch,Submit,Cancel,Unrelated;
         public Vector2 Position,Move;
     }
     public class InputProbeSceneFactory
@@ -27,14 +27,22 @@ namespace Wulato.UIKit.Verification.Tests
             Spies=new InputEventSpy[2];
             for(int i=0;i<2;i++)
             {
-                var o=new GameObject("Owner"+i,typeof(RectTransform),typeof(CanvasGroup),typeof(Image),typeof(InputEventSpy));o.transform.SetParent(canvasObject.transform,false);
+                var o=new GameObject("Owner"+i,typeof(RectTransform),typeof(CanvasGroup),typeof(Image),typeof(InputGateNode),typeof(InputEventSpy));o.transform.SetParent(canvasObject.transform,false);
                 var t=o.GetComponent<RectTransform>();t.anchorMin=new Vector2(i*0.5f,0);t.anchorMax=new Vector2((i+1)*0.5f,1);t.offsetMin=t.offsetMax=Vector2.zero;
-                Spies[i]=o.GetComponent<InputEventSpy>();Spies[i].EventsSystem=Events;
+                Spies[i]=o.GetComponent<InputEventSpy>();
             }
-            Gate=es.AddComponent<InputGateProbe>();Gate.EventSystem=Events;Gate.Owners=Spies;
+            Gate=es.AddComponent<InputGateProbe>();Gate.EventSystem=Events;Gate.Owners=Spies;Gate.Initialize();
             Canvas.ForceUpdateCanvases();
         }
         public Vector2 Point(int owner) {return new Vector2(Screen.width*(owner==0?0.25f:0.75f),Screen.height*0.5f);}
+    }
+    public class RevokeOnInput : MonoBehaviour, IPointerUpHandler, IBeginDragHandler
+    {
+        public InputGateProbe Gate;
+        public bool Transfer,OnDragBegin;
+        void Revoke() {if(Transfer)Gate.TransferOwner(1);else Gate.SetLocked(true);}
+        public void OnPointerUp(PointerEventData e) {if(!OnDragBegin)Revoke();}
+        public void OnBeginDrag(PointerEventData e) {if(OnDragBegin)Revoke();}
     }
     public abstract class InputGateScenarios
     {
@@ -176,6 +184,34 @@ namespace Wulato.UIKit.Verification.Tests
             Assert.That(A.Count("cancel")+B.Count("cancel"),Is.Zero);
             yield return Step(At(1,cancel:true));yield return Step(At(1));yield return Step(At(1,cancel:true));yield return Step(At(1));
             Assert.That(A.Count("cancel"),Is.Zero);Assert.That(B.Count("cancel"),Is.EqualTo(1));
+        }
+        [UnityTest,Category("input_preflight")] public IEnumerator InitialNonOwnerCannotClick_OwnerStillWorks()
+        {
+            yield return FreshClick(1);Assert.That(B.Count("down")+B.Count("click"),Is.Zero);
+            yield return FreshClick();Assert.That(A.Count("click"),Is.EqualTo(1));
+        }
+        [UnityTest,Category("input_preflight")] public IEnumerator PointerUpLock_DiscardsSameProcessClick()
+        {
+            var callback=A.gameObject.AddComponent<RevokeOnInput>();callback.Gate=Scene.Gate;
+            yield return FreshClick();Assert.That(A.Count("up"),Is.EqualTo(1));Assert.That(A.Count("click"),Is.Zero);
+            Object.DestroyImmediate(callback);Scene.Gate.SetLocked(false);yield return Step(At());
+            yield return FreshClick();Assert.That(A.Count("click"),Is.EqualTo(1));
+        }
+        [UnityTest,Category("input_preflight")] public IEnumerator PointerUpTransfer_DiscardsSameProcessClick()
+        {
+            var callback=A.gameObject.AddComponent<RevokeOnInput>();callback.Gate=Scene.Gate;callback.Transfer=true;
+            yield return FreshClick();Assert.That(A.Count("up"),Is.EqualTo(1));Assert.That(A.Count("click")+B.Count("click"),Is.Zero);
+            Object.DestroyImmediate(callback);yield return Step(At(1));yield return FreshClick(1);
+            Assert.That(A.Count("click"),Is.Zero);Assert.That(B.Count("click"),Is.EqualTo(1));
+        }
+        [UnityTest,Category("input_preflight")] public IEnumerator BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks()
+        {
+            var callback=A.gameObject.AddComponent<RevokeOnInput>();callback.Gate=Scene.Gate;callback.OnDragBegin=true;
+            yield return Step(At(down:true));var drag=At(down:true);drag.Position+=new Vector2(40,0);yield return Step(drag);
+            Assert.That(A.Count("beginDrag"),Is.EqualTo(1));Assert.That(A.Count("endDrag"),Is.EqualTo(1));
+            yield return Step(At());Assert.That(A.Count("click")+A.Count("drop")+B.Count("drop"),Is.Zero);
+            Object.DestroyImmediate(callback);Scene.Gate.SetLocked(false);yield return Step(At());yield return FreshClick();
+            Assert.That(A.Count("click"),Is.EqualTo(1));
         }
     }
 }

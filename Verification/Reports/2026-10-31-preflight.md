@@ -1,61 +1,79 @@
-# P0/P1 前置验证执行报告
+# P0/P1 前置验证执行报告（Review 修订版）
 
-执行日期：2026-10-31。结论：**G0 PASS**。范围仅为独立宿主、初始化夹具、双输入门控原型与验证工具；未进入 T2，未创建生产 UIKit 主包或 Input System 适配包。
+执行日期：2026-10-31。当前结论：**G0 v2 PASS**。本轮修正全部 5 项 review 问题并重新运行四宿主回归；未进入 T2，未创建生产 UIKit 主包或 Input System 适配包。
 
-批准架构方案 SHA-256：`3ad327283835ceeb8c63d7068e6a25d904856f5eff525392eec0b993420814bd`，执行后仍一致。根工程 Assets、Packages、ProjectSettings 的 Git diff 为空；原有暂存架构方案保留。
+本报告取代此前基于 80 项 Unity 用例的 G0 结论。此前 XML 与 summary 的通过记录真实，但遗漏了同一 Process 内撤销等场景，且旧关卡存在证据/指纹假通过路径；不能继续作为当前验收依据。原始记录保留，新的 G0 只接受 schema 2 的完整运行证据。
 
-## 最终验收
+批准架构方案 SHA-256 仍为 `3ad327283835ceeb8c63d7068e6a25d904856f5eff525392eec0b993420814bd`。根工程 Assets、Packages、ProjectSettings 未改动；原有暂存架构文档保留。工作分支 `codex/p0-p1-preflight`。
 
-以下两组结果均在最终 P1 依赖、源码与运行器指纹下生成，G0 校验八个组合全部与当前指纹匹配。
+## 最终四宿主回归
 
 | 宿主 | 实际编辑器 | uGUI / Test Framework | 初始化 | 输入 |
 | --- | --- | --- | --- | --- |
-| u2022-legacy | 2022.3.62f2 | 1.0.0 / 1.1.33 | 4/4 PASS | 16/16 PASS |
-| u2022-input | 2022.3.62f2 | 1.0.0 / 1.1.33 | 4/4 PASS | 16/16 PASS |
-| u6000-legacy | 6000.3.22f1 | 2.0.0 / 1.6.0 | 4/4 PASS | 16/16 PASS |
-| u6000-input | 6000.3.22f1 | 2.0.0 / 1.6.0 | 4/4 PASS | 16/16 PASS |
+| u2022-legacy | 2022.3.62f2 | 1.0.0 / 1.1.33 | 4/4 PASS | 20/20 PASS |
+| u2022-input | 2022.3.62f2 | 1.0.0 / 1.1.33 | 4/4 PASS | 21/21 PASS |
+| u6000-legacy | 6000.3.22f1 | 2.0.0 / 1.6.0 | 4/4 PASS | 20/20 PASS |
+| u6000-input | 6000.3.22f1 | 2.0.0 / 1.6.0 | 4/4 PASS | 21/21 PASS |
 
-合计 Unity PlayMode 80 项通过，失败/跳过/Inconclusive 为 0；Python 结果解析、G0 与编辑器覆盖路径守卫测试 18/18 通过。input 宿主解析 Input System 1.17.0、activeInputHandler=1；legacy 未安装 Input System、activeInputHandler=0。实际 manifest、lock 与输入设置见各宿主 host-snapshot.json。
+合计初始化 16/16、输入 82/82，即 **98 项 Unity PlayMode 全部通过**，无失败、跳过或 Inconclusive。Python 结果解析、指纹、证据与 G0 集成测试 **47/47 通过**。input 宿主锁定 Input System 1.17.0、activeInputHandler=1；legacy 未安装 Input System、activeInputHandler=0。
 
-证据均位于仓库下 Artifacts/uikit（忽略入库，本机保留）：
+最终两组运行使用相同的当前完整指纹，运行前后指纹一致。稳定导入阶段在测试前完成；新节点首次生成 meta 导致的早期指纹变化结果已作废，没有作为最终证据。
 
-- G0：`g0-20261031T145515/preflight-report.json`。
-- 最终初始化：`20261031T145413-tests-7651b4/init-report.json`。
-- 最终输入：`20261031T145452-tests-b050d5/summary.json`。
-- 上述运行各宿主目录包含 `results.xml`、`editor.log`、`trace.json`、`host-snapshot.json`、`command.json`、`summary.json`。
-- Python：`python-tests.log`（18/18），最终命令再次运行亦为 18/18。
+证据均位于仓库 Artifacts/uikit（忽略入库，本机保留）：
 
-## P0 实测
+- 当前 G0：`g0-20261031T071642255082-26d533/preflight-report.json`。
+- 初始化：`20261031T071251969288-tests-c371ea/init-report.json`。
+- 输入：`20261031T071402551875-tests-d25598/summary.json`。
+- 每个运行的宿主子目录包含 results.xml、editor.log、逐例 trace、trace.json、host-snapshot.json、command.json、run.json、evidence-index.json 和 summary.json。
+- Python：`review-fixes-python-green.log`。
+- 对真实完整证据副本进行破坏验证：`review-fixes-gate-audit.json`；可用 `python3 Artifacts/uikit/review-fixes-gate-audit.py` 重现，不修改原证据。
 
-所有 trace 以克隆实例 ID 关联，序列化依赖存在。活跃父节点控制：`Awake → OnEnable → OnCreate`。非激活父节点下 Instantiate 后 trace 为空，手动 ProbeOnCreate 后为 `OnCreate`，激活后为 `OnCreate → Awake → OnEnable`。CanvasGroup 隐藏不延后 Awake；停用/再次激活只增加一次 OnEnable，Awake 仍一次。非激活时 Awake 初始化状态为 false，但序列化引用可访问。
+## 五项 Review 闭环
 
-`ProbeOnCreate` 是人为调用点，验证引擎时序；不是生产 UIView 生命周期测试。初始红控制 `p0-red/results.xml` 为 3 项通过、1 项预期顺序失败，`InactiveParent_BeforeOnCreate.trace.json` 实际记录提前的 Awake/OnEnable。
+### 1. 同一 Process 内撤销后仍发送 click/drop
 
-## P1 实测
+原实现只在 Process 入口检查门控。新增真实输入回调在 pointerUp 内调用 SetLocked/TransferOwner，原实现确实失败；红阶段记录为 `20261031T150605-tests-6fe714`。
 
-16 项必需场景完整列于 Tools/Verification/matrix.json，包括未锁定正向控制、锁定 Submit/Cancel、跨锁鼠标 press、持续 Submit/Cancel、drag 所有权转移、touch 跨锁及新 touch、锁定 pointer/touch、持续 move 的释放屏障、有效/无效焦点恢复、timeScale=0，以及持续 Submit/Cancel 跨所有权和输入采集后 Process 前移交的四项补充场景。
+现在由独立 InputGateNode 保存节点取消快照，InputEventSpy 只记录真实交付事件，不检查门控、不过滤计数。模块经 gate.Process 执行；节点在回调时登记当前 Process 中的实际 PointerEventData。撤销立即清除其 pointerClick、eligibleForClick、press/drag 状态，避免 Input System 在 pointerUp 前缓存 isClick 后继续点击；模块重置推迟至 Process finally，避免在模块遍历期间修改其内部指针集合。实际事件引用只保留至当前 Process 结束，跨帧取消仍使用独立快照。
 
-输入由 legacy BaseInputModule.inputOverride 和 Input System InputTestFixture 设备注入，经过实际模块 UpdateModule/Process 与 EventSystem；没有用 ExecuteEvents 直接注入输入。节点取消通知使用 ExecuteEvents 发送 pointerUp/endDrag，不产生 click/drop。未使用私有反射或复制模块私有状态机。
+新增必需场景 PointerUpLock_DiscardsSameProcessClick、PointerUpTransfer_DiscardsSameProcessClick 和 BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks，分别验证无旧点击/投放、取消收尾及后续新输入。四宿主全部通过。没有私有反射或复制输入模块私有状态机。
 
-门控策略为：撤销时取消节点按压/拖拽并清空选择，调用真实模块的 DeactivateModule；Input System 额外通过 enabled 生命周期触发模块自己的指针重置。阻断期间不 Process，持续检查原始 held 状态，全部释放后用中立帧重置/恢复有效焦点，再允许新边沿。
+### 2. 原始证据缺失而 G0 仅凭 summary 通过
 
-新模块会复用 PointerEventData：最初保留引用的原型在两个 input 宿主各有 2 项失败，证据 `20261031T143343-tests-49aacc`。修正为在真实回调中保存节点自己的取消快照后，按压和拖拽收尾通过。legacy 的 held-state 注入协议补足 BaseInput 只有按钮边沿的限制；默认 provider 使用公开 Unity Input.GetButton 等接口。
+每次尝试启动前登记 run.json。结束后建立 evidence-index.json，保存 XML、日志、快照、命令、运行元数据和全部 trace 文件的 SHA-256，并将索引自身哈希记录于 summary。
 
-最终透传红控制证据 `20261031T145258-tests-bf961d`：四宿主均为未锁定正向控制 1 项通过、门控断言 15 项预期失败，新增所有权场景亦确实失败；启用门控后的最终结果全部通过。编译失败、无效分类或缺包均不当作输入红阶段证据。
+G0 按 UTC started_at 与 run_id 选择最新注册尝试，重新检查原始文件集合/哈希、解析 XML/日志、对比 summary 的用例和计数、当前宿主快照、命令目标、执行状态与逐例 trace；缺失、不完整或损坏的新尝试不会回退到旧绿记录。required_cases 使用完整 fixture-qualified 名称，避免同名方法抵消缺失用例；父 suite 失败也会判失败。
 
-G0 曾在运行器/源码变化后拒绝旧绿记录（例如 `g0-20261031T145052`），最终以两个 suite 的当前结果通过；没有复用旧 P0 依赖指纹。运行器也比较运行前后指纹，防止测试期间源码变化被错误归档为当前通过。
+47 项 Python 测试包含缺 XML/日志/快照/命令/索引/逐例 trace、哈希变化、重封装失败 XML、错误程序集用例名、编译错误、summary 不一致、错误模式、快照不一致和未完成运行等负向路径。
 
-## 执行裁决与审阅闭环
+另外在最终真实证据的临时副本上实测：完整副本 PASS；删除 XML 后 FAIL；改动日志后 FAIL；保留旧绿记录但新增未完成尝试后 FAIL。原证据未改动。
 
-1. 复用当前 checkout，并建立 `codex/p0-p1-preflight` 分支；保留现有暂存内容，没有创建额外 worktree、合并或推送。代价是验证文件在当前 checkout 可见；通过独立宿主及根工程 diff 检查隔离引擎改写。
-2. TestAssemblies 自动注入 TestRunner；Unity 2022 实测拒绝重复显式引用，因此从测试 asmdef 去重，保留等效引用。错误时会导致编译失败，不能绕过用例发现关卡。
-3. 两后端测试 asmdef 引用公共 PlayMode 程序集，复用场景和断言；Runtime 不引用测试程序集。代价是测试程序集之间存在显式依赖，不影响生产包边界。
-4. NUnit 实测拒绝带连字符的分类。保留 CLI suite `input-preflight`，内部明确映射为 Category `input_preflight`。首次无效分类结果只保留诊断，不计为引擎能力证据；映射错误会由必需用例/零匹配校验拒绝。
+### 3. 指纹遗漏宿主输入和实际安装源码
 
-已完成一次独立最终审阅；其重要发现为缺少 held Submit/Cancel 直接跨所有权验证。已补齐四项必需用例，以透传红控制和最终四宿主绿结果闭环。最终只验证修复和完整回归，没有将审阅扩展为 T2。
+指纹现在覆盖宿主 Assets、ProjectSettings、Packages 的全部文件（不含 .DS_Store），包括 InputManager、C#、asmdef、资源及 meta；还覆盖全部参与验证包的内容、验证工具与 matrix。摘要使用带长度的路径/内容编码。
 
-保留的非阻断覆盖限制：Input System 使用键盘 Enter/Escape 验证 Submit/Cancel、手柄摇杆验证 move，尚未直接注入手柄 Submit/Cancel 物理按钮；不声称覆盖该物理按钮组合。该项不削减本次 P1 命名动作验收，不代表后续 T7/T11 可免验。
+宿主 file dependency 必须解析到 V/Packages 下对应的标准验证包目录，校验包名与 lock 的 local source/version；同名替代目录被明确拒绝。摘要从已解析且校验通过的来源读取，不再仅凭 manifest key 猜测源码。
 
-## 授权停止点
+负向测试已证明：InputManager 修改、添加宿主 C# 或 asmdef 均改变指纹；同名异源包被拒绝；lock 源路径不匹配被拒绝。原实现的上述断言确实失败，记录 `review-fixes-python-red.log`；修正后全部通过。
 
-G0 仅说明当前 P0/P1 原型的前置可行性验证通过。Android/iOS ARM64、IL2CPP、生产会话/生命周期与完整输入生产化属于后续阶段，本次没有执行。按用户要求停在这里，不自动进入 T2。
+### 4. 无关按键使 UI 一直无法恢复
+
+Input System 的释放屏障改为枚举 left/middle/right click、submit、cancel、move 动作实际解析的 controls，不再扫描设备上所有按钮。新增 input 宿主必需场景 UnboundKey_DoesNotBlockFreshInputAfterUnlock：Z 键全程保持按下且未绑定 UI，解锁后新左键点击交付一次，并断言 Z 仍按住。两编辑器 input 宿主均通过；原实现红阶段失败。
+
+### 5. 初始非所有者仍能收到点击
+
+夹具在任何输入处理前调用 Initialize，将门控节点连接到 gate 并应用初始所有权。新增四宿主必需场景 InitialNonOwnerCannotClick_OwnerStillWorks：OwnerId=0 时向 Owner1 点击，down/click 均为零；再向 Owner0 全新点击恰好成功一次。原实现红阶段失败，修正后四宿主通过。
+
+## 保留的初始化与输入验收
+
+P0 仍验证 activeSelf=true Prefab 在非激活父节点下延后 Awake，OnCreate 人工标记先于 Awake/OnEnable，序列化引用可访问；CanvasGroup 隐藏不延后 Awake，重新激活不重复 Awake。ProbeOnCreate 仅是引擎时序夹具，不是生产 UIView 测试。
+
+P1 保留原有 pointer/touch、move、Submit/Cancel、跨锁 press、drag 所有权转移、焦点恢复、timeScale=0、持续按键跨所有权、采集输入后 Process 前移交等 16 个共享场景，再增加 4 个共享场景及 1 个 Input System 专属场景。完整名单在 matrix.json。所有输入仍经实际模块 UpdateModule/Process 路由；ExecuteEvents 只用于框架取消通知，不用于伪造测试输入。
+
+保留原执行裁决：TestAssemblies 自动提供 TestRunner/NUnit，测试 asmdef 不重复引用；后端测试引用公共 PlayMode 程序集复用场景，Runtime 不引用测试程序集；CLI input-preflight 映射至 NUnit 分类 input_preflight，因为 NUnit 不接受连字符。复用当前 checkout 和任务分支，独立四宿主保护根工程，没有额外 worktree、合并或推送。
+
+独立最终审阅未发现这五项修正仍有重要问题；最终结果由四宿主完整回归、47 项 Python 测试和真实证据副本破坏测试确认。
+
+## 范围与停止点
+
+G0 v2 仅说明当前 P0/P1 验证原型通过前置关卡。Input System 的 Submit/Cancel 仍使用键盘 Enter/Escape，move 使用手柄摇杆，未直接注入手柄 Submit/Cancel 按钮。Android/iOS ARM64、IL2CPP、生产会话/生命周期和输入生产化属于后续验收，本轮没有执行。继续停在 P0/P1，不自动进入 T2。

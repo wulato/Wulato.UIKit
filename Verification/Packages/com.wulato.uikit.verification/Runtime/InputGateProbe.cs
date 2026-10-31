@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 namespace Wulato.UIKit.Verification
 {
-    // Verification prototype only: owns its nodes, never reaches into module private state.
     public class InputGateProbe : MonoBehaviour
     {
         public EventSystem EventSystem;
@@ -11,15 +11,31 @@ namespace Wulato.UIKit.Verification
         public Action ResetModule;
         public Func<bool> AllReleased;
         public int OwnerId;
-        bool locked, quarantined;
-        bool Enabled { get {return Environment.GetEnvironmentVariable("UIKIT_RED_INPUT")!="1";} }
+        bool locked,quarantined,processing,resetPending,revoking;
+        readonly HashSet<PointerEventData> inFlight=new HashSet<PointerEventData>();
+        bool Enabled {get{return Environment.GetEnvironmentVariable("UIKIT_RED_INPUT")!="1";}}
+        public void Initialize()
+        {
+            foreach(var owner in Owners)owner.GetComponent<InputGateNode>().Gate=this;
+            ApplyNodes();
+        }
+        public void Process(Action process)
+        {
+            if(!AllowProcessing())return;
+            bool navigation=EventSystem.sendNavigationEvents;
+            processing=true;
+            try {process();}
+            finally
+            {
+                processing=false;inFlight.Clear();EventSystem.sendNavigationEvents=navigation;
+                if(resetPending) {resetPending=false;ResetModule();}
+            }
+        }
+        public void ObserveInFlight(PointerEventData e) {if(processing && !revoking)inFlight.Add(e);}
         public void SetLocked(bool value)
         {
-            if(!Enabled)return;
-            if(locked==value)return;
-            locked=value;
-            if(value) Revoke();
-            ApplyNodes();
+            if(!Enabled || locked==value)return;
+            locked=value;if(value)Revoke();ApplyNodes();
         }
         public void TransferOwner(int id)
         {
@@ -30,24 +46,41 @@ namespace Wulato.UIKit.Verification
         {
             for(int i=0;i<Owners.Length;i++)
             {
+                if(!Owners[i])continue;
                 var c=Owners[i].GetComponent<CanvasGroup>();
-                c.blocksRaycasts=!locked && !quarantined && i==OwnerId;
-                c.interactable=c.blocksRaycasts;
+                c.blocksRaycasts=!locked&&!quarantined&&i==OwnerId;c.interactable=c.blocksRaycasts;
             }
         }
         void Revoke()
         {
-            // These are normal cancellation notifications, not synthetic input injection.
-            foreach(var owner in Owners)
-            foreach(var e in new System.Collections.Generic.List<PointerEventData>(owner.ActivePointers.Values))
+            if(revoking)return;
+            revoking=true;quarantined=true;
+            try
             {
-                if(e.pointerPress) ExecuteEvents.Execute(e.pointerPress,e,ExecuteEvents.pointerUpHandler);
-                if(e.dragging && e.pointerDrag) ExecuteEvents.Execute(e.pointerDrag,e,ExecuteEvents.endDragHandler);
-                e.eligibleForClick=false;e.pointerPress=null;e.rawPointerPress=null;e.pointerDrag=null;e.dragging=false;
-                owner.ActivePointers.Remove(e.pointerId*4+(int)e.button);
+                // Snapshot cancellation notifies the old handlers exactly once.
+                foreach(var owner in Owners)
+                {
+                    if(!owner)continue;
+                    var node=owner.GetComponent<InputGateNode>();
+                    var snapshots=new List<PointerEventData>(node.Presses.Values);node.Presses.Clear();
+                    foreach(var e in snapshots)
+                    {
+                        if(e.pointerPress)ExecuteEvents.Execute(e.pointerPress,e,ExecuteEvents.pointerUpHandler);
+                        if(e.dragging&&e.pointerDrag)ExecuteEvents.Execute(e.pointerDrag,e,ExecuteEvents.endDragHandler);
+                    }
+                }
+                // References are used only within the current Process call. In particular,
+                // Input System caches isClick before pointerUp, so clear pointerClick itself.
+                foreach(var e in inFlight)
+                {
+                    e.eligibleForClick=false;e.pointerClick=null;e.pointerPress=null;e.rawPointerPress=null;
+                    e.pointerDrag=null;e.dragging=false;
+                }
+                EventSystem.SetSelectedGameObject(null);
+                if(processing) {EventSystem.sendNavigationEvents=false;resetPending=true;}
+                else ResetModule();
             }
-            EventSystem.SetSelectedGameObject(null);
-            ResetModule();quarantined=true;
+            finally {revoking=false;}
         }
         public bool AllowProcessing()
         {
@@ -58,8 +91,8 @@ namespace Wulato.UIKit.Verification
                 if(!AllReleased())return false;
                 ResetModule();quarantined=false;ApplyNodes();
                 var target=Owners[OwnerId];
-                if(target && target.gameObject.activeInHierarchy)EventSystem.SetSelectedGameObject(target.gameObject);
-                return false; // Neutral frame drains the previous epoch.
+                if(target&&target.gameObject.activeInHierarchy)EventSystem.SetSelectedGameObject(target.gameObject);
+                return false;
             }
             return true;
         }

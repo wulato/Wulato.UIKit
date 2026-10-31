@@ -14,15 +14,29 @@ def selected(args):
    if args.backend in ('all',backend):yield ver,backend,V/'Projects'/f'{short}-{backend}'
 def digest(files):
  h=hashlib.sha256()
- for p in sorted(files):
-  h.update(str(p.relative_to(R)).encode());h.update(p.read_bytes())
+ for p in sorted(set(files)):
+  name=p.resolve().relative_to(R.resolve()).as_posix().encode();data=p.read_bytes()
+  h.update(len(name).to_bytes(8,'big'));h.update(name);h.update(len(data).to_bytes(8,'big'));h.update(data)
  return h.hexdigest()
+def package_sources(host):
+ manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
+ for name,value in manifest['dependencies'].items():
+  if not name.startswith(COMMON):continue
+  if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
+  actual=(host/'Packages'/value[5:]).resolve();expected=(V/'Packages'/name).resolve()
+  if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
+  if json.loads((actual/'package.json').read_text())['name']!=name:raise ValueError('local-name:'+name)
+  sources[name]=actual
+ return sources
+
 def fingerprint(host):
- manifest=json.loads((host/'Packages/manifest.json').read_text());files=[]
- for key in manifest['dependencies']:
-  if key.startswith(COMMON): files+=list((V/'Packages'/key).rglob('*.cs'))+list((V/'Packages'/key).rglob('*.asmdef'))+list((V/'Packages'/key).rglob('*.meta'))+[(V/'Packages'/key/'package.json')]
- files+=list(C.glob('*.py'))+[C/'matrix.json',host/'Packages/manifest.json',host/'Packages/packages-lock.json',host/'ProjectSettings/ProjectSettings.asset',host/'ProjectSettings/ProjectVersion.txt']
- files+=list((host/'Assets').rglob('*.prefab'))
+ files=[]
+ for path in package_sources(host).values():
+  files.extend(p for p in path.rglob('*') if p.is_file() and p.name!='.DS_Store')
+  if path.with_suffix(path.suffix+'.meta').is_file():files.append(path.with_suffix(path.suffix+'.meta'))
+ for folder in ('Assets','ProjectSettings','Packages'):
+  files.extend(p for p in (host/folder).rglob('*') if p.is_file() and p.name!='.DS_Store')
+ files+=list(C.glob('*.py'))+[C/'matrix.json']
  return digest(files)
 def snapshot(ver,backend,host):
  m=json.loads((host/'Packages/manifest.json').read_text());lock=json.loads((host/'Packages/packages-lock.json').read_text())
@@ -39,7 +53,12 @@ def snapshot(ver,backend,host):
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)
   if name not in m['testables']:errors.append('testables:'+name)
- return {'editor':ver,'backend':backend,'host':str(host),'manifest':m,'lock':lock,'settings':setting,'errors':errors,'fingerprint':fingerprint(host)}
+  entry=lock['dependencies'].get(name,{})
+  if entry.get('version')!=value or entry.get('source')!='local':errors.append('lock-source:'+name)
+ try:
+  sources={name:str(path) for name,path in package_sources(host).items()};fp=fingerprint(host)
+ except (OSError,ValueError,KeyError) as e:sources={};fp=None;errors.append(str(e))
+ return {'editor':ver,'backend':backend,'host':str(host),'manifest':m,'lock':lock,'settings':setting,'errors':errors,'sources':sources,'fingerprint':fp}
 def verify_editor(exe,expected):
  if not exe.is_file():raise ValueError('missing-editor:'+str(exe))
  actual=plistlib.loads((exe.parent.parent/'Info.plist').read_bytes()).get('CFBundleVersion')
@@ -64,34 +83,60 @@ def unity(args,ver,host,out,test=False):
  return rc,timeout,log,actual.group(1) if actual else None
 
 def run(args):
- batch=A/(datetime.datetime.now().strftime('%Y%m%dT%H%M%S')+'-'+args.command+'-'+uuid.uuid4().hex[:6]);batch.mkdir(parents=True)
+ from evidence import seal
+ batch=A/(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-'+args.command+'-'+uuid.uuid4().hex[:6])
+ batch.mkdir(parents=True)
  summaries=[]
  for ver,backend,host in selected(args):
-  out=batch/host.name;out.mkdir();print('START',args.command,args.suite if args.command=='tests' else args.phase,host.name,flush=True)
-  if args.command=='prepare':
-   _,ugui,utf=VERSIONS[ver];deps={'com.unity.ugui':ugui,'com.unity.test-framework':utf,COMMON:'file:../../../Packages/'+COMMON,**{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
-   testables=[COMMON]
-   if backend=='input':deps['com.unity.inputsystem']='1.17.0'
-   if args.phase=='p1':
-    package=COMMON+('.legacy' if backend=='legacy' else '.input-system');deps[package]='file:../../../Packages/'+package;testables.append(package)
-    if backend=='input':testables.append('com.unity.inputsystem')
-   dump(host/'Packages/manifest.json',dict(dependencies=deps,testables=testables))
-  before=fingerprint(host) if args.command=='tests' else None
-  rc,to,log,actual=unity(args,ver,host,out,args.command=='tests')
-  try:snap=snapshot(ver,backend,host);dump(out/'host-snapshot.json',snap)
-  except Exception as e:snap={'errors':[str(e)],'fingerprint':None}
-  if args.command=='tests':
-   matrix=json.loads((C/'matrix.json').read_text());required=matrix[ver][backend][args.mode][args.suite] if args.suite!='all' else sum(matrix[ver][backend][args.mode].values(),[])
-   result=evaluate(out/'results.xml',log,required,rc,to)
-  else:result={'status':'PASS' if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else 'FAIL','errors':[]}
-  if before is not None and before!=snap['fingerprint']:snap['errors'].append('inputs-changed-during-run')
-  if actual!=ver:snap['errors'].append('actual-editor:'+str(actual))
-  if snap['errors']:result['status']='FAIL';result['errors']+=snap['errors']
-  result.update(editor=ver,backend=backend,phase=args.phase if args.command=='prepare' else None,suite=args.suite if args.command=='tests' else None,fingerprint=snap['fingerprint'],evidence=str(out))
-  traces={p.name:json.loads(p.read_text()) for p in out.glob('*.trace.json')};dump(out/'trace.json',traces)
-  if args.command=='tests' and args.suite=='init' and result['status']=='PASS' and not traces:result['status']='FAIL';result['errors'].append('missing-initialization-trace')
-  dump(out/'summary.json',result);summaries.append(result);print(result['status'],host.name,result['errors'],flush=True)
- dump(batch/('init-report.json' if args.command=='tests' and args.suite=='init' else 'summary.json'),summaries)
+  out=batch/host.name;out.mkdir()
+  mode=args.mode if args.command=='tests' else None
+  suite=args.suite if args.command=='tests' else None
+  metadata=dict(schema=2,run_id=batch.name+'/'+host.name,state='running',editor=ver,backend=backend,mode=mode,suite=suite,
+                started_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),source_before=None)
+  dump(out/'run.json',metadata)
+  print('START',args.command,suite or args.phase,host.name,flush=True)
+  actual=None;rc=-1;to=False;snap=None
+  try:
+   exe=Path(args.editor_path) if args.editor_path else Path('/Applications/Unity/Hub/Editor')/ver/'Unity.app/Contents/MacOS/Unity'
+   verify_editor(exe,ver)
+   if args.command=='prepare':
+    _,ugui,utf=VERSIONS[ver]
+    deps={'com.unity.ugui':ugui,'com.unity.test-framework':utf,COMMON:'file:../../../Packages/'+COMMON,
+          **{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
+    testables=[COMMON]
+    if backend=='input':deps['com.unity.inputsystem']='1.17.0'
+    if args.phase=='p1':
+     package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
+     deps[package]='file:../../../Packages/'+package;testables.append(package)
+     if backend=='input':testables.append('com.unity.inputsystem')
+    dump(host/'Packages/manifest.json',dict(dependencies=deps,testables=testables))
+   else:
+    matrix=json.loads((C/'matrix.json').read_text())[ver][backend][mode]
+    required=matrix[suite] if suite!='all' else sum(matrix.values(),[])
+    metadata['source_before']=fingerprint(host);dump(out/'run.json',metadata)
+   rc,to,log,actual=unity(args,ver,host,out,args.command=='tests')
+   snap=snapshot(ver,backend,host);dump(out/'host-snapshot.json',snap)
+   result=evaluate(out/'results.xml',log,required,rc,to) if args.command=='tests' else {
+       'status':'PASS' if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else 'FAIL','errors':[]}
+   if args.command=='tests' and metadata['source_before']!=snap['fingerprint']:
+    snap['errors'].append('inputs-changed-during-run')
+   if actual!=ver:snap['errors'].append('actual-editor:'+str(actual))
+   result['errors']+=snap['errors']
+   if result['errors']:result['status']='FAIL'
+   traces={p.name:json.loads(p.read_text()) for p in out.glob('*.trace.json')};dump(out/'trace.json',traces)
+   if args.command=='tests' and result['status']=='PASS' and not traces:
+    result['status']='FAIL';result['errors'].append('missing-trace')
+  except Exception as e:
+   result={'status':'FAIL','errors':['runner-error:'+type(e).__name__+':'+str(e)],'cases':[],'count':0}
+  metadata.update(state='completed',finished_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),source_after=snap['fingerprint'] if snap else None,
+                  returncode=rc,timed_out=to,actual_editor=actual)
+  dump(out/'run.json',metadata)
+  result.update(schema=2,run_id=metadata['run_id'],editor=ver,backend=backend,mode=mode,suite=suite,
+                phase=args.phase if args.command=='prepare' else None,fingerprint=metadata['source_after'],evidence=str(out))
+  result['evidence_index_sha256']=seal(out)
+  dump(out/'summary.json',result);summaries.append(result)
+  print(result['status'],host.name,result['errors'],flush=True)
+ dump(batch/('init-report.json' if suite=='init' else 'summary.json'),summaries)
  print('EVIDENCE',batch,flush=True)
  return int(any(s['status']!='PASS' for s in summaries))
 

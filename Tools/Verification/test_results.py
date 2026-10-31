@@ -20,3 +20,8 @@ class ResultsTests(unittest.TestCase):
     def test_nonzero_exit_fails(self): self.assertEqual('FAIL',self.check_result(self.green(),returncode=1))
     def test_passes(self): self.assertEqual('PASS',self.check_result(self.green()))
     def green(self): return '<test-run result="Passed"><test-case fullname="Case" result="Passed"/></test-run>'
+    def test_same_short_name_from_wrong_fixture_fails(self):
+        self.assertEqual('FAIL',self.check_result('<test-run result="Passed"><test-case fullname="Wrong.Case" result="Passed"/></test-run>',required=('Expected.Case',)))
+    def test_failed_parent_suite_fails_even_if_case_passed(self):
+        xml='<test-run result="Failed(Child)"><test-suite result="Failed"><test-case fullname="Case" result="Passed"/></test-suite></test-run>'
+        self.assertEqual('FAIL',self.check_result(xml))
