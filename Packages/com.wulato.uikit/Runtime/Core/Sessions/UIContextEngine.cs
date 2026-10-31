@@ -159,6 +159,7 @@ namespace Wulato.UIKit
                         if (binding == null) throw new InvalidOperationException("Observer must return a binding lease.");
                         session.Scope.Track(binding);
                         session.Observers.Add(observer);
+                        Callback(() => session.Host.SetVisible(false));
                         opening.Token.ThrowIfCancellationRequested();
                     }
                     stage = "open";
@@ -230,6 +231,8 @@ namespace Wulato.UIKit
             {
                 var lease = await record.Task;
                 await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
+                try { Callback(host.DetachView); }
+                catch (Exception e) { Report(Error(UIErrorCode.LoadFailed, "late-load-detach", session, e)); }
                 try { Callback(lease.Dispose); }
                 catch (Exception e) { Report(Error(UIErrorCode.LoadFailed, "late-load-release", session, e)); }
             }
@@ -306,6 +309,7 @@ namespace Wulato.UIKit
                     Collect(session, session.View.InvokeDispose);
                 }
                 if (session.Instance != null) Collect(session, session.Instance.Dispose);
+                if (session.Host != null) Collect(session, session.Host.DetachView);
                 Collect(session, session.Lease.Dispose); session.Lease = null;
             }
             if (session.Host != null) { Collect(session, session.Host.Dispose); session.Host = null; }
@@ -338,6 +342,7 @@ namespace Wulato.UIKit
                 await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
                 // User hooks were abandoned; never run them concurrently or replay them after termination.
                 if (instance != null) Collect(session, instance.Dispose);
+                Collect(session, host.DetachView);
                 Collect(session, lease.Dispose);
                 Collect(session, host.Dispose);
                 isolatedLeases--; pendingCleanup--;
