@@ -50,7 +50,7 @@ def _preflight_locked(root):
                                   result=selected,current_fingerprint=current['fingerprint'],evidence=str(path) if path else None))
     status='PASS' if all(i['status']=='PASS' for i in items) else 'FAIL'
     out=A/('g0-'+datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-'+uuid.uuid4().hex[:6])/'preflight-report.json'
-    dump(out,dict(gate='G0',schema=3,status=status,scope='P0/P1 prototypes only; T2+ not started',items=items))
+    dump(out,dict(gate='G0',schema=3,status=status,scope='P0/P1 prototypes only; production contracts and later runtime acceptance are separate',items=items))
     print('G0',status,'EVIDENCE',out)
     return int(status!='PASS')
 

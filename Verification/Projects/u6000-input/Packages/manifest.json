@@ -8,12 +8,17 @@
     "com.unity.modules.physics": "1.0.0",
     "com.unity.modules.physics2d": "1.0.0",
     "com.unity.modules.jsonserialize": "1.0.0",
+    "com.wulato.uikit.verification.input-system": "file:../../../Packages/com.wulato.uikit.verification.input-system",
     "com.unity.inputsystem": "1.17.0",
-    "com.wulato.uikit.verification.input-system": "file:../../../Packages/com.wulato.uikit.verification.input-system"
+    "com.wulato.uikit": "file:../../../../Packages/com.wulato.uikit",
+    "com.wulato.uikit.acceptance": "file:../../../Packages/com.wulato.uikit.acceptance",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11"
   },
   "testables": [
     "com.wulato.uikit.verification",
     "com.wulato.uikit.verification.input-system",
+    "com.wulato.uikit",
+    "com.wulato.uikit.acceptance",
     "com.unity.inputsystem"
   ]
 }

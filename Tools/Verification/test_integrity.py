@@ -12,6 +12,7 @@ class FingerprintTests(unittest.TestCase):
         root=Path(self.tmp.name);self.root=root
         shutil.copytree(run.C,root/'Tools/Verification',ignore=shutil.ignore_patterns('__pycache__'))
         shutil.copytree(run.V/'Packages',root/'Verification/Packages')
+        shutil.copytree(run.R/'Packages/com.wulato.uikit',root/'Packages/com.wulato.uikit')
         source=run.V/'Projects/u2022-legacy';self.host=root/'Verification/Projects/u2022-legacy'
         for name in ('Assets','Packages','ProjectSettings'):shutil.copytree(source/name,self.host/name)
         for key,value in [('R',root),('V',root/'Verification'),('C',root/'Tools/Verification')]:

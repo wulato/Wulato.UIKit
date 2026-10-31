@@ -1,0 +1,5 @@
+{
+  "name": "Wulato.UIKit.Acceptance.Editor",
+  "references": ["Wulato.UIKit.Verification.Editor"],
+  "includePlatforms": ["Editor"]
+}

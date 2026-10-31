@@ -1,0 +1,9 @@
+{
+  "name": "Wulato.UIKit.UGUI",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.Loading",
+    "UniTask",
+    "UnityEngine.UI"
+  ]
+}

@@ -1,6 +1,6 @@
-# UIKit P0/P1 verification
+# UIKit verification
 
-These packages are verification prototypes. They do not depend on, or create, the production UIKit packages. Run commands from the repository root on macOS with the two specified Unity editors installed.
+The preflight packages are verification prototypes, independent of production UIKit. The separate acceptance package verifies T2 contracts and actual resolved dependencies. Run commands from the repository root on macOS with the two specified Unity editors installed.
 
 ```sh
 python3 -m unittest discover -s Tools/Verification -p 'test_*.py'
@@ -24,6 +24,20 @@ On revocation, the node snapshot sends pointerUp/endDrag without click/drop, sel
 
 Each batch writes an independent batch.json inventory before creating/launching its attempt directories. Schema-3 run.json and summaries bind their batch ID, inventory SHA-256 and declared host/suite. Each attempt then writes XML, logs, per-case traces, host snapshots, command.json and summary.json under ignored Artifacts/uikit. evidence-index.json seals the raw files with SHA-256 and its own digest is recorded in the summary. G0 discovers attempts from the batch inventory even if run.json or an entire attempt directory disappears. Missing/unknown registration schemas fail closed, and orphaned records cannot silently disappear. Per-host start times are used when valid, with inventory time for missing registrations. A newer intact retry can supersede an older inventoried failure; deleting its registration cannot restore an older PASS. It checks the index, re-parses raw XML/logs, compares summary cases and snapshot/configuration, and requires every fixture-qualified case and its trace. Current fingerprints cover all host Assets/ProjectSettings/Packages, verifier package contents and runner/matrix sources. Canonical local package sources and lock entries are checked; a same-named alternate source is rejected. Changes during a run invalidate its result. Missing or changed raw evidence, skipped/inconclusive/failed cases or parent suites, compiler errors, timeout and nonzero process exit all fail closed.
 
-Limits: these are Editor preflight tests, not mobile/IL2CPP release acceptance or production UIKit tests. Input System Submit/Cancel uses keyboard keys; navigation uses the gamepad stick. Physical gamepad Submit/Cancel buttons are not claimed as verified. T2 and later tasks require separate authorization.
+Limits: these are Editor preflight tests, not mobile/IL2CPP release acceptance or production UIKit tests. Input System Submit/Cancel uses keyboard keys; navigation uses the gamepad stick. Physical gamepad Submit/Cancel buttons are not claimed as verified. T2 has separate contract acceptance below; T3 and later tasks remain unimplemented.
 
 Verification prepare/tests batches use a nonblocking process-wide filesystem lock for the artifact root. Overlapping CLI batches fail explicitly instead of interleaving host execution; G0 uses a shared guard and returns FAIL while a batch is active. G0 schema 3 requires the serialized-batch inventory/evidence binding. Historical schema-2 records remain readable but cannot satisfy the current evidence verifier. Unknown inventories require restoring valid provenance, not silently skipping them.
+
+## T2 contracts
+
+```sh
+python3 Tools/Verification/run.py prepare --phase runtime --editor all --backend all
+python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite contracts
+python3 Tools/Verification/run.py compile-probe --editor all
+```
+
+Runtime preparation preserves the P1 backend packages and testables, mounts only the main package, acceptance package and pinned UniTask, and does not install the future UIKit Input System adapter. It refuses incompatible existing UniTask declarations/locks and missing or incorrect explicit uGUI before changing the host manifest. Correct those inputs explicitly before retrying. It checks main-package metadata and runtime assembly references, then captures Unity PackageInfo versions/sources/resolved paths in dependency-snapshot.json. Four host lock files are committed.
+
+The contracts suite checks argument branches/typed null, identity, immutable results/diagnostics/registry descriptors, registration constraints and validated settings. TimeSpan cannot represent NaN or infinity; construction rejects them, while CopyValidated rejects nonpositive tick values. Registry descriptor copies preserve the referenced prefab but isolate serialized configuration mutations.
+
+compile-probe uses a newly created temporary Editor assembly in the legacy host for each editor: valid typed call must compile, the no-argument typed View call must fail with CS0311 as its only compiler error, and a corrected source must compile again. It refuses to overwrite an existing probe directory, removes only its own files in finally, and checks the original source fingerprint afterward. Evidence lives under Artifacts/uikit/contract-probes. These are contract/compilation checks; they do not claim Session execution, mobile compatibility or a finished installable runtime.

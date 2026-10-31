@@ -1,0 +1,65 @@
+"""T2 runtime host manifest and resolved dependency validation; no T7 adapter."""
+UNITASK='https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11'
+MAIN='com.wulato.uikit'
+ACCEPTANCE=MAIN+'.acceptance'
+
+def runtime_manifest(ver,backend):
+    from run import VERSIONS,COMMON
+    _,ugui,utf=VERSIONS[ver]
+    deps={'com.unity.ugui':ugui,'com.unity.test-framework':utf,COMMON:'file:../../../Packages/'+COMMON,
+          **{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
+    package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
+    deps[package]='file:../../../Packages/'+package
+    tests=[COMMON,package,MAIN,ACCEPTANCE]
+    if backend=='input':deps['com.unity.inputsystem']='1.17.0';tests.append('com.unity.inputsystem')
+    deps.update({MAIN:'file:../../../../Packages/'+MAIN,ACCEPTANCE:'file:../../../Packages/'+ACCEPTANCE,'com.cysharp.unitask':UNITASK})
+    return dict(dependencies=deps,testables=tests)
+
+def validate_dependencies(ver,manifest,lock):
+    from run import VERSIONS
+    errors=[];deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
+    ugui=VERSIONS[ver][1]
+    if deps.get('com.unity.ugui')!=ugui or resolved.get('com.unity.ugui',{}).get('version')!=ugui:
+        errors.append('Declare and lock com.unity.ugui '+ugui+' explicitly for Unity '+ver)
+    task=resolved.get('com.cysharp.unitask',{})
+    if deps.get('com.cysharp.unitask')!=UNITASK or task.get('version')!=UNITASK or task.get('source')!='git':
+        errors.append('Install and lock UniTask 2.5.11 using '+UNITASK)
+    return errors
+
+def prepare_runtime_manifest(ver,backend,manifest,lock):
+    """Reject incompatible existing input before preparing; never silently repair it."""
+    from run import VERSIONS
+    deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
+    ugui=VERSIONS[ver][1]
+    if deps.get('com.unity.ugui')!=ugui or ('com.unity.ugui' in resolved and resolved['com.unity.ugui'].get('version')!=ugui):
+        raise ValueError('Declare and lock com.unity.ugui '+ugui+' explicitly before runtime preparation')
+    name='com.cysharp.unitask'
+    if name in deps or name in resolved:
+        if deps.get(name)!=UNITASK or (name in resolved and (resolved[name].get('version')!=UNITASK or resolved[name].get('source')!='git')):
+            raise ValueError('Existing dependency incompatible: install and lock UniTask 2.5.11 using '+UNITASK)
+    return runtime_manifest(ver,backend)
+
+def validate_main_package(package,assemblies):
+    errors=[]
+    expected={'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}
+    if package.get('name')!=MAIN or package.get('version')!='0.1.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
+        errors.append('main-package-identity-or-unity-baseline')
+    if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
+    graph={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
+    for name,refs in graph.items():
+        if set(assemblies.get(name,[]))!=set(refs):errors.append('runtime-assembly-boundary:'+name)
+    return errors
+
+def validate_installed_report(ver,folder):
+    import json
+    from run import VERSIONS
+    path=folder/'dependency-snapshot.json'
+    if not path.is_file():return ['missing-actual-package-metadata']
+    data=json.loads(path.read_text())
+    expected={'com.wulato.uikit':'0.1.0','com.cysharp.unitask':'2.5.11','com.unity.ugui':VERSIONS[ver][1]}
+    errors=[]
+    if data.get('editor')!=ver:errors.append('resolved-report-editor')
+    actual={item['name']:item for item in data.get('packages',[])}
+    for name,version in expected.items():
+        if actual.get(name,{}).get('version')!=version:errors.append('actual-package-version:'+name)
+    return errors

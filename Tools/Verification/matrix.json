@@ -34,6 +34,26 @@
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
+      },
+      "EditMode": {
+        "contracts": [
+          "Wulato.UIKit.Tests.ContractTests.ViewBranches_AreDistinct",
+          "Wulato.UIKit.Tests.ContractTests.Arguments_NoneTypedNullAndValueRemainDistinct",
+          "Wulato.UIKit.Tests.ContractTests.StableIdentity_UsesValueEquality",
+          "Wulato.UIKit.Tests.ContractTests.Completion_CopiesCollectionsAndPreservesErrors",
+          "Wulato.UIKit.Tests.ContractTests.Diagnostics_CopiesCollectionsWithoutLiveObjects",
+          "Wulato.UIKit.Tests.ContractTests.PublicHandlesAndScopes_DoNotExposeViewOrCommands",
+          "Wulato.UIKit.Tests.SettingsTests.Defaults_MatchApprovedBudgets",
+          "Wulato.UIKit.Tests.SettingsTests.EveryBudget_RejectsZeroAndNegative",
+          "Wulato.UIKit.Tests.SettingsTests.Capacity_RejectsNegativeAcceptsZero",
+          "Wulato.UIKit.Tests.SettingsTests.InvalidDiagnosticsLevel_IsRejected",
+          "Wulato.UIKit.Tests.SettingsTests.Snapshot_DoesNotFollowSourceMutation",
+          "Wulato.UIKit.Tests.SettingsTests.TimeSpan_CannotRepresentNonFiniteDurations",
+          "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
+          "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+        ]
       }
     },
     "input": {
@@ -70,6 +90,26 @@
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpTransfer_RejectsLaterSideButtons",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
+        ]
+      },
+      "EditMode": {
+        "contracts": [
+          "Wulato.UIKit.Tests.ContractTests.ViewBranches_AreDistinct",
+          "Wulato.UIKit.Tests.ContractTests.Arguments_NoneTypedNullAndValueRemainDistinct",
+          "Wulato.UIKit.Tests.ContractTests.StableIdentity_UsesValueEquality",
+          "Wulato.UIKit.Tests.ContractTests.Completion_CopiesCollectionsAndPreservesErrors",
+          "Wulato.UIKit.Tests.ContractTests.Diagnostics_CopiesCollectionsWithoutLiveObjects",
+          "Wulato.UIKit.Tests.ContractTests.PublicHandlesAndScopes_DoNotExposeViewOrCommands",
+          "Wulato.UIKit.Tests.SettingsTests.Defaults_MatchApprovedBudgets",
+          "Wulato.UIKit.Tests.SettingsTests.EveryBudget_RejectsZeroAndNegative",
+          "Wulato.UIKit.Tests.SettingsTests.Capacity_RejectsNegativeAcceptsZero",
+          "Wulato.UIKit.Tests.SettingsTests.InvalidDiagnosticsLevel_IsRejected",
+          "Wulato.UIKit.Tests.SettingsTests.Snapshot_DoesNotFollowSourceMutation",
+          "Wulato.UIKit.Tests.SettingsTests.TimeSpan_CannotRepresentNonFiniteDurations",
+          "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
+          "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
         ]
       }
     }
@@ -109,6 +149,26 @@
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
+      },
+      "EditMode": {
+        "contracts": [
+          "Wulato.UIKit.Tests.ContractTests.ViewBranches_AreDistinct",
+          "Wulato.UIKit.Tests.ContractTests.Arguments_NoneTypedNullAndValueRemainDistinct",
+          "Wulato.UIKit.Tests.ContractTests.StableIdentity_UsesValueEquality",
+          "Wulato.UIKit.Tests.ContractTests.Completion_CopiesCollectionsAndPreservesErrors",
+          "Wulato.UIKit.Tests.ContractTests.Diagnostics_CopiesCollectionsWithoutLiveObjects",
+          "Wulato.UIKit.Tests.ContractTests.PublicHandlesAndScopes_DoNotExposeViewOrCommands",
+          "Wulato.UIKit.Tests.SettingsTests.Defaults_MatchApprovedBudgets",
+          "Wulato.UIKit.Tests.SettingsTests.EveryBudget_RejectsZeroAndNegative",
+          "Wulato.UIKit.Tests.SettingsTests.Capacity_RejectsNegativeAcceptsZero",
+          "Wulato.UIKit.Tests.SettingsTests.InvalidDiagnosticsLevel_IsRejected",
+          "Wulato.UIKit.Tests.SettingsTests.Snapshot_DoesNotFollowSourceMutation",
+          "Wulato.UIKit.Tests.SettingsTests.TimeSpan_CannotRepresentNonFiniteDurations",
+          "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
+          "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+        ]
       }
     },
     "input": {
@@ -145,6 +205,26 @@
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpTransfer_RejectsLaterSideButtons",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
+        ]
+      },
+      "EditMode": {
+        "contracts": [
+          "Wulato.UIKit.Tests.ContractTests.ViewBranches_AreDistinct",
+          "Wulato.UIKit.Tests.ContractTests.Arguments_NoneTypedNullAndValueRemainDistinct",
+          "Wulato.UIKit.Tests.ContractTests.StableIdentity_UsesValueEquality",
+          "Wulato.UIKit.Tests.ContractTests.Completion_CopiesCollectionsAndPreservesErrors",
+          "Wulato.UIKit.Tests.ContractTests.Diagnostics_CopiesCollectionsWithoutLiveObjects",
+          "Wulato.UIKit.Tests.ContractTests.PublicHandlesAndScopes_DoNotExposeViewOrCommands",
+          "Wulato.UIKit.Tests.SettingsTests.Defaults_MatchApprovedBudgets",
+          "Wulato.UIKit.Tests.SettingsTests.EveryBudget_RejectsZeroAndNegative",
+          "Wulato.UIKit.Tests.SettingsTests.Capacity_RejectsNegativeAcceptsZero",
+          "Wulato.UIKit.Tests.SettingsTests.InvalidDiagnosticsLevel_IsRejected",
+          "Wulato.UIKit.Tests.SettingsTests.Snapshot_DoesNotFollowSourceMutation",
+          "Wulato.UIKit.Tests.SettingsTests.TimeSpan_CannotRepresentNonFiniteDurations",
+          "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
+          "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
         ]
       }
     }

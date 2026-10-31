@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "2e993ff18f28c931602a07292df0b0804eebef99"
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 1,
@@ -34,6 +41,23 @@
       "dependencies": {
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
+      }
+    },
+    "com.wulato.uikit": {
+      "version": "file:../../../../Packages/com.wulato.uikit",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.acceptance": {
+      "version": "file:../../../Packages/com.wulato.uikit.acceptance",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.1.0"
       }
     },
     "com.wulato.uikit.verification": {

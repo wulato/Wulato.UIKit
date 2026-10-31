@@ -1,0 +1,13 @@
+using Wulato.UIKit;
+public sealed class ArgsView : UIView<int> { }
+public static class ContractCompileProbe
+{
+    public static void Check(IUIContext ui)
+    {
+#if UIKIT_NEGATIVE_PROBE
+        ui.OpenAsync<ArgsView>();
+#else
+        ui.OpenAsync<ArgsView,int>(42);
+#endif
+    }
+}

@@ -9,7 +9,7 @@ RAW={'results.xml','editor.log','host-snapshot.json','command.json','trace.json'
 
 def sha256(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 def seal(folder):
-    names=RAW|{p.name for p in folder.glob('*.trace.json')}
+    names=RAW|{p.name for p in folder.glob('*.trace.json')}|({'dependency-snapshot.json'} if (folder/'dependency-snapshot.json').is_file() else set())
     data={'schema':1,'files':{name:sha256(folder/name) for name in sorted(names) if (folder/name).is_file()}}
     index=folder/'evidence-index.json';index.write_text(json.dumps(data,indent=2)+'\n')
     return sha256(index)
@@ -28,7 +28,7 @@ def verify(record,folder,required,current_snapshot):
         index=folder/'evidence-index.json'
         check(sha256(index)==record.get('evidence_index_sha256'),'index-hash-mismatch')
         manifest=read('evidence-index.json');check(manifest.get('schema')==1,'index-schema')
-        names=RAW|{p.name for p in folder.glob('*.trace.json')}
+        names=RAW|{p.name for p in folder.glob('*.trace.json')}|({'dependency-snapshot.json'} if (folder/'dependency-snapshot.json').is_file() else set())
         check(set(manifest['files'])==names,'artifact-set-mismatch')
         for name,expected_hash in manifest['files'].items():
             if Path(name).name!=name:errors.append('unsafe-artifact-name');continue

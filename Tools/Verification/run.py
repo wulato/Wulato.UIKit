@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""P0/P1-only Unity verification runner. Never mounts production packages."""
+"""Staged Unity verification runner: preflight and T2 runtime contracts."""
 import argparse, datetime, hashlib, json, os, plistlib, re, subprocess, sys, uuid
 from pathlib import Path
 from results import evaluate
@@ -21,9 +21,9 @@ def digest(files):
 def package_sources(host):
  manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
  for name,value in manifest['dependencies'].items():
-  if not name.startswith(COMMON):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance')):continue
   if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
-  actual=(host/'Packages'/value[5:]).resolve();expected=(V/'Packages'/name).resolve()
+  actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name=='com.wulato.uikit' else (V/'Packages'/name)).resolve()
   if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
   if json.loads((actual/'package.json').read_text())['name']!=name:raise ValueError('local-name:'+name)
   sources[name]=actual
@@ -48,13 +48,20 @@ def snapshot(ver,backend,host):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
-  if not name.startswith(COMMON):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance')):continue
   path=(host/'Packages'/value.removeprefix('file:')).resolve()
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)
   if name not in m['testables']:errors.append('testables:'+name)
   entry=lock['dependencies'].get(name,{})
   if entry.get('version')!=value or entry.get('source')!='local':errors.append('lock-source:'+name)
+ if 'com.wulato.uikit' in m['dependencies']:
+  from runtime import validate_dependencies
+  errors.extend(validate_dependencies(ver,m,lock))
+  from runtime import validate_main_package
+  package=R/'Packages/com.wulato.uikit'
+  assemblies={name:json.loads((package/('Runtime/'+name)/('Wulato.UIKit.'+name+'.asmdef')).read_text()).get('references',[]) for name in ('Core','Loading','UGUI')}
+  errors.extend(validate_main_package(json.loads((package/'package.json').read_text()),assemblies))
  try:
   sources={name:str(path) for name,path in package_sources(host).items()};fp=fingerprint(host)
  except (OSError,ValueError,KeyError) as e:sources={};fp=None;errors.append(str(e))
@@ -70,7 +77,7 @@ def unity(args,ver,host,out,test=False):
  verify_editor(exe,ver)
  cmd=[str(exe),'-batchmode','-projectPath',str(host),'-logFile',str(out/'editor.log')]
  if test:cmd+=['-runTests','-testPlatform',args.mode,'-testResults',str(out/'results.xml')]+([] if args.suite=='all' else ['-testCategory',args.suite.replace('-','_')])
- else:cmd+=['-quit','-executeMethod','Wulato.UIKit.Verification.Editor.FixtureBuilder.Create']
+ else:cmd+=['-quit','-executeMethod',getattr(args,'execute_method','Wulato.UIKit.Verification.Editor.FixtureBuilder.Create')]
  dump(out/'command.json',cmd);env=os.environ.copy();env['UIKIT_EVIDENCE_DIR']=str(out)
  try:
   result=subprocess.run(cmd,env=env,timeout=args.timeout,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);rc=result.returncode;timeout=False
@@ -111,26 +118,36 @@ def _run_locked(args):
           **{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
     testables=[COMMON]
     if backend=='input':deps['com.unity.inputsystem']='1.17.0'
-    if args.phase=='p1':
+    if args.phase in ('p1','runtime'):
      package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
      deps[package]='file:../../../Packages/'+package;testables.append(package)
      if backend=='input':testables.append('com.unity.inputsystem')
-    dump(host/'Packages/manifest.json',dict(dependencies=deps,testables=testables))
+    if args.phase=='runtime':
+     from runtime import prepare_runtime_manifest
+     current=json.loads((host/'Packages/manifest.json').read_text())
+     current_lock=json.loads((host/'Packages/packages-lock.json').read_text())
+     manifest=prepare_runtime_manifest(ver,backend,current,current_lock)
+    else:manifest=dict(dependencies=deps,testables=testables)
+    dump(host/'Packages/manifest.json',manifest)
    else:
     matrix=json.loads((C/'matrix.json').read_text())[ver][backend][mode]
     required=matrix[suite] if suite!='all' else sum(matrix.values(),[])
     metadata['source_before']=fingerprint(host);dump(out/'run.json',metadata)
+   if args.command=='prepare' and args.phase=='runtime':args.execute_method='Wulato.UIKit.Acceptance.Editor.T2HostProbe.Prepare'
    rc,to,log,actual=unity(args,ver,host,out,args.command=='tests')
    snap=snapshot(ver,backend,host);dump(out/'host-snapshot.json',snap)
    result=evaluate(out/'results.xml',log,required,rc,to) if args.command=='tests' else {
-       'status':'PASS' if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else 'FAIL','errors':[]}
+       'status':'PASS' if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else 'FAIL','errors':([] if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else ['prepare-editor-failed'])}
    if args.command=='tests' and metadata['source_before']!=snap['fingerprint']:
     snap['errors'].append('inputs-changed-during-run')
    if actual!=ver:snap['errors'].append('actual-editor:'+str(actual))
+   if args.command=='prepare' and args.phase=='runtime':
+    from runtime import validate_installed_report
+    result['errors']+=validate_installed_report(ver,out)
    result['errors']+=snap['errors']
    if result['errors']:result['status']='FAIL'
    traces={p.name:json.loads(p.read_text()) for p in out.glob('*.trace.json')};dump(out/'trace.json',traces)
-   if args.command=='tests' and result['status']=='PASS' and not traces:
+   if args.command=='tests' and result['status']=='PASS' and not traces and mode=='PlayMode':
     result['status']='FAIL';result['errors'].append('missing-trace')
   except Exception as e:
    result={'status':'FAIL','errors':['runner-error:'+type(e).__name__+':'+str(e)],'cases':[],'count':0}
@@ -157,10 +174,14 @@ def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
  for name in ('prepare','tests'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
-  if name=='prepare':q.add_argument('--phase',choices=['p0','p1'],required=True)
+  if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime'],required=True)
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
+ q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight'],required=True)
  a=p.parse_args()
+ if a.command=='compile-probe':
+  from contract_probe import run_probe
+  return run_probe(a)
  if a.command=='gate':
   from gates import preflight
   return preflight(R)
