@@ -82,16 +82,22 @@ def unity(args,ver,host,out,test=False):
  actual=re.search(r'(?:Unity Editor version:|Initialize engine version:)\s*(\d+\.\d+\.\w+)',log)
  return rc,timeout,log,actual.group(1) if actual else None
 
-def run(args):
- from evidence import seal
+def _run_locked(args):
+ from evidence import seal,sha256
+ from registry import RUN_SCHEMA
  batch=A/(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-'+args.command+'-'+uuid.uuid4().hex[:6])
  batch.mkdir(parents=True)
+ selections=list(selected(args))
+ inventory=dict(schema=1,serialization='exclusive-batch',batch_id=batch.name,command=args.command,started_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                attempts=[dict(run_id=batch.name+'/'+host.name,folder=host.name,editor=ver,backend=backend,
+                    mode=args.mode if args.command=='tests' else None,suite=args.suite if args.command=='tests' else None) for ver,backend,host in selections])
+ dump(batch/'batch.json',inventory);batch_hash=sha256(batch/'batch.json')
  summaries=[]
- for ver,backend,host in selected(args):
+ for ver,backend,host in selections:
   out=batch/host.name;out.mkdir()
   mode=args.mode if args.command=='tests' else None
   suite=args.suite if args.command=='tests' else None
-  metadata=dict(schema=2,run_id=batch.name+'/'+host.name,state='running',editor=ver,backend=backend,mode=mode,suite=suite,
+  metadata=dict(schema=RUN_SCHEMA,batch_id=batch.name,batch_sha256=batch_hash,run_id=batch.name+'/'+host.name,state='running',editor=ver,backend=backend,mode=mode,suite=suite,
                 started_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),source_before=None)
   dump(out/'run.json',metadata)
   print('START',args.command,suite or args.phase,host.name,flush=True)
@@ -131,7 +137,7 @@ def run(args):
   metadata.update(state='completed',finished_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),source_after=snap['fingerprint'] if snap else None,
                   returncode=rc,timed_out=to,actual_editor=actual)
   dump(out/'run.json',metadata)
-  result.update(schema=2,run_id=metadata['run_id'],editor=ver,backend=backend,mode=mode,suite=suite,
+  result.update(schema=RUN_SCHEMA,batch_id=batch.name,batch_sha256=batch_hash,run_id=metadata['run_id'],editor=ver,backend=backend,mode=mode,suite=suite,
                 phase=args.phase if args.command=='prepare' else None,fingerprint=metadata['source_after'],evidence=str(out))
   result['evidence_index_sha256']=seal(out)
   dump(out/'summary.json',result);summaries.append(result)
@@ -139,6 +145,13 @@ def run(args):
  dump(batch/('init-report.json' if suite=='init' else 'summary.json'),summaries)
  print('EVIDENCE',batch,flush=True)
  return int(any(s['status']!='PASS' for s in summaries))
+
+def run(args):
+ from locking import guard,VerificationBusy
+ try:
+  with guard(A):return _run_locked(args)
+ except VerificationBusy as e:
+  print('FAIL',str(e),file=sys.stderr);return 1
 
 def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)

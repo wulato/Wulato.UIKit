@@ -8,7 +8,7 @@ namespace Wulato.UIKit.Verification.Tests
 {
     public struct RawInput
     {
-        public bool Pointer,Touch,Submit,Cancel,Unrelated;
+        public bool Pointer,Touch,Submit,Cancel,Unrelated,RightPointer,MiddlePointer;
         public Vector2 Position,Move;
     }
     public class InputProbeSceneFactory
@@ -213,5 +213,41 @@ namespace Wulato.UIKit.Verification.Tests
             Object.DestroyImmediate(callback);Scene.Gate.SetLocked(false);yield return Step(At());yield return FreshClick();
             Assert.That(A.Count("click"),Is.EqualTo(1));
         }
+        IEnumerator FreshSideClick(int owner,bool middle=false)
+        {
+            yield return Step(new RawInput {Position=Scene.Point(owner),RightPointer=!middle,MiddlePointer=middle});
+            yield return Step(new RawInput {Position=Scene.Point(owner)});
+        }
+        IEnumerator RevokeThenNewSidePress(bool transfer)
+        {
+            var callback=A.gameObject.AddComponent<RevokeOnInput>();callback.Gate=Scene.Gate;callback.Transfer=transfer;
+            yield return Step(new RawInput {Position=Scene.Point(0),Pointer=true});
+            Assert.That(A.Count("down"),Is.EqualTo(1));
+            yield return Step(new RawInput {Position=Scene.Point(0),RightPointer=true,MiddlePointer=true});
+            Assert.That(A.Count("down"),Is.EqualTo(1),"No new side-button event after left-up revoked ownership");
+            Assert.That(A.Count("click"),Is.Zero);Assert.That(A.Count("up"),Is.EqualTo(1));
+            Object.DestroyImmediate(callback);yield return Step(new RawInput {Position=Scene.Point(transfer?1:0)});
+            if(!transfer)Scene.Gate.SetLocked(false);
+            yield return Step(new RawInput {Position=Scene.Point(transfer?1:0)});yield return FreshSideClick(transfer?1:0);
+            Assert.That(Scene.Spies[transfer?1:0].Count("click"),Is.EqualTo(1));
+        }
+        IEnumerator RevokeDuringTripleRelease(bool transfer)
+        {
+            var callback=A.gameObject.AddComponent<RevokeOnInput>();callback.Gate=Scene.Gate;callback.Transfer=transfer;
+            yield return Step(new RawInput {Position=Scene.Point(0),Pointer=true,RightPointer=true,MiddlePointer=true});
+            Assert.That(A.Count("down"),Is.EqualTo(3));
+            yield return Step(new RawInput {Position=Scene.Point(0)});
+            Assert.That(A.Count("click"),Is.Zero,"No side-button click after left-up revoked ownership");
+            Assert.That(A.Count("up"),Is.EqualTo(3),"One release per prior press, no duplicated cancellation");
+            foreach(var button in new[]{"Left","Right","Middle"})
+                Assert.That(A.PointerEvents.FindAll(e=>e=="up:"+button).Count,Is.EqualTo(1),button+" must terminate exactly once");
+            Object.DestroyImmediate(callback);if(!transfer)Scene.Gate.SetLocked(false);
+            yield return Step(new RawInput {Position=Scene.Point(transfer?1:0)});yield return FreshSideClick(transfer?1:0,true);
+            Assert.That(Scene.Spies[transfer?1:0].Count("click"),Is.EqualTo(1));
+        }
+        [UnityTest,Category("input_preflight")] public IEnumerator LeftUpLock_RejectsLaterSideButtons() {yield return RevokeThenNewSidePress(false);}
+        [UnityTest,Category("input_preflight")] public IEnumerator LeftUpTransfer_RejectsLaterSideButtons() {yield return RevokeThenNewSidePress(true);}
+        [UnityTest,Category("input_preflight")] public IEnumerator TripleReleaseLock_NoDuplicateUpOrLateClick() {yield return RevokeDuringTripleRelease(false);}
+        [UnityTest,Category("input_preflight")] public IEnumerator TripleReleaseTransfer_NoDuplicateUpOrLateClick() {yield return RevokeDuringTripleRelease(true);}
     }
 }

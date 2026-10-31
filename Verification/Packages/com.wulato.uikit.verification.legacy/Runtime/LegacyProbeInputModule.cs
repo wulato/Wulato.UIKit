@@ -7,7 +7,13 @@ namespace Wulato.UIKit.Verification.Legacy
     public class LegacyProbeInputModule : StandaloneInputModule
     {
         public InputGateProbe Gate;
-        public override void Process() {if(Gate==null)base.Process();else Gate.Process(()=>base.Process());}
+        public override void Process() {if(Gate==null)base.Process();else {Gate.InvalidateCachedPointers=InvalidateFramePointers;Gate.Process(()=>base.Process());}}
+        void InvalidateFramePointers()
+        {
+            // Protected pointer storage includes the right/middle data cached before
+            // StandaloneInputModule begins its left/right/middle dispatch sequence.
+            foreach(var pointer in m_PointerData.Values)InputGateProbe.InvalidatePointerRaycast(pointer);
+        }
         public void ResetForGate() { DeactivateModule(); }
         public bool AllReleased()
         {

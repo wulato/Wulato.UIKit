@@ -23,7 +23,7 @@ namespace Wulato.UIKit.Verification.InputSystem.Tests
         }
         protected override void Inject(RawInput state)
         {
-            if(!state.Touch && !previous.Touch) UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,new MouseState {position=state.Position}.WithButton(MouseButton.Left,state.Pointer));
+            if(!state.Touch && !previous.Touch) UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse,new MouseState {position=state.Position}.WithButton(MouseButton.Left,state.Pointer).WithButton(MouseButton.Right,state.RightPointer).WithButton(MouseButton.Middle,state.MiddlePointer));
             var keys=new List<Key>();if(state.Submit)keys.Add(Key.Enter);if(state.Cancel)keys.Add(Key.Escape);if(state.Unrelated)keys.Add(Key.Z);
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new KeyboardState(keys.ToArray()));
             UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,new GamepadState {leftStick=state.Move});

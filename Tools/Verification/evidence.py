@@ -20,7 +20,7 @@ def verify(record,folder,required,current_snapshot):
         if not condition: errors.append(message)
     def read(name): return json.loads((folder/name).read_text())
     try:
-        check(record.get('schema')==2,'unsupported-evidence-schema')
+        check(record.get('schema')==3,'unsupported-evidence-schema')
         check(record.get('status')=='PASS','summary-not-pass')
         check(record.get('mode')=='PlayMode','wrong-test-mode')
         check(record.get('fingerprint')==current_snapshot['fingerprint'],'stale-fingerprint')
@@ -38,12 +38,22 @@ def verify(record,folder,required,current_snapshot):
             check(snapshot.get(key)==current_snapshot.get(key),'snapshot-mismatch:'+key)
         check(not snapshot.get('errors'),'snapshot-errors')
         execution=read('run.json')
-        for key in ('run_id','editor','backend','mode','suite'):
+        for key in ('run_id','editor','backend','mode','suite','batch_id','batch_sha256'):
             check(execution.get(key)==record.get(key),'execution-mismatch:'+key)
-        check(execution.get('schema')==2 and execution.get('state')=='completed','incomplete-run')
+        check(execution.get('schema')==3 and execution.get('state')=='completed','incomplete-run')
         check(execution.get('returncode')==0 and execution.get('timed_out') is False,'execution-failed')
         check(execution.get('source_before')==record['fingerprint']==execution.get('source_after'),'run-source-changed')
         check(execution.get('actual_editor')==record['editor'],'execution-editor-mismatch')
+        from registry import validate_inventory
+        batch_path=folder.parent/'batch.json';batch=validate_inventory(batch_path)
+        check(batch.get('serialization')=='exclusive-batch','unserialized-verification-batch')
+        check(batch['batch_id']==record.get('batch_id'),'evidence-batch-id')
+        check(sha256(batch_path)==record.get('batch_sha256'),'evidence-batch-hash')
+        entries=[e for e in batch['attempts'] if e['run_id']==record['run_id']]
+        check(len(entries)==1,'missing-or-duplicate-inventory-entry')
+        for entry in entries:
+            check(entry['folder']==folder.name,'inventory-folder-mismatch')
+            for key in ('editor','backend','mode','suite'):check(entry[key]==record[key],'inventory-context:'+key)
         command=read('command.json')
         def arg(name): return command[command.index(name)+1]
         check('-runTests' in command and '-batchmode' in command and '-quit' not in command,'not-a-test-command')

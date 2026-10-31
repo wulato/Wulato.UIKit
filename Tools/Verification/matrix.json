@@ -28,7 +28,11 @@
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.InitialNonOwnerCannotClick_OwnerStillWorks",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.PointerUpLock_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.PointerUpTransfer_DiscardsSameProcessClick",
-          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks"
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.LeftUpLock_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.LeftUpTransfer_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
       }
     },
@@ -61,7 +65,11 @@
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.PointerUpLock_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.PointerUpTransfer_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks",
-          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.UnboundKey_DoesNotBlockFreshInputAfterUnlock"
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.UnboundKey_DoesNotBlockFreshInputAfterUnlock",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpLock_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpTransfer_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
       }
     }
@@ -95,7 +103,11 @@
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.InitialNonOwnerCannotClick_OwnerStillWorks",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.PointerUpLock_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.PointerUpTransfer_DiscardsSameProcessClick",
-          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks"
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.LeftUpLock_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.LeftUpTransfer_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
+          "Wulato.UIKit.Verification.Legacy.Tests.LegacyInputGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
       }
     },
@@ -128,7 +140,11 @@
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.PointerUpLock_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.PointerUpTransfer_DiscardsSameProcessClick",
           "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.BeginDragLock_CancelsWithoutDrop_ThenFreshClickWorks",
-          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.UnboundKey_DoesNotBlockFreshInputAfterUnlock"
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.UnboundKey_DoesNotBlockFreshInputAfterUnlock",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpLock_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.LeftUpTransfer_RejectsLaterSideButtons",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseLock_NoDuplicateUpOrLateClick",
+          "Wulato.UIKit.Verification.InputSystem.Tests.InputSystemGateTests.TripleReleaseTransfer_NoDuplicateUpOrLateClick"
         ]
       }
     }

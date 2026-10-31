@@ -9,6 +9,7 @@ namespace Wulato.UIKit.Verification
         public EventSystem EventSystem;
         public InputEventSpy[] Owners;
         public Action ResetModule;
+        public Action InvalidateCachedPointers;
         public Func<bool> AllReleased;
         public int OwnerId;
         bool locked,quarantined,processing,resetPending,revoking;
@@ -27,8 +28,18 @@ namespace Wulato.UIKit.Verification
             try {process();}
             finally
             {
-                processing=false;inFlight.Clear();EventSystem.sendNavigationEvents=navigation;
-                if(resetPending) {resetPending=false;ResetModule();}
+                processing=false;EventSystem.sendNavigationEvents=navigation;
+                try
+                {
+                    if(resetPending)
+                    {
+                        resetPending=false;
+                        // Native releases remove their snapshots first. Cancel only presses
+                        // that remain, avoiding a second up for later buttons in this Process.
+                        try {CancelRemainingPresses();} finally {ResetModule();}
+                    }
+                }
+                finally {inFlight.Clear();}
             }
         }
         public void ObserveInFlight(PointerEventData e) {if(processing && !revoking)inFlight.Add(e);}
@@ -57,7 +68,34 @@ namespace Wulato.UIKit.Verification
             revoking=true;quarantined=true;
             try
             {
-                // Snapshot cancellation notifies the old handlers exactly once.
+                // Keep native cleanup eligible to deliver its one up/endDrag. Any
+                // remaining snapshots are canceled after the entire Process returns.
+                if(!processing)CancelRemainingPresses();
+                InvalidateCachedPointers?.Invoke();
+                // References are used only within the current Process call. In particular,
+                // Input System caches isClick before pointerUp, so clear pointerClick itself.
+                foreach(var e in inFlight)
+                {
+                    InvalidatePointerRaycast(e);
+                    e.pointerPress=null;e.rawPointerPress=null;
+                    e.pointerDrag=null;e.dragging=false;
+                }
+                EventSystem.SetSelectedGameObject(null);
+                if(processing) {EventSystem.sendNavigationEvents=false;resetPending=true;}
+                else ResetModule();
+            }
+            finally {revoking=false;}
+        }
+        public static void InvalidatePointerRaycast(PointerEventData e)
+        {
+            e.eligibleForClick=false;e.pointerClick=null;
+            e.pointerCurrentRaycast=default;e.delta=Vector2.zero;
+        }
+        void CancelRemainingPresses()
+        {
+            bool previous=revoking;revoking=true;
+            try
+            {
                 foreach(var owner in Owners)
                 {
                     if(!owner)continue;
@@ -69,18 +107,8 @@ namespace Wulato.UIKit.Verification
                         if(e.dragging&&e.pointerDrag)ExecuteEvents.Execute(e.pointerDrag,e,ExecuteEvents.endDragHandler);
                     }
                 }
-                // References are used only within the current Process call. In particular,
-                // Input System caches isClick before pointerUp, so clear pointerClick itself.
-                foreach(var e in inFlight)
-                {
-                    e.eligibleForClick=false;e.pointerClick=null;e.pointerPress=null;e.rawPointerPress=null;
-                    e.pointerDrag=null;e.dragging=false;
-                }
-                EventSystem.SetSelectedGameObject(null);
-                if(processing) {EventSystem.sendNavigationEvents=false;resetPending=true;}
-                else ResetModule();
             }
-            finally {revoking=false;}
+            finally {revoking=previous;}
         }
         public bool AllowProcessing()
         {

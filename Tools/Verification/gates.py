@@ -4,6 +4,7 @@ import json
 import uuid
 from pathlib import Path
 from evidence import verify
+from registry import registered
 
 def assess(results,required,current):
     errors=[]
@@ -15,21 +16,8 @@ def assess(results,required,current):
         for name in required-passed:errors.append('missing-passed-required:'+name)
     return dict(status='FAIL' if errors else 'PASS',errors=errors)
 
-def registered(artifacts):
-    records=[];errors=[]
-    for path in artifacts.glob('*/*/run.json'):
-        try:
-            data=json.loads(path.read_text())
-            if data.get('schema')!=2:continue
-            if data.get('suite') is None:continue
-            started=datetime.datetime.fromisoformat(data['started_at'])
-            if started.tzinfo is None:raise ValueError('missing-timezone')
-            records.append((started.timestamp(),data['run_id'],data,path.parent))
-        except (OSError,ValueError,KeyError,TypeError) as e:
-            errors.append('invalid-run-registration:'+str(path)+':'+str(e))
-    return records,errors
 
-def preflight(root):
+def _preflight_locked(root):
     from run import VERSIONS,V,A,C,snapshot,dump
     matrix=json.loads((C/'matrix.json').read_text());items=[]
     records,registration_errors=registered(A)
@@ -50,6 +38,7 @@ def preflight(root):
                 selected=[];errors=list(current['errors'])+registration_errors;path=None
                 if latest:
                     path=latest[3]
+                    errors+=latest[2].get('registration_errors',[])
                     try:
                         result=json.loads((path/'summary.json').read_text());selected=[result]
                         if latest[2].get('state')!='completed':errors.append('latest-attempt-incomplete')
@@ -61,6 +50,18 @@ def preflight(root):
                                   result=selected,current_fingerprint=current['fingerprint'],evidence=str(path) if path else None))
     status='PASS' if all(i['status']=='PASS' for i in items) else 'FAIL'
     out=A/('g0-'+datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-'+uuid.uuid4().hex[:6])/'preflight-report.json'
-    dump(out,dict(gate='G0',schema=2,status=status,scope='P0/P1 prototypes only; T2+ not started',items=items))
+    dump(out,dict(gate='G0',schema=3,status=status,scope='P0/P1 prototypes only; T2+ not started',items=items))
     print('G0',status,'EVIDENCE',out)
     return int(status!='PASS')
+
+
+def preflight(root):
+    from locking import guard,VerificationBusy
+    from run import A,dump
+    try:
+        with guard(A,shared=True):return _preflight_locked(root)
+    except VerificationBusy as e:
+        out=A/('g0-busy-'+uuid.uuid4().hex)/'preflight-report.json'
+        dump(out,dict(gate='G0',schema=3,status='FAIL',errors=[str(e)],items=[]))
+        print('G0 FAIL',str(e),'EVIDENCE',out)
+        return 1

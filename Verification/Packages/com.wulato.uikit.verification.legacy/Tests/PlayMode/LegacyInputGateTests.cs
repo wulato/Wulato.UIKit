@@ -8,11 +8,12 @@ namespace Wulato.UIKit.Verification.Legacy.Tests
     {
         public RawInput Current,Previous;
         public void Set(RawInput state) {Previous=Current;Current=state;}
-        public bool AllReleased() {return !Current.Pointer&&!Current.Touch&&!Current.Submit&&!Current.Cancel&&Current.Move.sqrMagnitude==0;}
+        public bool AllReleased() {return !Current.Pointer&&!Current.RightPointer&&!Current.MiddlePointer&&!Current.Touch&&!Current.Submit&&!Current.Cancel&&Current.Move.sqrMagnitude==0;}
         public override bool mousePresent {get{return true;}}
-        public override bool GetMouseButton(int b) {return b==0&&Current.Pointer;}
-        public override bool GetMouseButtonDown(int b) {return b==0&&Current.Pointer&&!Previous.Pointer;}
-        public override bool GetMouseButtonUp(int b) {return b==0&&!Current.Pointer&&Previous.Pointer;}
+        bool Button(RawInput r,int b) {return b==0?r.Pointer:b==1?r.RightPointer:b==2&&r.MiddlePointer;}
+        public override bool GetMouseButton(int b) {return Button(Current,b);}
+        public override bool GetMouseButtonDown(int b) {return Button(Current,b)&&!Button(Previous,b);}
+        public override bool GetMouseButtonUp(int b) {return !Button(Current,b)&&Button(Previous,b);}
         public override Vector2 mousePosition {get{return Current.Position;}}
         public override Vector2 mouseScrollDelta {get{return Vector2.zero;}}
         public override bool touchSupported {get{return true;}}
