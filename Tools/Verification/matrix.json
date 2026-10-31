@@ -1,0 +1,118 @@
+{
+  "2022.3.62f2": {
+    "legacy": {
+      "PlayMode": {
+        "init": [
+          "ActiveParent_ControlAwakePrecedesOnCreate",
+          "InactiveParent_DefersAwakeUntilActivation",
+          "CanvasGroup_DoesNotDeferAwake",
+          "Reactivation_DoesNotRepeatAwake"
+        ],
+        "input-preflight": [
+          "Unlocked_ClickSubmitCancelAndMove_Control",
+          "Locked_SubmitCancelAreDiscarded",
+          "PressedBeforeLock_ReleaseAfterUnlockDoesNotClick",
+          "HeldSubmit_DoesNotReplayOnUnlock",
+          "HeldCancel_DoesNotReplayOnUnlock",
+          "DragOwnerTransfer_DoesNotDropOnNewOwner",
+          "TouchAcrossLock_DoesNotClickAndFreshTouchWorks",
+          "Locked_PointerAndTouchAreDiscarded",
+          "HeldMove_RequiresNeutralBeforeNewOwner",
+          "Focus_IsClearedAndRestoredToCurrentOwner",
+          "InactiveFocus_IsNotRestored",
+          "TimeScaleZero_LockAndFreshInputWork",
+          "HeldSubmit_OwnerTransferDoesNotReplay",
+          "HeldCancel_OwnerTransferDoesNotReplay",
+          "QueuedSubmit_OwnerTransferBeforeProcessDiscardsEdge",
+          "QueuedCancel_OwnerTransferBeforeProcessDiscardsEdge"
+        ]
+      }
+    },
+    "input": {
+      "PlayMode": {
+        "init": [
+          "ActiveParent_ControlAwakePrecedesOnCreate",
+          "InactiveParent_DefersAwakeUntilActivation",
+          "CanvasGroup_DoesNotDeferAwake",
+          "Reactivation_DoesNotRepeatAwake"
+        ],
+        "input-preflight": [
+          "Unlocked_ClickSubmitCancelAndMove_Control",
+          "Locked_SubmitCancelAreDiscarded",
+          "PressedBeforeLock_ReleaseAfterUnlockDoesNotClick",
+          "HeldSubmit_DoesNotReplayOnUnlock",
+          "HeldCancel_DoesNotReplayOnUnlock",
+          "DragOwnerTransfer_DoesNotDropOnNewOwner",
+          "TouchAcrossLock_DoesNotClickAndFreshTouchWorks",
+          "Locked_PointerAndTouchAreDiscarded",
+          "HeldMove_RequiresNeutralBeforeNewOwner",
+          "Focus_IsClearedAndRestoredToCurrentOwner",
+          "InactiveFocus_IsNotRestored",
+          "TimeScaleZero_LockAndFreshInputWork",
+          "HeldSubmit_OwnerTransferDoesNotReplay",
+          "HeldCancel_OwnerTransferDoesNotReplay",
+          "QueuedSubmit_OwnerTransferBeforeProcessDiscardsEdge",
+          "QueuedCancel_OwnerTransferBeforeProcessDiscardsEdge"
+        ]
+      }
+    }
+  },
+  "6000.3.22f1": {
+    "legacy": {
+      "PlayMode": {
+        "init": [
+          "ActiveParent_ControlAwakePrecedesOnCreate",
+          "InactiveParent_DefersAwakeUntilActivation",
+          "CanvasGroup_DoesNotDeferAwake",
+          "Reactivation_DoesNotRepeatAwake"
+        ],
+        "input-preflight": [
+          "Unlocked_ClickSubmitCancelAndMove_Control",
+          "Locked_SubmitCancelAreDiscarded",
+          "PressedBeforeLock_ReleaseAfterUnlockDoesNotClick",
+          "HeldSubmit_DoesNotReplayOnUnlock",
+          "HeldCancel_DoesNotReplayOnUnlock",
+          "DragOwnerTransfer_DoesNotDropOnNewOwner",
+          "TouchAcrossLock_DoesNotClickAndFreshTouchWorks",
+          "Locked_PointerAndTouchAreDiscarded",
+          "HeldMove_RequiresNeutralBeforeNewOwner",
+          "Focus_IsClearedAndRestoredToCurrentOwner",
+          "InactiveFocus_IsNotRestored",
+          "TimeScaleZero_LockAndFreshInputWork",
+          "HeldSubmit_OwnerTransferDoesNotReplay",
+          "HeldCancel_OwnerTransferDoesNotReplay",
+          "QueuedSubmit_OwnerTransferBeforeProcessDiscardsEdge",
+          "QueuedCancel_OwnerTransferBeforeProcessDiscardsEdge"
+        ]
+      }
+    },
+    "input": {
+      "PlayMode": {
+        "init": [
+          "ActiveParent_ControlAwakePrecedesOnCreate",
+          "InactiveParent_DefersAwakeUntilActivation",
+          "CanvasGroup_DoesNotDeferAwake",
+          "Reactivation_DoesNotRepeatAwake"
+        ],
+        "input-preflight": [
+          "Unlocked_ClickSubmitCancelAndMove_Control",
+          "Locked_SubmitCancelAreDiscarded",
+          "PressedBeforeLock_ReleaseAfterUnlockDoesNotClick",
+          "HeldSubmit_DoesNotReplayOnUnlock",
+          "HeldCancel_DoesNotReplayOnUnlock",
+          "DragOwnerTransfer_DoesNotDropOnNewOwner",
+          "TouchAcrossLock_DoesNotClickAndFreshTouchWorks",
+          "Locked_PointerAndTouchAreDiscarded",
+          "HeldMove_RequiresNeutralBeforeNewOwner",
+          "Focus_IsClearedAndRestoredToCurrentOwner",
+          "InactiveFocus_IsNotRestored",
+          "TimeScaleZero_LockAndFreshInputWork",
+          "HeldSubmit_OwnerTransferDoesNotReplay",
+          "HeldCancel_OwnerTransferDoesNotReplay",
+          "QueuedSubmit_OwnerTransferBeforeProcessDiscardsEdge",
+          "QueuedCancel_OwnerTransferBeforeProcessDiscardsEdge"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Wulato.UIKit.Verification.PlayMode",
+  "references": [
+    "Wulato.UIKit.Verification",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

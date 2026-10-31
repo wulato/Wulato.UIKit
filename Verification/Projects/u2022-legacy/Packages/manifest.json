@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "com.unity.ugui": "1.0.0",
+    "com.unity.test-framework": "1.1.33",
+    "com.wulato.uikit.verification": "file:../../../Packages/com.wulato.uikit.verification",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.physics2d": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.wulato.uikit.verification.legacy": "file:../../../Packages/com.wulato.uikit.verification.legacy"
+  },
+  "testables": [
+    "com.wulato.uikit.verification",
+    "com.wulato.uikit.verification.legacy"
+  ]
+}

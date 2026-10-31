@@ -1,0 +1,8 @@
+{
+  "name": "Wulato.UIKit.Verification.InputSystem",
+  "references": [
+    "Wulato.UIKit.Verification",
+    "UnityEngine.UI",
+    "Unity.InputSystem"
+  ]
+}

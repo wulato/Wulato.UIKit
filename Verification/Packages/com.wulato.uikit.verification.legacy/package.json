@@ -1,0 +1,9 @@
+{
+  "name": "com.wulato.uikit.verification.legacy",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "dependencies": {
+    "com.unity.ugui": "1.0.0",
+    "com.wulato.uikit.verification": "0.1.0"
+  }
+}

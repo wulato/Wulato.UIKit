@@ -1,0 +1,7 @@
+{
+  "name": "Wulato.UIKit.Verification.Legacy",
+  "references": [
+    "Wulato.UIKit.Verification",
+    "UnityEngine.UI"
+  ]
+}
