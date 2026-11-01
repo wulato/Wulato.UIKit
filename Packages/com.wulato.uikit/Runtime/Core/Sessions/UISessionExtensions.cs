@@ -1,12 +1,14 @@
 using Cysharp.Threading.Tasks;
 namespace Wulato.UIKit
 {
+    internal interface IUISessionReference { IUISession Session { get; } }
     internal static class UISessionExtensions
     {
-        sealed class Typed<TView> : IUISession<TView> where TView : UIViewBase
+        sealed class Typed<TView> : IUISession<TView>, IUISessionReference where TView : UIViewBase
         {
             readonly IUISession session;
             public Typed(IUISession session) { this.session=session; }
+            public IUISession Session => session;
             public UISessionId Id => session.Id;
             public UIState State => session.State;
             public UniTask<UICompletion> Closed => session.Closed;

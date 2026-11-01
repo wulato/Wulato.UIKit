@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Wulato.UIKit
 {
     /// <summary>Logical command engine. Unity host construction is a separate first-party backend.</summary>
-    internal sealed class UIContextEngine : IUIContext
+    internal sealed partial class UIContextEngine : IUIContext, IUITransactionAccess
     {
         readonly UIContextId id;
         readonly UIRuntimeDependencies dependencies;
@@ -124,13 +124,13 @@ namespace Wulato.UIKit
                 return await Open(entry, args, cancellationToken);
             });
 
-        async UniTask<IUISession> Open(UIRegistration entry, UIArguments args, CancellationToken caller)
+        async UniTask<IUISession> Open(UIRegistration entry, UIArguments args, CancellationToken caller, bool prepareOnly = false, UITransitionOwner owner = UITransitionOwner.CoreDefault)
         {
             caller.ThrowIfCancellationRequested();
             if (!entry.Accepts(args)) throw Error(UIErrorCode.InvalidRequest, "arguments");
             if (entry.Multiplicity == UIMultiplicity.Single && sessions.Any(s => s.Registration.Key == entry.Key))
                 throw Error(UIErrorCode.AlreadyOpen, "single");
-            var session = new UISessionHandle(this, new UISessionId(++sequence), entry);
+            var session = new UISessionHandle(this, new UISessionId(++sequence), entry) { TransitionOwner = owner };
             sessions.Add(session);
             string stage = "load";
             using (var opening = CancellationTokenSource.CreateLinkedTokenSource(caller, stopping.Token))
@@ -191,19 +191,10 @@ namespace Wulato.UIKit
                     await AwaitStage(session, token => dependencies.LayoutReady.WaitLayoutAsync(session.View, token),
                         opening.Token, OpenRemaining(session), "layout");
                     stage = "enter";
-                    Callback(() => session.Host.SetVisible(true));
-                    await AwaitStage(session, token => dependencies.Transition.EnterAsync(TransitionContext(session), token),
-                        opening.Token, dependencies.Settings.EnterTimeout, "enter");
+                    await RunTransition(session, true, opening.Token);
+                    if (prepareOnly) return session;
                     stage = "foreground";
-                    var grant = Callback(() => dependencies.InputArbiter.Prepare(new UIInputCandidate(id, session.Id, session.View, entry.InputPolicy)));
-                    session.OwnershipGeneration = grant.OwnershipGeneration;
-                    if (grant.IsEligible) EnterForeground(session);
-                    opening.Token.ThrowIfCancellationRequested();
-                    // No await or user completion between the state and input commit.
-                    session.State = UIState.Open;
-                    Callback(() => dependencies.InputArbiter.Commit(grant));
-                    Callback(() => session.Host.SetInteractive(grant.IsEligible));
-                    if (grant.IsEligible) inputOwner = new UIInputOwner(id, session.Id, grant.OwnershipGeneration);
+                    CommitPrepared(session, opening.Token);
                     return session;
                 }
                 catch (Exception e)
@@ -227,7 +218,65 @@ namespace Wulato.UIKit
         }
 
         UITransitionContext TransitionContext(UISessionHandle session)
-            => new UITransitionContext(session.Scope, session.Host.AnimationRoot, session.Host.AnimationOpacity);
+            => session.TransitionContext ?? (session.TransitionContext = new UITransitionContext(session.Scope, session.Host.AnimationRoot, session.Host.AnimationOpacity));
+
+        async UniTask RunTransition(UISessionHandle session, bool entering, CancellationToken caller, IUITransition external = null)
+        {
+            if (session.TransitionOwner == UITransitionOwner.External && external == null) return;
+            var transition = external ?? dependencies.Transition;
+            var context = TransitionContext(session);
+            Callback(() => context.Capture(transition.Writes));
+            var stage = entering ? "enter" : "exit";
+            var duration = shutdownBudget.Clamp(entering ? dependencies.Settings.EnterTimeout : dependencies.Settings.ExitTimeout);
+            caller.ThrowIfCancellationRequested();
+            if (duration <= TimeSpan.Zero) throw Error(UIErrorCode.Timeout, stage, session);
+            using (var timer = new UIWaitTimer(dependencies.Scheduler, duration))
+            using (var phase = CancellationTokenSource.CreateLinkedTokenSource(caller, shutdownBudget.Token, timer.Token))
+            {
+                UIOperationRecord<bool> record = null;
+                try
+                {
+                    phase.Token.ThrowIfCancellationRequested();
+                    record = new UIOperationRecord<bool>(ToValue(Callback(() => entering
+                        ? transition.EnterAsync(context, phase.Token)
+                        : transition.ExitAsync(context, phase.Token))));
+                    // EnterAsync applies its initial state synchronously before this gate opens.
+                    if (entering) Callback(() => session.Host.SetVisible(true));
+                    await record.WaitAsync(phase.Token);
+                    await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
+                    phase.Token.ThrowIfCancellationRequested();
+                    Callback(() => transition.Reset(context));
+                    Callback(context.RestoreBaseline);
+                }
+                catch (Exception error)
+                {
+                    await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
+                    Collect(session, () => session.Host.SetInteractive(false));
+                    Collect(session, () => session.Host.SetVisible(false));
+                    Collect(session, () => transition.Stop(context));
+                    var failure = record?.ObserveCompletedFailure();
+                    if (failure != null && !ReferenceEquals(failure, error))
+                    { session.Errors.Add(failure); Report(Error(UIErrorCode.TransitionFailed, "late-" + stage, session, failure)); }
+                    if (record != null && !record.Task.Status.IsCompleted())
+                    {
+                        var protocol = Error(UIErrorCode.TransitionFailed, "stop-protocol", session,
+                            new InvalidOperationException("Stop returned with an active transition."));
+                        session.Errors.Add(protocol); Report(protocol);
+                        session.AbandonedOperation = record; session.AbandonedStage = stage;
+                        session.AbandonedCode = UIErrorCode.TransitionFailed;
+                    }
+                    else
+                    {
+                        Collect(session, () => transition.Reset(context));
+                        Collect(session, context.RestoreBaseline);
+                    }
+                    if (caller.IsCancellationRequested) throw new OperationCanceledException(caller);
+                    if (timer.Token.IsCancellationRequested || shutdownBudget.Token.IsCancellationRequested)
+                        throw Error(UIErrorCode.Timeout, stage, session, timer.Failure ?? error);
+                    throw;
+                }
+            }
+        }
 
         TimeSpan OpenRemaining(UISessionHandle session)
             => UIShutdownBudget.Until(session.OpenDeadline, dependencies.Scheduler.UnscaledTime, dependencies.Settings.OpenTimeout);
@@ -381,8 +430,12 @@ namespace Wulato.UIKit
                 {
                     if (session.NormalClose && session.Scope != null && session.Host != null)
                     {
-                        Collect(session, () => dependencies.Transition.Stop(TransitionContext(session)));
-                        Collect(session, () => dependencies.Transition.Reset(TransitionContext(session)));
+                        if (session.TransitionOwner == UITransitionOwner.CoreDefault && session.TransitionContext != null)
+                        {
+                            Collect(session, () => dependencies.Transition.Stop(session.TransitionContext));
+                            Collect(session, () => dependencies.Transition.Reset(session.TransitionContext));
+                            Collect(session, session.TransitionContext.RestoreBaseline);
+                        }
                     }
                     if (session.NormalClose && state == UIContextState.Running && session.Errors.Count == 0 &&
                         session.Registration.ClosePolicy == UIClosePolicy.CacheOne && cache.Capacity > 0 && IsHealthy(InstanceOf(session)))
@@ -448,8 +501,7 @@ namespace Wulato.UIKit
                 {
                     try
                     {
-                        await AwaitStage(session, token => dependencies.Transition.ExitAsync(TransitionContext(session), token),
-                            CancellationToken.None, dependencies.Settings.ExitTimeout, "exit");
+                        await RunTransition(session, false, CancellationToken.None);
                     }
                     catch (Exception e) { session.Errors.Add(e); Report(e as UIException ?? Error(UIErrorCode.TransitionFailed, "exit", session, e)); }
                 }
@@ -586,6 +638,7 @@ namespace Wulato.UIKit
         public TService GetService<TService>() where TService : class
         {
             if (state != UIContextState.Running) throw Error(UIErrorCode.ContextStopped, "service");
+            if (typeof(TService) == typeof(IUITransactionAccess) && dependencies.EnableTransactions) return (TService)(object)this;
             if (dependencies.Services.TryGetValue(typeof(TService), out var service)) return (TService)service;
             throw new InvalidOperationException("Service is not registered.");
         }

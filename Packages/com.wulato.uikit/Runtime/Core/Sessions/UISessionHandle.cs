@@ -22,6 +22,8 @@ namespace Wulato.UIKit
         internal UIErrorCode AbandonedCode;
         internal double OpenDeadline;
         internal bool NormalClose;
+        internal UITransitionContext TransitionContext;
+        internal UITransitionOwner TransitionOwner;
         internal UICompletion Result;
         internal DefaultUISessionScope Scope;
         internal DefaultUIForegroundScope Foreground;
