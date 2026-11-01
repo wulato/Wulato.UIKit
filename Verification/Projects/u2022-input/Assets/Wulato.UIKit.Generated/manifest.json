@@ -1,0 +1,43 @@
+{
+    "version": 1,
+    "fingerprint": "8652ee6dee5f165f38ced73ab69784dcc30ff18cedad7f802784addc1d1e908f",
+    "prefabs": [
+        "Assets/UIKitCodegenFixture/DefaultView.prefab",
+        "Assets/UIKitCodegenFixture/ViewA.prefab",
+        "Assets/UIKitCodegenFixture/ViewB.prefab"
+    ],
+    "files": [
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/b9280d808e87d4b638992fea7514e7d9/Assembly.asmref",
+            "hash": "e110c2a7e30f7943952d9793eb9cc8e962fc9a598d62c51924f88c6824b08cf7"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/b9280d808e87d4b638992fea7514e7d9/UIProvider_24cc3fe58497bf20.cs",
+            "hash": "9a6611a7e39da8a9fc4ce28e68deb0dce192d164889bc52ec1772f64ba3e775b"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/b9280d808e87d4b638992fea7514e7d9/c28eed2269d10463da966d32b076588d.Bindings.cs",
+            "hash": "56f3aaa16b9d8ad8b2f9c1f8fcadf2ac9f1ceafa58910340c3099695b7874dfb"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/f6f3f62f1259a48d1bc8853dc68505a7/42d4091370efa4b1e83b10a874f9a665.Bindings.cs",
+            "hash": "9f99730830bb789129397c26fbe3722c730b721d2db7f9aa708bba9e70adfe4a"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/f6f3f62f1259a48d1bc8853dc68505a7/Assembly.asmref",
+            "hash": "b5e17e71e327dfff39275fd89971ffd94d86ff567f2fc7b86f66d86a4ae2b7fe"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/f6f3f62f1259a48d1bc8853dc68505a7/UIProvider_e622d281f41e190c.cs",
+            "hash": "898c14d1ae226fe28eae284b582c2feed4fef41747e84397315a56cd59d63dbf"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/UIProvider_6d589e57b3871572.cs",
+            "hash": "e9cad8e1de360392f02036dbc61db35edc642530976ae326061882fd95d2f163"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/b59d7f018346447038cd83ff4d5b95c8.Bindings.cs",
+            "hash": "e003bb17e12169faff8c0e96c454ea9072ea0979f87cc8ecdbb934f53d017451"
+        }
+    ]
+}

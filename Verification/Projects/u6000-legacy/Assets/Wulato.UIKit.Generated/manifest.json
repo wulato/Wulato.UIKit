@@ -1,0 +1,43 @@
+{
+    "version": 1,
+    "fingerprint": "319c966386f81b6fad612c25bce7e318f9adf7f65849dbd7271559b09fe61b22",
+    "prefabs": [
+        "Assets/UIKitCodegenFixture/DefaultView.prefab",
+        "Assets/UIKitCodegenFixture/ViewA.prefab",
+        "Assets/UIKitCodegenFixture/ViewB.prefab"
+    ],
+    "files": [
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/93a00f99a135e46458e342ab818cbef5/5d408ade6955c41e38f828da74e5d310.Bindings.cs",
+            "hash": "800e2d7de2bc12f6374b074cac6e4ca401d60e9b65ab852a0f890d3ad30dda51"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/93a00f99a135e46458e342ab818cbef5/Assembly.asmref",
+            "hash": "53aa0bee61bd1bf582adf3cd47bc03cb13225a8e8641e87d962dd806c8f3a252"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/93a00f99a135e46458e342ab818cbef5/UIProvider_d8c738b8833db321.cs",
+            "hash": "ada4ccc48501f7ff273ffcf34933015fa65234c786eb0ba85a14afe43e83631e"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/c6810b3124ca64b208d020bc5f95815a/Assembly.asmref",
+            "hash": "51d7c2a5d7880649d4e65d7886706d65596bd82bcab2a130a1b9b71b67a5bc48"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/c6810b3124ca64b208d020bc5f95815a/UIProvider_12690071b36eb3c7.cs",
+            "hash": "4bf0712c2c7dea454897c0cc90db56c140e454ce5d45e79ed01ee2b5d05864df"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/c6810b3124ca64b208d020bc5f95815a/f4ba8e879842c431c89fc557b220abf9.Bindings.cs",
+            "hash": "db4c87ff3fb5d044f39c8dc2dd64bd8f08eadf4b75a71e1f2eb05ed4a8242510"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/01809e613ce1c4a05b34a15df786c203.Bindings.cs",
+            "hash": "31904e9520374626667af9274fd116fa00213a69cc4d0ccb16273bbcdac90084"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/UIProvider_6d589e57b3871572.cs",
+            "hash": "e9cad8e1de360392f02036dbc61db35edc642530976ae326061882fd95d2f163"
+        }
+    ]
+}

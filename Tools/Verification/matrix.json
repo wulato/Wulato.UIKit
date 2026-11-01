@@ -192,6 +192,11 @@
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
+        ],
+        "generated-integration": [
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
         ]
       },
       "EditMode": {
@@ -270,6 +275,21 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
+        ],
+        "editor": [
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UserPartialIsNeverOverwritten",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.RenameAndVariant_PreserveBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.CrossPrefabReference_FailsWithAssetLocation",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.DuplicateTypeOrMissingComponent_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.StaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.BindingsPartial_CompilesInOriginalAssembly",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.MixedAssemblyProviders_PopulateRegistryWithoutReverseReferences",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.ActualStaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
         ]
       }
     },
@@ -468,6 +488,11 @@
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
+        ],
+        "generated-integration": [
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
         ]
       },
       "EditMode": {
@@ -551,6 +576,21 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
+        ],
+        "editor": [
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UserPartialIsNeverOverwritten",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.RenameAndVariant_PreserveBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.CrossPrefabReference_FailsWithAssetLocation",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.DuplicateTypeOrMissingComponent_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.StaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.BindingsPartial_CompilesInOriginalAssembly",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.MixedAssemblyProviders_PopulateRegistryWithoutReverseReferences",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.ActualStaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
         ]
       }
     }
@@ -748,6 +788,11 @@
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
+        ],
+        "generated-integration": [
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
         ]
       },
       "EditMode": {
@@ -826,6 +871,21 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
+        ],
+        "editor": [
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UserPartialIsNeverOverwritten",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.RenameAndVariant_PreserveBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.CrossPrefabReference_FailsWithAssetLocation",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.DuplicateTypeOrMissingComponent_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.StaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.BindingsPartial_CompilesInOriginalAssembly",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.MixedAssemblyProviders_PopulateRegistryWithoutReverseReferences",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.ActualStaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
         ]
       }
     },
@@ -1024,6 +1084,11 @@
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
+        ],
+        "generated-integration": [
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
+          "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
         ]
       },
       "EditMode": {
@@ -1107,6 +1172,21 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
+        ],
+        "editor": [
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UserPartialIsNeverOverwritten",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.RenameAndVariant_PreserveBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.CrossPrefabReference_FailsWithAssetLocation",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.DuplicateTypeOrMissingComponent_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.StaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.BindingsPartial_CompilesInOriginalAssembly",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.MixedAssemblyProviders_PopulateRegistryWithoutReverseReferences",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.ActualStaleFingerprint_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
         ]
       }
     }

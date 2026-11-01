@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54cce9ca814504673a1480c2ed182540, type: 3}
+  m_Name: UIRegistry
+  m_EditorClassIdentifier: Wulato.UIKit.Core::Wulato.UIKit.UIRegistry
+  providers:
+  - {fileID: 11400000, guid: da7097b024fb44cd7a46ffa2bd4fa38a, type: 2}
+  - {fileID: 11400000, guid: adef18e01cc3b4d7daea8960b410309c, type: 2}
+  - {fileID: 11400000, guid: 5f8a47a70bf404c9db400d87b4e44755, type: 2}

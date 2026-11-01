@@ -119,3 +119,22 @@ Service factories run in registration order and can only query earlier services 
 `play-reset` starts independent matching-version Editors, selects each of the four Domain/Scene Reload configurations and enters/exits actual PlayMode twice. Contexts, a service subscription and an outstanding lock remain alive until Unity exits. A probe observes automatic teardown after quit callbacks; it does not call Shutdown or clear counters in that path. Both automatic-exit records and the final two-session report are mandatory. Missing reports, nonzero counters, wrong configuration/version, compiler errors, timeout or changed input fingerprints fail the check. Original Editor reload settings are restored. Ordinary PlayMode test-runner cases are additional coverage, not a substitute for this entry point.
 
 T8 and its direct regressions do not require `suite all`, G0 refresh or Player builds. They do not establish mobile/IL2CPP or whole-phase release acceptance. See [T8 evidence and scope](Reports/2026-11-01-t8.md).
+
+## T9 binding generation and explicit registry providers
+
+Author a concrete, top-level partial `UIView` / `UIView<TArgs>` script (the `Assets/Create/Wulato/UIKit/View partial` menu creates it once). Add a root `UIBindingMarker` to an active RectTransform Prefab, assign the business MonoScript, and explicitly list binding field names and Component references. Object names are unrestricted. Select one registered Prefab per View type: when registering a Variant, exclude its authoring base with `includeInRegistry`. Known Editor-only scripts are excluded from runtime discovery; broken references still fail validation.
+
+Use `Tools/Wulato/UIKit/Generate`. Generated bindings stay in the original business assembly through a GUID asmref, or in Assembly-CSharp without an asmdef/asmref. The generated root is `Assets/Wulato.UIKit.Generated`; the generated `UIRegistry.asset` references provider assets explicitly. Supply that registry to `UIContextBuilder`. Business files and asmdefs are preserved. Bindings are private serialized fields available to the business partial and before `OnCreate`; no runtime lookup by object name is used.
+
+Generation persists pending writeback in the host Library. After compilation/reload, the Editor resumes component attachment and SerializedObject reference writeback. `Complete writeback` is also available as a menu/executeMethod recovery step. An unchanged generation completes immediately because it cannot trigger another script reload. Build preprocessing only validates; missing, stale, misrouted or incomplete outputs block the build.
+
+```sh
+python3 Tools/Verification/run.py codegen --editor all --backend all
+python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite editor
+python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite generated-integration
+python3 Tools/Verification/run.py check-generated --editor all --backend all
+```
+
+`codegen` uses independent processes for base compilation, routed generation, compilation/writeback and business field usage. It exercises two business asmdefs (one autoReferenced=false) plus Assembly-CSharp, an actual renamed Prefab Variant, mixed provider population, stale fingerprints and wrong-route rejection; the editor suite additionally checks duplicate/missing inputs. It repeats generation and compares actual asset/source bytes, then renames/moves a business asmdef and verifies obsolete owned sources are removed while business/user files survive. Reports retain commands, logs, actual versions, input fingerprints and file hashes under Artifacts/uikit. Existing fixture source drift fails instead of silently overwriting business files. `check-generated` requires read-only validation with an unchanged input fingerprint.
+
+`generated-integration` uses the generated registry and actual Prefab leases for typed/untyped sessions, Single rejection, modal foreground restoration, CacheOne reuse, observer/service lifetime, canceled-load late cleanup, cancellation during Enter, synchronous Stop and Shutdown lease/lock cleanup. These are T3–T8 integration checks of generated mappings; the existing module suites remain unchanged. No T10 samples/performance, full release matrix, G0 refresh or mobile/IL2CPP build is implied. See [T9 acceptance](Reports/2026-11-01-t9.md) for actual results and scope.
