@@ -58,6 +58,15 @@
         "com.wulato.uikit": "0.1.0"
       }
     },
+    "com.wulato.uikit.input-system": {
+      "version": "file:../../../../Packages/com.wulato.uikit.input-system",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.1.0",
+        "com.unity.inputsystem": "1.17.0"
+      }
+    },
     "com.wulato.uikit.verification": {
       "version": "file:../../../Packages/com.wulato.uikit.verification",
       "depth": 0,

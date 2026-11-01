@@ -1,4 +1,4 @@
-"""T2 runtime host manifest and resolved dependency validation; no T7 adapter."""
+"""Runtime host manifest and resolved dependency validation, including the T7 adapter."""
 UNITASK='https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11'
 MAIN='com.wulato.uikit'
 ACCEPTANCE=MAIN+'.acceptance'
@@ -11,7 +11,9 @@ def runtime_manifest(ver,backend):
     package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
     deps[package]='file:../../../Packages/'+package
     tests=[COMMON,package,MAIN,ACCEPTANCE]
-    if backend=='input':deps['com.unity.inputsystem']='1.17.0';tests.append('com.unity.inputsystem')
+    if backend=='input':
+        deps['com.unity.inputsystem']='1.17.0';tests.append('com.unity.inputsystem')
+        deps[MAIN+'.input-system']='file:../../../../Packages/'+MAIN+'.input-system';tests.append(MAIN+'.input-system')
     deps.update({MAIN:'file:../../../../Packages/'+MAIN,ACCEPTANCE:'file:../../../Packages/'+ACCEPTANCE,'com.cysharp.unitask':UNITASK})
     return dict(dependencies=deps,testables=tests)
 

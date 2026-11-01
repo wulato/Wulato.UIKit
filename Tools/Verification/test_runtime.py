@@ -19,11 +19,12 @@ class RuntimeDependencyTests(unittest.TestCase):
     def test_unity6_wrong_lock_rejected(self):
         m,l=self.fixture();l['dependencies']['com.unity.ugui']['version']='1.0.0'
         self.assertTrue(validate_dependencies('6000.3.22f1',m,l))
-    def test_runtime_keeps_preflight_and_never_installs_future_adapter(self):
+    def test_runtime_keeps_preflight_and_installs_adapter_only_for_input(self):
         for backend in ('legacy','input'):
             m=runtime_manifest('2022.3.62f2',backend)
             self.assertIn('com.wulato.uikit',m['testables']);self.assertIn('com.wulato.uikit.acceptance',m['testables'])
-            self.assertNotIn('com.wulato.uikit.input-system',m['dependencies'])
+            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['dependencies'])
+            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['testables'])
             self.assertEqual(backend=='input','com.unity.inputsystem' in m['dependencies'])
 
 class RuntimePreparationTests(unittest.TestCase):

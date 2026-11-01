@@ -21,9 +21,9 @@ def digest(files):
 def package_sources(host):
  manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
  for name,value in manifest['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance')):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.input-system')):continue
   if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
-  actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name=='com.wulato.uikit' else (V/'Packages'/name)).resolve()
+  actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name in ('com.wulato.uikit','com.wulato.uikit.input-system') else (V/'Packages'/name)).resolve()
   if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
   if json.loads((actual/'package.json').read_text())['name']!=name:raise ValueError('local-name:'+name)
   sources[name]=actual
@@ -48,7 +48,7 @@ def snapshot(ver,backend,host):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance')):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.input-system')):continue
   path=(host/'Packages'/value.removeprefix('file:')).resolve()
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)

@@ -33,3 +33,19 @@ class FingerprintTests(unittest.TestCase):
     def test_lock_source_path_mismatch_is_rejected(self):
         p=self.host/'Packages/packages-lock.json';m=json.loads(p.read_text());m['dependencies'][run.COMMON]['version']='file:../../../Alternate';p.write_text(json.dumps(m))
         self.assertTrue(run.snapshot('2022.3.62f2','legacy',self.host)['errors'])
+
+    def install_adapter(self):
+        adapter=self.root/'Packages/com.wulato.uikit.input-system'
+        shutil.copytree(Path(__file__).resolve().parents[2]/'Packages/com.wulato.uikit.input-system',adapter)
+        p=self.host/'Packages/manifest.json';m=json.loads(p.read_text())
+        m['dependencies']['com.wulato.uikit.input-system']='file:../../../../Packages/com.wulato.uikit.input-system'
+        p.write_text(json.dumps(m));return adapter
+    def test_production_adapter_source_change_invalidates_fingerprint(self):
+        adapter=self.install_adapter();before=run.fingerprint(self.host)
+        p=adapter/'Runtime/InputSystemUIInputDriver.cs';p.write_text(p.read_text()+'\n// changed adapter input\n')
+        self.assertNotEqual(before,run.fingerprint(self.host))
+    def test_same_named_adapter_at_alternate_path_is_rejected(self):
+        adapter=self.install_adapter();other=self.root/'Packages/alternate-input';shutil.copytree(adapter,other)
+        p=self.host/'Packages/manifest.json';m=json.loads(p.read_text())
+        m['dependencies']['com.wulato.uikit.input-system']='file:../../../../Packages/alternate-input';p.write_text(json.dumps(m))
+        with self.assertRaises(ValueError):run.fingerprint(self.host)
