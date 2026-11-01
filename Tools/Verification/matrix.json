@@ -304,6 +304,10 @@
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+        ],
+        "package-install": [
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
         ]
       }
     },
@@ -619,6 +623,10 @@
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+        ],
+        "package-install": [
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
         ]
       }
     }
@@ -928,6 +936,10 @@
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+        ],
+        "package-install": [
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
         ]
       }
     },
@@ -1243,6 +1255,10 @@
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+        ],
+        "package-install": [
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
         ]
       }
     }

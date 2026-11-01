@@ -14,7 +14,7 @@ def seal(folder):
     index=folder/'evidence-index.json';index.write_text(json.dumps(data,indent=2)+'\n')
     return sha256(index)
 
-def verify(record,folder,required,current_snapshot):
+def verify(record,folder,required,current_snapshot,acceptance=False):
     errors=[]
     def check(condition,message):
         if not condition: errors.append(message)
@@ -22,7 +22,7 @@ def verify(record,folder,required,current_snapshot):
     try:
         check(record.get('schema')==3,'unsupported-evidence-schema')
         check(record.get('status')=='PASS','summary-not-pass')
-        check(record.get('mode')=='PlayMode','wrong-test-mode')
+        check(record.get('mode') in ('PlayMode','EditMode') if acceptance else record.get('mode')=='PlayMode','wrong-test-mode')
         check(record.get('fingerprint')==current_snapshot['fingerprint'],'stale-fingerprint')
         check(Path(record['evidence']).resolve()==folder.resolve(),'evidence-path-mismatch')
         index=folder/'evidence-index.json'
@@ -72,7 +72,11 @@ def verify(record,folder,required,current_snapshot):
         check(parsed['count']==record.get('count'),'summary-count-mismatch')
         traces=read('trace.json');actual_traces={p.name:json.loads(p.read_text()) for p in folder.glob('*.trace.json')}
         check(traces==actual_traces,'trace-aggregate-mismatch')
-        for fullname in required:
+        if acceptance and record.get('mode')=='PlayMode':
+            for fullname in required:
+                name=fullname.rsplit('.',1)[-1]
+                check(any(k==name+'.trace.json' or k.startswith(name+'-') for k in traces),'missing-case-trace:'+name)
+        for fullname in (required if not acceptance else []):
             name=fullname.rsplit('.',1)[-1]
             files=[name+'.trace.json'] if '.InitializationOrderTests.' in fullname else [name+'-'+owner+'.trace.json' for owner in ('Owner0','Owner1')]
             for filename in files:check(filename in traces,'missing-case-trace:'+filename)

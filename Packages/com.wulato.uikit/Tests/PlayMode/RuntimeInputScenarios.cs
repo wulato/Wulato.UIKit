@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
-using Wulato.UIKit.Verification;
-using Wulato.UIKit.Verification.Tests;
 using System;
 using Object=UnityEngine.Object;
 using System.Linq;

@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Controls;
-using Wulato.UIKit.Verification.Tests;
 using Wulato.UIKit.Tests.Input;
 namespace Wulato.UIKit.InputSystem.Tests
 {

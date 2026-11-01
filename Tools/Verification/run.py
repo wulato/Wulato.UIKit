@@ -185,8 +185,17 @@ def main():
  q=sub.choices['prepare-samples'];q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
  q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
- q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight'],required=True)
+ q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True)
+ for name in ('build',):
+  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
+ q=sub.add_parser('smoke');q.add_argument('--build',required=True);q.add_argument('--device',required=True);q.add_argument('--timeout',type=int,default=180)
  a=p.parse_args()
+ if a.command=='build':
+  from build import run_build
+  return run_build(a)
+ if a.command=='smoke':
+  from smoke import smoke
+  return smoke(a)
  if a.command=='prepare-samples':
   from samples import prepare
   return prepare(a)
@@ -199,6 +208,9 @@ def main():
  if a.command=='compile-probe':
   from contract_probe import run_probe
   return run_probe(a)
+ if a.command=='gate' and a.name=='release':
+  from release_gate import release
+  return release(R)
  if a.command=='gate':
   from gates import preflight
   return preflight(R)

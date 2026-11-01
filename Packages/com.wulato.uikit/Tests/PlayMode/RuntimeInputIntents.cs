@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Wulato.UIKit.Verification;
 namespace Wulato.UIKit.Tests.Input
 {
     public class InputRuntimeView : UIView { }

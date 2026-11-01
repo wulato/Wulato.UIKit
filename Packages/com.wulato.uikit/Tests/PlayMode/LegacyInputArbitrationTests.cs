@@ -1,7 +1,6 @@
 #if UIKIT_VERIFY_LEGACY
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Wulato.UIKit.Verification.Tests;
 using Wulato.UIKit.Tests.Input;
 namespace Wulato.UIKit.Tests.Input.Legacy
 {

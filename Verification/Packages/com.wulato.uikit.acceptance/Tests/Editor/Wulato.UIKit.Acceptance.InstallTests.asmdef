@@ -1,0 +1,1 @@
+{"name":"Wulato.UIKit.Acceptance.InstallTests","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","UniTask"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}

@@ -1,0 +1,37 @@
+name: UIKit checks
+on:
+  pull_request:
+    paths: ['Packages/com.wulato.uikit/**', 'Packages/com.wulato.uikit.input-system/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: uikit-verification-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  editor:
+    runs-on: [self-hosted, macOS, uikit-phase1]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python verifier regression
+        run: python3 -m unittest discover -s Tools/Verification -p 'test_*.py'
+      - name: Prepare and compile generated consumers
+        run: |
+          python3 Tools/Verification/run.py prepare --phase runtime --editor all --backend all
+          python3 Tools/Verification/run.py codegen --editor all --backend all
+          python3 Tools/Verification/run.py prepare-samples --editor all --backend all
+          python3 Tools/Verification/run.py check-generated --editor all --backend all
+          python3 Tools/Verification/run.py compile-probe --editor all
+      - name: Full Editor matrices and reload configurations
+        run: |
+          python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite all
+          python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite all
+          python3 Tools/Verification/run.py play-reset --editor all --backend all
+          python3 Tools/Verification/run.py gate --name preflight
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uikit-editor-evidence
+          path: Artifacts/uikit

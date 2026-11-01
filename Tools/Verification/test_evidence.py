@@ -54,3 +54,11 @@ class EvidenceTests(unittest.TestCase):
         p=self.out.parent/'batch.json';r=json.loads(p.read_text());r['schema']=99;p.write_text(json.dumps(r));self.assertEqual('FAIL',self.check())
     def test_changed_batch_inventory_hash_fails(self):
         p=self.out.parent/'batch.json';p.write_text(p.read_text()+'\n');self.assertEqual('FAIL',self.check())
+
+    def test_release_acceptance_still_requires_case_traces(self):
+        (self.out/'Case-Owner0.trace.json').unlink();(self.out/'Case-Owner1.trace.json').unlink()
+        self.json('trace.json',{});self.reseal()
+        self.assertIn('missing-case-trace:Case',verify(self.record,self.out,self.required,self.snapshot,acceptance=True)['errors'])
+    def test_release_acceptance_rejects_invalid_mode(self):
+        self.record['mode']='Unknown'
+        self.assertIn('wrong-test-mode',verify(self.record,self.out,self.required,self.snapshot,acceptance=True)['errors'])

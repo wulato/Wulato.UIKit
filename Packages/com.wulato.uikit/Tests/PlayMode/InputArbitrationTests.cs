@@ -41,7 +41,7 @@ namespace Wulato.UIKit.Tests.PlayMode
         }
         InputRuntimeView NewCandidateView(string name)
         {
-            var go=new GameObject(name,typeof(RectTransform),typeof(CanvasGroup),typeof(Wulato.UIKit.Verification.InputEventSpy));
+            var go=new GameObject(name,typeof(RectTransform),typeof(CanvasGroup),typeof(InputEventSpy));
             go.transform.SetParent(Scene.Spies[0].transform.parent,false);return go.AddComponent<InputRuntimeView>();
         }
         [Test] public void ModalBarrier_OrdinaryOverlayCannotStealInput()
