@@ -13,6 +13,10 @@ namespace Wulato.UIKit
         [SerializeField] RectTransform safeArea;
         [SerializeField] RectTransform[] layers = new RectTransform[5];
         bool initialized;
+        internal event Action Disabled, Enabled, Destroyed;
+        void OnDisable() => Disabled?.Invoke();
+        void OnEnable() => Enabled?.Invoke();
+        void OnDestroy() => Destroyed?.Invoke();
         public Canvas Canvas => GetComponent<Canvas>();
         public RectTransform SafeArea
         {

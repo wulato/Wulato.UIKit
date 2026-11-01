@@ -17,6 +17,11 @@ namespace Wulato.UIKit
         internal long OwnershipGeneration;
         internal UIInstanceScope Instance;
         internal UIOperationRecord<bool> AbandonedOperation;
+        internal UIOrphanTicket Orphan;
+        internal string AbandonedStage;
+        internal UIErrorCode AbandonedCode;
+        internal double OpenDeadline;
+        internal bool NormalClose;
         internal UICompletion Result;
         internal DefaultUISessionScope Scope;
         internal DefaultUIForegroundScope Foreground;

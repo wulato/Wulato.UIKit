@@ -10,9 +10,10 @@ namespace Wulato.UIKit.Tests.Support
     public class ProbeView : UIView
     {
         public static readonly List<string> Events=new List<string>();
+        public static readonly List<string> Measurements=new List<string>();
         public static Func<UISessionScope,CancellationToken,UniTask> Open;
         public static Func<UICloseReason,CancellationToken,UniTask> Close;
-        public static Action Create,Foreground,ClosedHook;
+        public static Action Create,Foreground,ClosedHook,Disposing,Disabled;
         public static bool AllowClose=true;
         public static Func<bool> CloseDecision;
         public static UISessionScope Scope; public static UIForegroundScope ForegroundScope; public static CancellationToken OpenToken;
@@ -25,9 +26,10 @@ namespace Wulato.UIKit.Tests.Support
         protected override void OnForegroundEntered(UIForegroundScope scope) { Events.Add("foreground");ForegroundScope=scope;Foreground?.Invoke(); }
         protected override void OnForegroundExited() => Events.Add("background");
         protected override void OnClosed(UICloseReason reason) { Events.Add("closed");ClosedHook?.Invoke(); }
-        protected override void OnDispose() => Events.Add("dispose");
+        void OnDisable() => Disabled?.Invoke();
+        protected override void OnDispose() { Events.Add("dispose");Disposing?.Invoke(); }
         public void ClickClose() => RequestClose();
-        public static void ResetProbeState() { Events.Clear();Open=null;Close=null;Create=null;Foreground=null;ClosedHook=null;Scope=null;ForegroundScope=null;AllowClose=true;CloseDecision=null; }
+        public static void ResetProbeState() { Events.Clear();Measurements.Clear();Open=null;Close=null;Create=null;Foreground=null;ClosedHook=null;Disposing=null;Disabled=null;Scope=null;ForegroundScope=null;AllowClose=true;CloseDecision=null; }
     }
     public sealed class ProbeObserver : IUISessionLifecycleObserver
     {
@@ -51,10 +53,12 @@ namespace Wulato.UIKit.Tests.Support
         public Func<CancellationToken,UniTask> Layout,Enter,Exit;
         public int LayoutCalls;
         public SessionFixture(Action<UIRegistryBuilder> configure=null,params IUISessionLifecycleObserver[] observers)
+            : this(new UIContextSettings(),configure,observers) { }
+        public SessionFixture(UIContextSettings settings,Action<UIRegistryBuilder> configure,params IUISessionLifecycleObserver[] observers)
         {
             ProbeView.ResetProbeState(); var b=new UIRegistryBuilder();
             if(configure==null)b.Add<ProbeView>(new UIViewTypeKey("probe"),UIViewAsset.Resources("probe"));else configure(b);
-            UI=new UIContextEngine(new UIContextId(Guid.NewGuid()),new UIRuntimeDependencies(b.Build(),new UIContextSettings().CopyValidated(),Loader,Scheduler,Hosts,this,this,Input,this,observers,new Dictionary<Type,object>{{typeof(SessionFixture),this}}));
+            UI=new UIContextEngine(new UIContextId(Guid.NewGuid()),new UIRuntimeDependencies(b.Build(),settings.CopyValidated(),Loader,Scheduler,Hosts,this,this,Input,this,observers,new Dictionary<Type,object>{{typeof(SessionFixture),this}}));
         }
         public UniTask WaitLayoutAsync(UIViewBase view,CancellationToken ct) { ct.ThrowIfCancellationRequested();LayoutCalls++;return Layout?.Invoke(ct)??UniTask.CompletedTask; }
         public UITransitionWrites Writes => UITransitionWrites.None;
@@ -67,11 +71,12 @@ namespace Wulato.UIKit.Tests.Support
     }
     public abstract class SessionTestBase
     {
+        [SetUp] public void ResetTrace() => ProbeView.ResetProbeState();
         [TearDown] public void SaveTrace()
         {
             var dir=Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");
-            if(!string.IsNullOrEmpty(dir)) { Directory.CreateDirectory(dir);File.WriteAllText(Path.Combine(dir,TestContext.CurrentContext.Test.Name+".trace.json"),JsonUtility.ToJson(new Trace{events=ProbeView.Events.ToArray()})); }
+            if(!string.IsNullOrEmpty(dir)) { Directory.CreateDirectory(dir);File.WriteAllText(Path.Combine(dir,TestContext.CurrentContext.Test.Name+".trace.json"),JsonUtility.ToJson(new Trace{events=ProbeView.Events.ToArray(),measurements=ProbeView.Measurements.ToArray()})); }
         }
-        [Serializable] sealed class Trace { public string[] events; }
+        [Serializable] sealed class Trace { public string[] events,measurements; }
     }
 }

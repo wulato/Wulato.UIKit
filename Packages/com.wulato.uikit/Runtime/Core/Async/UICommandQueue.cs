@@ -5,15 +5,20 @@ namespace Wulato.UIKit
 {
     internal sealed class UICommandQueue
     {
-        readonly Queue<Func<UniTask>> pending=new Queue<Func<UniTask>>();
+        sealed class Command { internal Func<UniTask> Execute; internal Action Rejected; }
+        readonly Queue<Command> pending=new Queue<Command>();
         readonly UICompletionQueue notifications;
         readonly Action<Exception> onError;
         bool running;
         public UICommandQueue(UICompletionQueue notifications,Action<Exception> onError) { this.notifications=notifications;this.onError=onError; }
-        public void Enqueue(Func<UniTask> command)
+        public void Enqueue(Func<UniTask> command, Action rejected=null)
         {
-            pending.Enqueue(command);
+            pending.Enqueue(new Command { Execute=command, Rejected=rejected });
             if(!running)Pump().Forget();
+        }
+        internal void RejectPending()
+        {
+            while(pending.Count!=0) pending.Dequeue().Rejected?.Invoke();
         }
         async UniTask Pump()
         {
@@ -22,7 +27,7 @@ namespace Wulato.UIKit
             {
                 while(pending.Count!=0)
                 {
-                    try { await pending.Dequeue()(); }
+                    try { await pending.Dequeue().Execute(); }
                     catch(Exception e) { onError(e); }
                     // Keep running set during synchronous user continuations. They only enqueue.
                     notifications.Drain();

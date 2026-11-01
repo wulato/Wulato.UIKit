@@ -7,6 +7,7 @@ namespace Wulato.UIKit
         readonly Queue<Action> pending=new Queue<Action>();
         readonly Action<Exception> onError;
         bool draining;
+        internal int PendingCount => pending.Count;
         public UICompletionQueue(Action<Exception> onError=null) { this.onError=onError; }
         public void Post(Action action) { if(action==null)throw new ArgumentNullException(nameof(action));pending.Enqueue(action); }
         public void Drain()

@@ -24,7 +24,7 @@ On revocation, the node snapshot sends pointerUp/endDrag without click/drop, sel
 
 Each batch writes an independent batch.json inventory before creating/launching its attempt directories. Schema-3 run.json and summaries bind their batch ID, inventory SHA-256 and declared host/suite. Each attempt then writes XML, logs, per-case traces, host snapshots, command.json and summary.json under ignored Artifacts/uikit. evidence-index.json seals the raw files with SHA-256 and its own digest is recorded in the summary. G0 discovers attempts from the batch inventory even if run.json or an entire attempt directory disappears. Missing/unknown registration schemas fail closed, and orphaned records cannot silently disappear. Per-host start times are used when valid, with inventory time for missing registrations. A newer intact retry can supersede an older inventoried failure; deleting its registration cannot restore an older PASS. It checks the index, re-parses raw XML/logs, compares summary cases and snapshot/configuration, and requires every fixture-qualified case and its trace. Current fingerprints cover all host Assets/ProjectSettings/Packages, verifier package contents and runner/matrix sources. Canonical local package sources and lock entries are checked; a same-named alternate source is rejected. Changes during a run invalidate its result. Missing or changed raw evidence, skipped/inconclusive/failed cases or parent suites, compiler errors, timeout and nonzero process exit all fail closed.
 
-Limits: these are Editor preflight tests, not mobile/IL2CPP release acceptance or production UIKit tests. Input System Submit/Cancel uses keyboard keys; navigation uses the gamepad stick. Physical gamepad Submit/Cancel buttons are not claimed as verified. T2 has separate contract acceptance below; T3 logical session execution is verified below; T4 actual hosting/loading/layout is verified below; T5 and later tasks remain unimplemented.
+Limits: these are Editor preflight tests, not mobile/IL2CPP release acceptance or production UIKit tests. Input System Submit/Cancel uses keyboard keys; navigation uses the gamepad stick. Physical gamepad Submit/Cancel buttons are not claimed as verified. T2 has separate contract acceptance below; T3 logical session execution is verified below; T4 actual hosting/loading/layout is verified below; T5 cache/bounded cleanup is verified below; T6 and later tasks remain unimplemented.
 
 Verification prepare/tests batches use a nonblocking process-wide filesystem lock for the artifact root. Overlapping CLI batches fail explicitly instead of interleaving host execution; G0 uses a shared guard and returns FAIL while a batch is active. G0 schema 3 requires the serialized-batch inventory/evidence binding. Historical schema-2 records remain readable but cannot satisfy the current evidence verifier. Unknown inventories require restoring valid provenance, not silently skipping them.
 
@@ -62,3 +62,15 @@ python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMo
 ```
 
 Tests exercise default Prefab/Resources leases, inactive initialization, actual Shell geometry, optional authored SafeArea in Overlay/Camera modes, parent-resize relocation, real GraphicRaycaster positive/negative controls, LayoutGroup/ContentSizeFitter and exactly one Update layout preparation. Dynamic configuration guards reject unsupported Canvas/CanvasGroup bypasses at frame/render, layout and gate boundaries, including async preparation. The cache relocation test uses Host directly; no CacheOne/LRU, timeout or independent cleanup runtime is implemented. See [T4 acceptance](Reports/2026-11-01-t4.md) for final full regressions, raw evidence and the two independent-review corrections. Work stops before T5.
+
+
+## T5 cache, late cleanup and bounded Shutdown
+
+The `cleanup` suite requires 15 EditMode and 15 PlayMode cases per host. It covers hard-capacity healthy CacheOne/LRU reuse, fresh session scopes, late single-consumption cleanup, root-independent notifications/isolation, one absolute Shutdown budget, cancellation races and timeScale=0. Manual clocks verify deadline sharing; PlayMode also uses actual Shells, root destruction and the Realtime scheduler.
+
+```sh
+python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite cleanup
+python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite cleanup
+```
+
+Final full regressions: 610 Unity cases including 120 T5 cases, Python 76 cases and G0 PASS. See [T5 acceptance](Reports/2026-11-01-t5.md) for raw evidence, author self-review, fixes and scope. Pending cleanup remains owned until actual completion; stopped diagnostics are immutable snapshots. Work stops before T6; no mobile/IL2CPP release acceptance is claimed.

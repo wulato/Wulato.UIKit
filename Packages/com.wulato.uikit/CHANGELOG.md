@@ -2,6 +2,15 @@
 
 ## 0.1.0 — development checkpoints
 
+### T5 — caching and bounded cleanup (2026-11-01)
+
+- Add healthy CacheOne instance reuse with a hard-capacity LRU, explicit clearing and independent Session identities.
+- Bound load/open/layout/close/transition waits; Shutdown starts one absolute deadline outside the command queue and never resets it per Session.
+- Transfer abandoned operation records and isolated leases to an independent cleanup owner, preserving single consumption, origin and cleanup errors.
+- Add a persistent runtime notification/quarantine host, root-loss evacuation and a real-time UniTask scheduler; root loss, caller cancellation and timeouts retain distinct outcomes.
+- Freeze final stopped diagnostics and retain shared Closed/Shutdown completion results; reject queued opens on stop.
+- Release Context-owned runtime roots after final notifications/late owners drain while preserving project Canvas and external services; detach ended scope/notification closures from Context ownership.
+
 ### T4 — actual hosting and loading (2026-11-01)
 
 - Add direct Prefab and explicit Resources loading with idempotent clone leases and partial-load cleanup.
@@ -21,4 +30,4 @@
 - Add validated settings and immutable completion, registry and diagnostic data.
 - Establish Core, Loading and UGUI assembly boundaries and contract tests.
 
-T4 remains a development checkpoint. CacheOne/LRU, independent late-cleanup hosting and bounded Shutdown (T5), production transitions/input, Builder and mobile acceptance remain later tasks.
+T5 remains a development checkpoint. Production transition adapters/transactions, input arbitration, Builder and mobile acceptance remain later tasks.

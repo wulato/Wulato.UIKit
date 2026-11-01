@@ -92,6 +92,23 @@
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.FinalLayout_IsVisibleToEnterWithoutAnotherFrame",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.CanceledLayout_DoesNotCompleteSuccessfully",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.TimeScaleZero_LayoutStillBecomesReady"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ActualHostCacheReuse_CreatesNewScopeWithoutReload",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateErrorSink_CannotReenterContext_AndCleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.CancelAndLeaseHandoffSameFrame_ReleasesOnce",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.HookFaultsAfterRootDestroyed_IsObserved",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateLoadAfterRootDestroyed_UsesRetainedInactiveParent",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ClosedWithTimedOutHook_ReportsPendingCleanup",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.PersistentRuntime_ReleasesAfterLastLateOwner",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ShutdownReleasesInternalRuntime_WhenRootRemainsAlive",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RootDisableCallback_CannotStartAnotherOpen",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TemporaryRootDisable_DoesNotReportRootDestroyed_AndCanRestore",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RealtimeScheduler_WaitsAndCancelsWhileTimeScaleZero",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NeverEndingLoader_ShutdownDoesNotWait",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NotificationPump_SurvivesRootDestruction",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ErrorSinkThrows_CleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TimeScaleZero_DoesNotStopShutdownBudget"
         ]
       },
       "EditMode": {
@@ -136,6 +153,23 @@
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithTypedArguments_FailsBeforeLoad",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.TypedView_WithMatchingArguments_OpensOnce",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithNone_OpensOnce"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.CachePolicyTests.TerminatedObserverFailure_EvictsTentativeCacheBeforeClosed",
+          "Wulato.UIKit.Tests.CachePolicyTests.CapacityZero_Releases",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheOne_LruEvictsOldest",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheReuse_NewSessionAndCanceledOldScope_CannotCloseNewSession",
+          "Wulato.UIKit.Tests.CachePolicyTests.UnhealthyClose_NeverEntersCache",
+          "Wulato.UIKit.Tests.CachePolicyTests.ClearCache_DisposeErrorsDoNotStrandOtherLeases",
+          "Wulato.UIKit.Tests.BudgetTests.MaxShutdownBudget_RemainingDoesNotOverflow",
+          "Wulato.UIKit.Tests.BudgetTests.MaxOpenBudget_DoesNotOverflowBeforeLifecycle",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedLoadFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedHookFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownBudget_StartIsIdempotentAndUsesRemainingTime",
+          "Wulato.UIKit.Tests.BudgetTests.LoadTimeout_ReleasesQueueWithoutConsumingSourceTwice",
+          "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
         ]
       }
     },
@@ -232,6 +266,23 @@
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.FinalLayout_IsVisibleToEnterWithoutAnotherFrame",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.CanceledLayout_DoesNotCompleteSuccessfully",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.TimeScaleZero_LayoutStillBecomesReady"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ActualHostCacheReuse_CreatesNewScopeWithoutReload",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateErrorSink_CannotReenterContext_AndCleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.CancelAndLeaseHandoffSameFrame_ReleasesOnce",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.HookFaultsAfterRootDestroyed_IsObserved",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateLoadAfterRootDestroyed_UsesRetainedInactiveParent",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ClosedWithTimedOutHook_ReportsPendingCleanup",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.PersistentRuntime_ReleasesAfterLastLateOwner",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ShutdownReleasesInternalRuntime_WhenRootRemainsAlive",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RootDisableCallback_CannotStartAnotherOpen",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TemporaryRootDisable_DoesNotReportRootDestroyed_AndCanRestore",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RealtimeScheduler_WaitsAndCancelsWhileTimeScaleZero",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NeverEndingLoader_ShutdownDoesNotWait",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NotificationPump_SurvivesRootDestruction",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ErrorSinkThrows_CleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TimeScaleZero_DoesNotStopShutdownBudget"
         ]
       },
       "EditMode": {
@@ -276,6 +327,23 @@
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithTypedArguments_FailsBeforeLoad",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.TypedView_WithMatchingArguments_OpensOnce",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithNone_OpensOnce"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.CachePolicyTests.TerminatedObserverFailure_EvictsTentativeCacheBeforeClosed",
+          "Wulato.UIKit.Tests.CachePolicyTests.CapacityZero_Releases",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheOne_LruEvictsOldest",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheReuse_NewSessionAndCanceledOldScope_CannotCloseNewSession",
+          "Wulato.UIKit.Tests.CachePolicyTests.UnhealthyClose_NeverEntersCache",
+          "Wulato.UIKit.Tests.CachePolicyTests.ClearCache_DisposeErrorsDoNotStrandOtherLeases",
+          "Wulato.UIKit.Tests.BudgetTests.MaxShutdownBudget_RemainingDoesNotOverflow",
+          "Wulato.UIKit.Tests.BudgetTests.MaxOpenBudget_DoesNotOverflowBeforeLifecycle",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedLoadFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedHookFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownBudget_StartIsIdempotentAndUsesRemainingTime",
+          "Wulato.UIKit.Tests.BudgetTests.LoadTimeout_ReleasesQueueWithoutConsumingSourceTwice",
+          "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
         ]
       }
     }
@@ -373,6 +441,23 @@
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.FinalLayout_IsVisibleToEnterWithoutAnotherFrame",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.CanceledLayout_DoesNotCompleteSuccessfully",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.TimeScaleZero_LayoutStillBecomesReady"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ActualHostCacheReuse_CreatesNewScopeWithoutReload",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateErrorSink_CannotReenterContext_AndCleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.CancelAndLeaseHandoffSameFrame_ReleasesOnce",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.HookFaultsAfterRootDestroyed_IsObserved",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateLoadAfterRootDestroyed_UsesRetainedInactiveParent",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ClosedWithTimedOutHook_ReportsPendingCleanup",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.PersistentRuntime_ReleasesAfterLastLateOwner",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ShutdownReleasesInternalRuntime_WhenRootRemainsAlive",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RootDisableCallback_CannotStartAnotherOpen",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TemporaryRootDisable_DoesNotReportRootDestroyed_AndCanRestore",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RealtimeScheduler_WaitsAndCancelsWhileTimeScaleZero",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NeverEndingLoader_ShutdownDoesNotWait",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NotificationPump_SurvivesRootDestruction",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ErrorSinkThrows_CleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TimeScaleZero_DoesNotStopShutdownBudget"
         ]
       },
       "EditMode": {
@@ -417,6 +502,23 @@
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithTypedArguments_FailsBeforeLoad",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.TypedView_WithMatchingArguments_OpensOnce",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithNone_OpensOnce"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.CachePolicyTests.TerminatedObserverFailure_EvictsTentativeCacheBeforeClosed",
+          "Wulato.UIKit.Tests.CachePolicyTests.CapacityZero_Releases",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheOne_LruEvictsOldest",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheReuse_NewSessionAndCanceledOldScope_CannotCloseNewSession",
+          "Wulato.UIKit.Tests.CachePolicyTests.UnhealthyClose_NeverEntersCache",
+          "Wulato.UIKit.Tests.CachePolicyTests.ClearCache_DisposeErrorsDoNotStrandOtherLeases",
+          "Wulato.UIKit.Tests.BudgetTests.MaxShutdownBudget_RemainingDoesNotOverflow",
+          "Wulato.UIKit.Tests.BudgetTests.MaxOpenBudget_DoesNotOverflowBeforeLifecycle",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedLoadFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedHookFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownBudget_StartIsIdempotentAndUsesRemainingTime",
+          "Wulato.UIKit.Tests.BudgetTests.LoadTimeout_ReleasesQueueWithoutConsumingSourceTwice",
+          "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
         ]
       }
     },
@@ -513,6 +615,23 @@
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.FinalLayout_IsVisibleToEnterWithoutAnotherFrame",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.CanceledLayout_DoesNotCompleteSuccessfully",
           "Wulato.UIKit.Tests.PlayMode.LayoutReadyTests.TimeScaleZero_LayoutStillBecomesReady"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ActualHostCacheReuse_CreatesNewScopeWithoutReload",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateErrorSink_CannotReenterContext_AndCleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.CancelAndLeaseHandoffSameFrame_ReleasesOnce",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.HookFaultsAfterRootDestroyed_IsObserved",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.LateLoadAfterRootDestroyed_UsesRetainedInactiveParent",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.ClosedWithTimedOutHook_ReportsPendingCleanup",
+          "Wulato.UIKit.Tests.PlayMode.LateCleanupTests.PersistentRuntime_ReleasesAfterLastLateOwner",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ShutdownReleasesInternalRuntime_WhenRootRemainsAlive",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RootDisableCallback_CannotStartAnotherOpen",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TemporaryRootDisable_DoesNotReportRootDestroyed_AndCanRestore",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.RealtimeScheduler_WaitsAndCancelsWhileTimeScaleZero",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NeverEndingLoader_ShutdownDoesNotWait",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.NotificationPump_SurvivesRootDestruction",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.ErrorSinkThrows_CleanupCompletes",
+          "Wulato.UIKit.Tests.PlayMode.ShutdownTests.TimeScaleZero_DoesNotStopShutdownBudget"
         ]
       },
       "EditMode": {
@@ -557,6 +676,23 @@
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithTypedArguments_FailsBeforeLoad",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.TypedView_WithMatchingArguments_OpensOnce",
           "Wulato.UIKit.Tests.TypeErasedOpenTests.PlainView_WithNone_OpensOnce"
+        ],
+        "cleanup": [
+          "Wulato.UIKit.Tests.CachePolicyTests.TerminatedObserverFailure_EvictsTentativeCacheBeforeClosed",
+          "Wulato.UIKit.Tests.CachePolicyTests.CapacityZero_Releases",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheOne_LruEvictsOldest",
+          "Wulato.UIKit.Tests.CachePolicyTests.CacheReuse_NewSessionAndCanceledOldScope_CannotCloseNewSession",
+          "Wulato.UIKit.Tests.CachePolicyTests.UnhealthyClose_NeverEntersCache",
+          "Wulato.UIKit.Tests.CachePolicyTests.ClearCache_DisposeErrorsDoNotStrandOtherLeases",
+          "Wulato.UIKit.Tests.BudgetTests.MaxShutdownBudget_RemainingDoesNotOverflow",
+          "Wulato.UIKit.Tests.BudgetTests.MaxOpenBudget_DoesNotOverflowBeforeLifecycle",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedLoadFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.CompletedHookFaultRacingCancellation_IsStillObserved",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownBudget_StartIsIdempotentAndUsesRemainingTime",
+          "Wulato.UIKit.Tests.BudgetTests.LoadTimeout_ReleasesQueueWithoutConsumingSourceTwice",
+          "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
+          "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
         ]
       }
     }

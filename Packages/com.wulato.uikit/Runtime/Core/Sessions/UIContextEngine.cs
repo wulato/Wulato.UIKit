@@ -19,20 +19,42 @@ namespace Wulato.UIKit
         readonly CancellationTokenSource stopping = new CancellationTokenSource();
         readonly UniTaskCompletionSource<UIShutdownCompletion> shutdown = new UniTaskCompletionSource<UIShutdownCompletion>();
         readonly IDisposable inputRegistration;
+        readonly UIViewCache cache;
+        readonly UIShutdownBudget shutdownBudget;
+        readonly UIOrphanRegistry orphans;
+        readonly IUIRuntimeHostProvider hostProvider;
+        readonly IUIRuntimeHost runtimeHost;
+        readonly IDisposable runtimeAttachment;
+        UIDiagnosticsSnapshot finalDiagnostics;
+        UICloseReason shutdownReason = UICloseReason.ContextShutdown;
+        bool rootAvailable = true;
         readonly int mainThread = Thread.CurrentThread.ManagedThreadId;
         UIContextState state = UIContextState.Running;
         long sequence;
-        int callbackDepth, pendingCleanup, isolatedLeases, inputLocks;
+        readonly UICallbackScope callbacks = new UICallbackScope();
+        int inputLocks;
         UIInputOwner? inputOwner;
 
         internal UIContextEngine(UIContextId id, UIRuntimeDependencies dependencies)
         {
             this.id = id;
             this.dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
-            completions = new UICompletionQueue(e => Report(Error(UIErrorCode.LifecycleFailed, "completion", null, e)));
+            cache = new UIViewCache(dependencies.Settings.CacheCapacity);
+            shutdownBudget = new UIShutdownBudget(dependencies.Scheduler, dependencies.Settings.ShutdownBudget);
+            orphans = new UIOrphanRegistry(dependencies.Scheduler, dependencies.ErrorSink, id, callbacks.Invoke);
+            hostProvider = dependencies.HostFactory as IUIRuntimeHostProvider;
+            runtimeHost = hostProvider?.RuntimeHost;
+            completions = new UICompletionQueue(orphans.ReportCompletion);
             commands = new UICommandQueue(completions, e => Report(Error(UIErrorCode.LifecycleFailed, "command", null, e)));
             inputRegistration = dependencies.InputArbiter.Register(id,
                 new UIInputRegistration(0, ForegroundChanged, UserCloseRequested));
+            runtimeAttachment = runtimeHost?.Attach(completions, orphans);
+            if (hostProvider != null)
+            {
+                rootAvailable = hostProvider.RootAvailable;
+                hostProvider.RootDestroyed += OnRootDestroyed;
+                hostProvider.AvailabilityChanged += OnRootAvailabilityChanged;
+            }
         }
 
         UIException Error(UIErrorCode code, string stage, UISessionHandle session = null, Exception cause = null)
@@ -42,18 +64,13 @@ namespace Wulato.UIKit
         {
             if (Thread.CurrentThread.ManagedThreadId != mainThread)
                 return Error(UIErrorCode.InvalidRequest, "main-thread");
-            if (callbackDepth != 0) return Error(UIErrorCode.InvalidRequest, "nested-command");
-            if (!allowStopping && state != UIContextState.Running) return Error(UIErrorCode.ContextStopped, "submit");
+            if (callbacks.Depth != 0) return Error(UIErrorCode.InvalidRequest, "nested-command");
+            if (!allowStopping && (state != UIContextState.Running || !rootAvailable || (hostProvider != null && !hostProvider.RootAvailable))) return Error(UIErrorCode.ContextStopped, "submit");
             return null;
         }
 
-        T Callback<T>(Func<T> callback)
-        {
-            callbackDepth++;
-            try { return callback(); }
-            finally { callbackDepth--; }
-        }
-        void Callback(Action callback) => Callback(() => { callback(); return true; });
+        T Callback<T>(Func<T> callback) => callbacks.Invoke(callback);
+        void Callback(Action callback) => callbacks.Invoke(callback);
         void Report(UIException error)
         {
             try { Callback(() => dependencies.ErrorSink.Report(error)); }
@@ -85,7 +102,7 @@ namespace Wulato.UIKit
                     Report(error);
                     completions.Post(() => result.TrySetException(error));
                 }
-            });
+            }, () => completions.Post(() => result.TrySetException(Error(UIErrorCode.ContextStopped, "queued-stop"))));
             return result.Task;
         }
 
@@ -123,27 +140,32 @@ namespace Wulato.UIKit
                 try
                 {
                     inputLock = Callback(() => dependencies.InputArbiter.AcquireLock(id)); inputLocks++;
-                    session.Host = Callback(() => dependencies.HostFactory.Create(entry.Layer));
-                    var load = new UIOperationRecord<IUIViewLease>(Callback(() => dependencies.Loader.CreateAsync(entry.Asset, session.Host.InactiveParent, opening.Token)));
-                    IUIViewLease loaded;
-                    try { loaded = await load.Task.AttachExternalCancellation(opening.Token); }
-                    catch
+                    var cached = cache.Take(entry.Key);
+                    if (cached != null && !IsHealthy(cached)) { ReleaseInstance(cached, session.Errors, "cache-invalid"); cached = null; }
+                    if (cached != null)
                     {
-                        // A cancellation can win before an uncooperative loader hands over ownership.
-                        await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                        var lateHost = session.Host; session.Host = null;
-                        ObserveLateLoad(load, lateHost, session).Forget();
-                        throw;
+                        session.Host = cached.Host; session.Lease = cached.Lease;
+                        session.View = cached.View; session.Instance = cached.Instance;
                     }
-                    await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                    session.Lease = loaded;
-                    opening.Token.ThrowIfCancellationRequested();
-                    session.View = loaded?.View;
-                    if (session.View == null || session.View.GetType() != entry.ViewType)
-                        throw Error(UIErrorCode.LoadFailed, "view-binding", session);
+                    else
+                    {
+                        session.Host = Callback(() => dependencies.HostFactory.Create(entry.Layer));
+                        session.Lease = await RunOperation(session,
+                            token => dependencies.Loader.CreateAsync(entry.Asset, session.Host.InactiveParent, token),
+                            opening.Token, dependencies.Settings.LoadTimeout, "load", true,
+                            record => AdoptLateLoad(record, session));
+                        opening.Token.ThrowIfCancellationRequested();
+                        session.View = session.Lease?.View;
+                        if (session.View == null || session.View.GetType() != entry.ViewType)
+                            throw Error(UIErrorCode.LoadFailed, "view-binding", session);
+                    }
+                    session.OpenDeadline = dependencies.Scheduler.UnscaledTime + dependencies.Settings.OpenTimeout.TotalSeconds;
                     stage = "create";
-                    session.Instance = new UIInstanceScope();
-                    Callback(session.View.InvokeCreate);
+                    if (cached == null)
+                    {
+                        session.Instance = new UIInstanceScope();
+                        Callback(session.View.InvokeCreate);
+                    }
                     opening.Token.ThrowIfCancellationRequested();
                     session.Scope = new DefaultUISessionScope(session.Id, id, dependencies.Scheduler,
                         ct => dependencies.LayoutReady.WaitLayoutAsync(session.View, ct));
@@ -163,13 +185,15 @@ namespace Wulato.UIKit
                         opening.Token.ThrowIfCancellationRequested();
                     }
                     stage = "open";
-                    session.OpenEntered = true;
-                    await AwaitStage(session, () => session.View.InvokeOpenAsync(args, session.Scope, opening.Token), opening.Token);
+                    await AwaitStage(session, token => { session.OpenEntered = true; return session.View.InvokeOpenAsync(args, session.Scope, token); },
+                        opening.Token, OpenRemaining(session), "open");
                     stage = "layout";
-                    await AwaitStage(session, () => dependencies.LayoutReady.WaitLayoutAsync(session.View, opening.Token), opening.Token);
+                    await AwaitStage(session, token => dependencies.LayoutReady.WaitLayoutAsync(session.View, token),
+                        opening.Token, OpenRemaining(session), "layout");
                     stage = "enter";
                     Callback(() => session.Host.SetVisible(true));
-                    await AwaitStage(session, () => dependencies.Transition.EnterAsync(TransitionContext(session), opening.Token), opening.Token);
+                    await AwaitStage(session, token => dependencies.Transition.EnterAsync(TransitionContext(session), token),
+                        opening.Token, dependencies.Settings.EnterTimeout, "enter");
                     stage = "foreground";
                     var grant = Callback(() => dependencies.InputArbiter.Prepare(new UIInputCandidate(id, session.Id, session.View, entry.InputPolicy)));
                     session.OwnershipGeneration = grant.OwnershipGeneration;
@@ -187,7 +211,7 @@ namespace Wulato.UIKit
                     await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
                     session.Reason = state == UIContextState.Running
                         ? (e is OperationCanceledException ? UICloseReason.OpenCanceled : UICloseReason.OpenFailed)
-                        : UICloseReason.ContextShutdown;
+                        : shutdownReason;
                     TerminateResources(session);
                     Finish(session, session.OpenEntered);
                     if (e is OperationCanceledException) throw;
@@ -205,49 +229,76 @@ namespace Wulato.UIKit
         UITransitionContext TransitionContext(UISessionHandle session)
             => new UITransitionContext(session.Scope, session.Host.AnimationRoot, session.Host.AnimationOpacity);
 
-        async UniTask AwaitStage(UISessionHandle session, Func<UniTask> invoke, CancellationToken ct)
+        TimeSpan OpenRemaining(UISessionHandle session)
+            => UIShutdownBudget.Until(session.OpenDeadline, dependencies.Scheduler.UnscaledTime, dependencies.Settings.OpenTimeout);
+
+        async UniTask<T> RunOperation<T>(UISessionHandle session, Func<CancellationToken, UniTask<T>> invoke,
+            CancellationToken caller, TimeSpan duration, string stage, bool ownsResult, Action<UIOperationRecord<T>> abandoned)
         {
-            var record = new UIOperationRecord<bool>(ToValue(Callback(invoke)));
-            bool abandoned = false;
-            try { await record.Task.AttachExternalCancellation(ct); }
-            catch
+            caller.ThrowIfCancellationRequested();
+            var allowed = shutdownBudget.Clamp(duration);
+            if (allowed <= TimeSpan.Zero) throw Error(UIErrorCode.Timeout, stage, session);
+            using (var timer = new UIWaitTimer(dependencies.Scheduler, allowed))
+            using (var phase = CancellationTokenSource.CreateLinkedTokenSource(caller, shutdownBudget.Token, timer.Token))
             {
-                abandoned = !record.Task.Status.IsCompleted();
-                throw;
+                UIOperationRecord<T> record = null;
+                try
+                {
+                    phase.Token.ThrowIfCancellationRequested();
+                    record = new UIOperationRecord<T>(Callback(() => invoke(phase.Token)));
+                    return await record.WaitAsync(phase.Token);
+                }
+                catch (Exception e)
+                {
+                    await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
+                    var canceled = caller.IsCancellationRequested;
+                    var timedOut = timer.Token.IsCancellationRequested || shutdownBudget.Token.IsCancellationRequested;
+                    var completedFailure = record?.ObserveCompletedFailure();
+                    if (completedFailure != null && (canceled || timedOut))
+                    {
+                        session.Errors.Add(completedFailure);
+                        var code = stage == "load" ? UIErrorCode.LoadFailed : stage == "enter" || stage == "exit" ? UIErrorCode.TransitionFailed : UIErrorCode.LifecycleFailed;
+                        Report(Error(code, "late-" + stage, session, completedFailure));
+                    }
+                    if (record != null && (!record.Task.Status.IsCompleted() || (ownsResult && record.Task.Status == UniTaskStatus.Succeeded)))
+                        abandoned(record);
+                    if (canceled) throw new OperationCanceledException(caller);
+                    if (timedOut)
+                        throw Error(UIErrorCode.Timeout, stage, session, timer.Failure ?? e);
+                    throw;
+                }
+                finally { await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None); }
             }
-            finally
-            {
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                if (abandoned) session.AbandonedOperation = record;
-            }
-            ct.ThrowIfCancellationRequested();
+        }
+        async UniTask AwaitStage(UISessionHandle session, Func<CancellationToken, UniTask> invoke,
+            CancellationToken caller, TimeSpan duration, string stage)
+        {
+            await RunOperation(session, token => ToValue(invoke(token)), caller, duration, stage, false,
+                record =>
+                {
+                    session.AbandonedOperation = record; session.AbandonedStage = stage;
+                    session.AbandonedCode = stage == "enter" || stage == "exit" ? UIErrorCode.TransitionFailed : UIErrorCode.LifecycleFailed;
+                });
+            caller.ThrowIfCancellationRequested();
         }
         static async UniTask<bool> ToValue(UniTask operation) { await operation; return true; }
-
-        async UniTask ObserveLateLoad(UIOperationRecord<IUIViewLease> record, IUIViewHost host, UISessionHandle session)
+        void Isolate(IUIViewHost host, UISessionHandle session)
         {
-            pendingCleanup++;
-            try
+            if (host is IUIIsolatableHost isolatable && runtimeHost != null)
+                Collect(session, () => isolatable.MoveToIsolation(runtimeHost.IsolationRoot));
+            else Collect(session, host.MoveToCache);
+        }
+        void AdoptLateLoad(UIOperationRecord<IUIViewLease> record, UISessionHandle session)
+        {
+            var host = session.Host; session.Host = null; Isolate(host, session);
+            // These closures retain only the handed-off host/lease, not the Session or engine.
+            session.Orphan = orphans.Adopt(record, session.Id, "late-load", UIErrorCode.LoadFailed, false, lease =>
             {
-                var lease = await record.Task;
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                try { Callback(host.DetachView); }
-                catch (Exception e) { Report(Error(UIErrorCode.LoadFailed, "late-load-detach", session, e)); }
-                try { Callback(lease.Dispose); }
-                catch (Exception e) { Report(Error(UIErrorCode.LoadFailed, "late-load-release", session, e)); }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception e)
-            {
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                Report(Error(UIErrorCode.LoadFailed, "late-load", session, e));
-            }
-            finally
-            {
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                try { Callback(host.Dispose); } catch (Exception e) { Report(Error(UIErrorCode.LoadFailed, "late-host-release", session, e)); }
-                pendingCleanup--;
-            }
+                var errors = new List<Exception>();
+                try { host.DetachView(); } catch (Exception e) { errors.Add(e); }
+                try { lease?.Dispose(); } catch (Exception e) { errors.Add(e); }
+                if (errors.Count != 0) throw new AggregateException(errors);
+            }, host.Dispose);
         }
 
         void EnterForeground(UISessionHandle session)
@@ -285,6 +336,27 @@ namespace Wulato.UIKit
                 }, e => { session.Errors.Add(e); Report(Error(UIErrorCode.LifecycleFailed, "scope", session, e)); }));
             }
         }
+        static UICachedInstance InstanceOf(UISessionHandle session) => new UICachedInstance
+        {
+            Registration = session.Registration, Host = session.Host, Lease = session.Lease,
+            View = session.View, Instance = session.Instance, LastSessionId = session.Id
+        };
+        bool IsHealthy(UICachedInstance item)
+            => Callback(() => item.View != null && item.View.enabled && item.View.gameObject.activeSelf &&
+               (!(item.Host is IUIIsolatableHost host) || host.IsHealthy));
+        void ReleaseInstance(UICachedInstance item, List<Exception> errors, string stage)
+        {
+            void Release(Action action)
+            {
+                try { Callback(action); }
+                catch (Exception e) { errors.Add(e); Report(new UIException(UIErrorCode.LifecycleFailed, stage, id, item.LastSessionId, e)); }
+            }
+            if (item.View != null) Release(item.View.InvokeDispose);
+            if (item.Instance != null) Release(item.Instance.Dispose);
+            if (item.Host != null) Release(item.Host.DetachView);
+            if (item.Lease != null) Release(item.Lease.Dispose);
+            if (item.Host != null) Release(item.Host.Dispose);
+        }
         void Finish(UISessionHandle session, bool notifyClosed, Action beforeCompletion = null)
         {
             if (session.Host != null)
@@ -293,60 +365,56 @@ namespace Wulato.UIKit
                 Collect(session, () => session.Host.SetVisible(false));
             }
             bool isolated = session.AbandonedOperation != null;
+            bool cached = false;
+            if (session.View != null) session.View.UserCloseRequest = null;
             if (isolated)
             {
-                session.View.UserCloseRequest = null;
-                Collect(session, session.Host.MoveToCache);
-                ObserveLateOperation(session.AbandonedOperation, session.Lease, session.Host, session.Instance, session).Forget();
-                session.Lease = null; session.Host = null; session.Instance = null;
+                var host = session.Host; var lease = session.Lease; var instance = session.Instance;
+                Isolate(host, session);
+                session.Orphan = orphans.Adopt(session.AbandonedOperation, session.Id, "late-" + session.AbandonedStage, session.AbandonedCode,
+                    true, null, () => instance?.Dispose(), host.DetachView, () => lease?.Dispose(), host.Dispose);
             }
-            if (session.Lease != null)
+            else
             {
-                if (session.View != null)
+                if (session.View != null && notifyClosed) Collect(session, () => session.View.InvokeClosed(session.Reason));
+                if (session.Lease != null)
                 {
-                    session.View.UserCloseRequest = null;
-                    if (notifyClosed) Collect(session, () => session.View.InvokeClosed(session.Reason));
-                    Collect(session, session.View.InvokeDispose);
+                    if (session.NormalClose && session.Scope != null && session.Host != null)
+                    {
+                        Collect(session, () => dependencies.Transition.Stop(TransitionContext(session)));
+                        Collect(session, () => dependencies.Transition.Reset(TransitionContext(session)));
+                    }
+                    if (session.NormalClose && state == UIContextState.Running && session.Errors.Count == 0 &&
+                        session.Registration.ClosePolicy == UIClosePolicy.CacheOne && cache.Capacity > 0 && IsHealthy(InstanceOf(session)))
+                    {
+                        Collect(session, session.Host.MoveToCache);
+                        if (session.Errors.Count == 0)
+                        {
+                            cache.Put(InstanceOf(session), item => ReleaseInstance(item, session.Errors, "cache-evict")); cached = true;
+                        }
+                    }
+                    if (!cached) ReleaseInstance(InstanceOf(session), session.Errors, "release");
                 }
-                if (session.Instance != null) Collect(session, session.Instance.Dispose);
-                if (session.Host != null) Collect(session, session.Host.DetachView);
-                Collect(session, session.Lease.Dispose); session.Lease = null;
+                else if (session.Host != null) Collect(session, session.Host.Dispose);
             }
-            if (session.Host != null) { Collect(session, session.Host.Dispose); session.Host = null; }
+            session.Lease = null; session.Host = null; session.Instance = null; session.View = null;
             for (int i = session.Observers.Count - 1; i >= 0; i--)
             {
                 var observer = session.Observers[i];
-                Collect(session, () => observer.OnTerminated(new UICompletion(session.Id, session.Reason, session.Errors, isolated)));
+                Collect(session, () => observer.OnTerminated(new UICompletion(session.Id, session.Reason, session.Errors, session.Orphan?.Pending == true)));
             }
-            sessions.Remove(session);
-            session.State = UIState.Closed;
+            session.Observers.Clear(); session.AbandonedOperation = null;
+            sessions.Remove(session); session.State = UIState.Closed;
             beforeCompletion?.Invoke();
-            var result = new UICompletion(session.Id, session.Reason, session.Errors, isolated);
+            if (cached && session.Errors.Count != 0)
+            {
+                var unhealthy = cache.Take(session.Registration.Key);
+                if (unhealthy != null) ReleaseInstance(unhealthy, session.Errors, "cache-finalize");
+            }
+            var result = new UICompletion(session.Id, session.Reason, session.Errors, session.Orphan?.Pending == true);
             session.Result = result;
             if (state == UIContextState.Stopping) shutdownCompletions.Add(result);
             completions.Post(() => session.Completion.TrySetResult(result));
-        }
-
-        async UniTask ObserveLateOperation(UIOperationRecord<bool> record, IUIViewLease lease, IUIViewHost host, UIInstanceScope instance, UISessionHandle session)
-        {
-            pendingCleanup++; isolatedLeases++;
-            try { await record.Task; }
-            catch (OperationCanceledException) { }
-            catch (Exception e)
-            {
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                Report(Error(UIErrorCode.LifecycleFailed, "late-operation", session, e));
-            }
-            finally
-            {
-                await dependencies.Scheduler.SwitchToMainThreadAsync(CancellationToken.None);
-                // User hooks were abandoned; never run them concurrently or replay them after termination.
-                if (instance != null) Collect(session, instance.Dispose);
-                Collect(session, host.DetachView);
-                Collect(session, lease.Dispose);
-                Collect(session, host.Dispose);
-                isolatedLeases--; pendingCleanup--;
-            }
         }
 
         internal UniTask<UICompletion> Close(UISessionHandle session, UICloseReason reason)
@@ -357,26 +425,39 @@ namespace Wulato.UIKit
                 return UniTask.FromException<UICompletion>(Error(UIErrorCode.InvalidRequest, "close-reason", session));
             if (session.CloseRequested || session.State == UIState.Closed) return session.Closed;
             session.CloseRequested = true;
-            session.Reason = state == UIContextState.Running ? reason : UICloseReason.ContextShutdown;
+            session.Reason = state == UIContextState.Running ? reason : shutdownReason;
+            if (state != UIContextState.Running) return session.Closed;
             commands.Enqueue(async () => { if (session.State != UIState.Closed) await CloseCore(session); });
             return session.Closed;
         }
         async UniTask<UICompletion> CloseCore(UISessionHandle session)
         {
             IDisposable inputLock = null;
+            session.NormalClose = true;
             Collect(session, () => { inputLock = dependencies.InputArbiter.AcquireLock(id); inputLocks++; });
             try
             {
                 TerminateResources(session);
-                try { await AwaitStage(session, () => session.View.InvokeCloseAsync(session.Reason, CancellationToken.None), CancellationToken.None); }
-                catch (Exception e) { session.Errors.Add(e); Report(Error(UIErrorCode.LifecycleFailed, "close", session, e)); }
-                try { await AwaitStage(session, () => dependencies.Transition.ExitAsync(TransitionContext(session), CancellationToken.None), CancellationToken.None); }
-                catch (Exception e) { session.Errors.Add(e); Report(Error(UIErrorCode.TransitionFailed, "exit", session, e)); }
+                try
+                {
+                    await AwaitStage(session, token => session.View.InvokeCloseAsync(session.Reason, token),
+                        CancellationToken.None, dependencies.Settings.CloseTimeout, "close");
+                }
+                catch (Exception e) { session.Errors.Add(e); Report(e as UIException ?? Error(UIErrorCode.LifecycleFailed, "close", session, e)); }
+                if (session.AbandonedOperation == null && !(shutdownBudget.Started && shutdownBudget.Remaining == TimeSpan.Zero))
+                {
+                    try
+                    {
+                        await AwaitStage(session, token => dependencies.Transition.ExitAsync(TransitionContext(session), token),
+                            CancellationToken.None, dependencies.Settings.ExitTimeout, "exit");
+                    }
+                    catch (Exception e) { session.Errors.Add(e); Report(e as UIException ?? Error(UIErrorCode.TransitionFailed, "exit", session, e)); }
+                }
             }
             catch (Exception e) { session.Errors.Add(e); Report(Error(UIErrorCode.LifecycleFailed, "terminate", session, e)); }
             finally
             {
-                Finish(session, true, () =>
+                Finish(session, session.AbandonedOperation == null, () =>
                 {
                     if (inputLock != null) { Collect(session, inputLock.Dispose); inputLocks--; }
                 });
@@ -398,36 +479,62 @@ namespace Wulato.UIKit
                 if (!session.CloseRequested)
                 {
                     session.CloseRequested = true;
-                    session.Reason = state == UIContextState.Running ? reason : UICloseReason.ContextShutdown;
+                    session.Reason = state == UIContextState.Running ? reason : shutdownReason;
                 }
                 results.Add(await CloseCore(session));
             }
             return new UIBatchCompletion(results, Array.Empty<Exception>());
         }
-        public UniTask ClearCacheAsync() => Submit(() => UniTask.FromResult(true)).AsUniTask();
+        public UniTask ClearCacheAsync() => Submit(() =>
+        {
+            var errors = new List<Exception>(); cache.Clear(item => ReleaseInstance(item, errors, "cache-clear"));
+            if (errors.Count != 0) throw Error(UIErrorCode.LifecycleFailed, "cache-clear", null, new AggregateException(errors));
+            return UniTask.FromResult(true);
+        }).AsUniTask();
 
+        void OnRootAvailabilityChanged(bool available) => rootAvailable = available;
+        void OnRootDestroyed() => BeginShutdown(UICloseReason.RootDestroyed);
         public UniTask<UIShutdownCompletion> ShutdownAsync()
         {
             var error = SubmissionError(true);
-            if (error != null) return UniTask.FromException<UIShutdownCompletion>(error);
-            if (state != UIContextState.Running) return shutdown.Task;
-            state = UIContextState.Stopping;
-            foreach (var session in sessions) session.Reason = UICloseReason.ContextShutdown;
+            return error != null ? UniTask.FromException<UIShutdownCompletion>(error) : BeginShutdown(UICloseReason.ContextShutdown);
+        }
+        UniTask<UIShutdownCompletion> BeginShutdown(UICloseReason reason)
+        {
+            if (state == UIContextState.Stopped) return shutdown.Task;
+            if (reason == UICloseReason.RootDestroyed) shutdownReason = reason;
+            foreach (var session in sessions) session.Reason = shutdownReason;
+            if (state == UIContextState.Stopping) return shutdown.Task;
+            state = UIContextState.Stopping; shutdownBudget.Start();
+            commands.RejectPending();
             try { stopping.Cancel(); } catch (Exception e) { Report(Error(UIErrorCode.LifecycleFailed, "stop-signal", null, e)); }
             commands.Enqueue(async () =>
             {
-                var results = new List<UICompletion>();
                 foreach (var session in sessions.ToArray())
                 {
-                    session.CloseRequested = true; session.Reason = UICloseReason.ContextShutdown;
-                    results.Add(await CloseCore(session));
+                    session.CloseRequested = true; session.Reason = shutdownReason;
+                    await CloseCore(session);
                 }
                 var errors = new List<Exception>();
+                cache.Clear(item => ReleaseInstance(item, errors, "shutdown-cache"));
                 try { Callback(inputRegistration.Dispose); } catch (Exception e) { errors.Add(e); }
+                if (hostProvider != null)
+                {
+                    hostProvider.RootDestroyed -= OnRootDestroyed;
+                    hostProvider.AvailabilityChanged -= OnRootAvailabilityChanged;
+                }
+                // First-party factory owns this Context's wrappers/roots. Shared injected services remain external.
+                if (hostProvider is IDisposable hostOwner)
+                    try { Callback(hostOwner.Dispose); } catch (Exception e) { errors.Add(e); Report(Error(UIErrorCode.LifecycleFailed, "shutdown-host", null, e)); }
+                shutdownBudget.Dispose();
                 state = UIContextState.Stopped;
-                var result = new UIShutdownCompletion(shutdownCompletions, errors, pendingCleanup);
+                finalDiagnostics = BuildDiagnostics();
+                var result = new UIShutdownCompletion(shutdownCompletions, errors, orphans.PendingCount);
                 completions.Post(() => shutdown.TrySetResult(result));
+                runtimeAttachment?.Dispose();
             });
+            // Queued request rejection is already committed; the active command remains non-reentrant.
+            completions.Drain();
             return shutdown.Task;
         }
 
@@ -482,9 +589,10 @@ namespace Wulato.UIKit
             if (dependencies.Services.TryGetValue(typeof(TService), out var service)) return (TService)service;
             throw new InvalidOperationException("Service is not registered.");
         }
-        public UIDiagnosticsSnapshot GetDiagnostics()
+        public UIDiagnosticsSnapshot GetDiagnostics() => finalDiagnostics ?? BuildDiagnostics();
+        UIDiagnosticsSnapshot BuildDiagnostics()
             => new UIDiagnosticsSnapshot(id, state, dependencies.Settings.DiagnosticsLevel, dependencies.Scheduler.UnscaledTime,
                 sessions.Select(s => new UISessionDiagnostics(s.Id, s.Registration.Key, s.State)),
-                sessions.Count(s => s.Lease != null), isolatedLeases, Array.Empty<UIViewTypeKey>(), inputOwner, inputLocks, pendingCleanup);
+                sessions.Count(s => s.Lease != null), orphans.IsolatedLeaseCount, cache.Keys, inputOwner, inputLocks, orphans.PendingCount);
     }
 }

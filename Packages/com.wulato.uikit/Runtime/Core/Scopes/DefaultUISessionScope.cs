@@ -6,7 +6,7 @@ namespace Wulato.UIKit
     internal sealed class DefaultUISessionScope : UISessionScope
     {
         readonly UIInstanceScope resources=new UIInstanceScope();
-        readonly Func<CancellationToken,UniTask> layout;
+        Func<CancellationToken,UniTask> layout;
         bool terminationNotified;
         public override UISessionId Id { get; }
         public override UIContextId ContextId { get; }
@@ -16,7 +16,10 @@ namespace Wulato.UIKit
         public DefaultUISessionScope(UISessionId id,UIContextId contextId,IUIAsyncScheduler scheduler,Func<CancellationToken,UniTask> layout)
         { Id=id;ContextId=contextId;Scheduler=scheduler;this.layout=layout; }
         public override void Track(IDisposable resource) => resources.Track(resource);
-        public override void Dispose() => resources.Dispose();
+        public override void Dispose()
+        {
+            try { resources.Dispose(); } finally { layout=null; }
+        }
         internal void End(Action afterCancellation,Action<Exception> onError)
         {
             if(terminationNotified)return;
@@ -27,11 +30,13 @@ namespace Wulato.UIKit
                 else resources.End(afterCancellation);
             }
             catch(Exception e) { onError(e); }
+            finally { layout=null; }
         }
         public override UniTask WaitLayoutAsync(CancellationToken cancellationToken)
         {
-            if(!IsCurrent)return UniTask.FromCanceled(Token);
-            return layout(cancellationToken);
+            var prepare=layout;
+            if(!IsCurrent || prepare==null)return UniTask.FromCanceled(Token);
+            return prepare(cancellationToken);
         }
     }
 }
