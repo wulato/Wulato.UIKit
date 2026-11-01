@@ -578,6 +578,7 @@ namespace Wulato.UIKit
                 // First-party factory owns this Context's wrappers/roots. Shared injected services remain external.
                 if (hostProvider is IDisposable hostOwner)
                     try { Callback(hostOwner.Dispose); } catch (Exception e) { errors.Add(e); Report(Error(UIErrorCode.LifecycleFailed, "shutdown-host", null, e)); }
+                try { Callback(() => dependencies.StopResources?.Invoke(errors.Add)); } catch (Exception e) { errors.Add(e); }
                 shutdownBudget.Dispose();
                 state = UIContextState.Stopped;
                 finalDiagnostics = BuildDiagnostics();
@@ -637,15 +638,20 @@ namespace Wulato.UIKit
         }
         public TService GetService<TService>() where TService : class
         {
+            if(Thread.CurrentThread.ManagedThreadId!=mainThread)throw Error(UIErrorCode.InvalidRequest,"main-thread");
             if (state != UIContextState.Running) throw Error(UIErrorCode.ContextStopped, "service");
             if (typeof(TService) == typeof(IUITransactionAccess) && dependencies.EnableTransactions) return (TService)(object)this;
             if (dependencies.Services.TryGetValue(typeof(TService), out var service)) return (TService)service;
             throw new InvalidOperationException("Service is not registered.");
         }
-        public UIDiagnosticsSnapshot GetDiagnostics() => finalDiagnostics ?? BuildDiagnostics();
+        public UIDiagnosticsSnapshot GetDiagnostics()
+        {
+            if(Thread.CurrentThread.ManagedThreadId!=mainThread)throw Error(UIErrorCode.InvalidRequest,"main-thread");
+            return finalDiagnostics ?? BuildDiagnostics();
+        }
         UIDiagnosticsSnapshot BuildDiagnostics()
             => new UIDiagnosticsSnapshot(id, state, dependencies.Settings.DiagnosticsLevel, dependencies.Scheduler.UnscaledTime,
-                sessions.Select(s => new UISessionDiagnostics(s.Id, s.Registration.Key, s.State)),
-                sessions.Count(s => s.Lease != null), orphans.IsolatedLeaseCount, cache.Keys, inputOwner, inputLocks, orphans.PendingCount);
+                dependencies.Settings.DiagnosticsLevel == UIDiagnosticsLevel.Off ? Enumerable.Empty<UISessionDiagnostics>() : sessions.Select(s => new UISessionDiagnostics(s.Id, s.Registration.Key, s.State)),
+                sessions.Count(s => s.Lease != null), orphans.IsolatedLeaseCount, dependencies.Settings.DiagnosticsLevel == UIDiagnosticsLevel.Off ? Enumerable.Empty<UIViewTypeKey>() : cache.Keys, inputOwner, inputLocks, orphans.PendingCount);
     }
 }

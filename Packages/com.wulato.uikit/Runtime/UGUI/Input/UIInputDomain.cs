@@ -48,7 +48,7 @@ namespace Wulato.UIKit
         {
             if (disposed) return;disposed=true;
             Arbiter?.Dispose();driver.Gate=null;
-            if (Gate) { Gate.Release();UnityEngine.Object.Destroy(Gate); }
+            if (Gate) { Gate.Release();if(Application.isPlaying)UnityEngine.Object.Destroy(Gate);else UnityEngine.Object.DestroyImmediate(Gate); }
             if (marker) marker.Domain=null;
         }
     }

@@ -5,7 +5,8 @@
     "Wulato.UIKit.Loading",
     "Wulato.UIKit.UGUI",
     "UniTask",
-    "Wulato.UIKit.Tests.Support"
+    "Wulato.UIKit.Tests.Support",
+    "UnityEngine.UI"
   ],
   "includePlatforms": [
     "Editor"

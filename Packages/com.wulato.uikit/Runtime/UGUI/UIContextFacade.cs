@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+namespace Wulato.UIKit
+{
+    internal sealed class UIContextFacade : IUIContext
+    {
+        static readonly Dictionary<UIRoot,UIContextFacade> roots=new Dictionary<UIRoot,UIContextFacade>();
+        readonly UIRoot root;
+        readonly UIServiceRegistry services;
+        UIContextEngine engine;
+        UIInputDomain domain;
+        UIInputArbiter arbiter;
+        bool released;
+        internal readonly UIContextId Id=new UIContextId(Guid.NewGuid());
+        internal UIContextFacade(UIRoot root,UIServiceRegistry services){this.root=root;this.services=services;}
+        internal static void AssertAvailable(UIRoot root){if(roots.ContainsKey(root))throw new InvalidOperationException("The root already has a live Context.");}
+        internal void Claim(){AssertAvailable(root);roots.Add(root,this);}
+        internal void Initialize(UIContextEngine engine,UIInputDomain domain,UIInputArbiter arbiter){this.engine=engine;this.domain=domain;this.arbiter=arbiter;}
+        internal void Rollback(){if(roots.TryGetValue(root,out var value)&&value==this)roots.Remove(root);released=true;}
+        internal void Release(Action<Exception> error)
+        {
+            if(released)return;released=true;
+            services.Release(error);
+            try {arbiter?.Dispose();}catch(Exception e){error(e);}
+            try {domain?.Dispose();}catch(Exception e){error(e);}
+            if(roots.TryGetValue(root,out var value)&&value==this)roots.Remove(root);
+        }
+        internal static int ActiveCount=>roots.Count;
+        // Teardown live owners before removing the bridge; never reset unresolved ownership counters.
+        internal static void StopPlaySession()
+        {
+            foreach(var context in new List<UIContextFacade>(roots.Values))
+                if(context.engine!=null)context.engine.ShutdownAsync().Forget();
+        }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Reset()=>StopPlaySession();
+        UIContextEngine Ready()=>engine??throw new InvalidOperationException("Only previously created service lookup is allowed during Build.");
+        public UniTask<IUISession<TView>> OpenAsync<TView>(CancellationToken token=default) where TView:UIView =>Ready().OpenAsync<TView>(token);
+        public UniTask<IUISession<TView>> OpenAsync<TView,TArgs>(TArgs args,CancellationToken token=default) where TView:UIView<TArgs> =>Ready().OpenAsync<TView,TArgs>(args,token);
+        public UniTask<IUISession> OpenAsync(UIViewTypeKey type,UIArguments args,CancellationToken token=default)=>Ready().OpenAsync(type,args,token);
+        public UniTask<UIBatchCompletion> CloseAllAsync(UICloseReason reason=UICloseReason.Owner)=>Ready().CloseAllAsync(reason);
+        public UniTask<UIBatchCompletion> CloseAllOfTypeAsync<TView>(UICloseReason reason=UICloseReason.Owner) where TView:UIViewBase =>Ready().CloseAllOfTypeAsync<TView>(reason);
+        public UniTask ClearCacheAsync()=>Ready().ClearCacheAsync();
+        public UniTask<UIShutdownCompletion> ShutdownAsync()=>Ready().ShutdownAsync();
+        public TService GetService<TService>() where TService:class
+        {
+            if(engine!=null)return engine.GetService<TService>();
+            if(released)throw new UIException(UIErrorCode.ContextStopped,"service",Id);
+            if(services.Values.TryGetValue(typeof(TService),out var value))return (TService)value;
+            throw new InvalidOperationException("Service is not registered.");
+        }
+        public UIDiagnosticsSnapshot GetDiagnostics()=>Ready().GetDiagnostics();
+    }
+}

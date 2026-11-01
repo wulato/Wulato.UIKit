@@ -185,6 +185,13 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.Builder_DefaultResources_OpensAndClosesActualView",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
         ]
       },
       "EditMode": {
@@ -246,6 +253,23 @@
           "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
           "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
           "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.EqualButDistinctServices_BothDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.InvalidRootLayer_DoesNotAllocatePartialHierarchy",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ServiceLookup_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedService_IsNotDisposedByContext",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryFails_PreviousServicesDisposeReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.UnregisteredService_Throws",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.StoppedContext_ServiceLookupRejectedButSnapshotReadable",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SourceSettingsMutated_RuntimeUnchanged",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedArbiter_BuildsTwoContexts",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SecondDefaultArbiter_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.DifferentInjectedArbiterForSameDomain_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
         ]
       }
     },
@@ -437,6 +461,13 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.Builder_DefaultResources_OpensAndClosesActualView",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
         ]
       },
       "EditMode": {
@@ -502,6 +533,24 @@
         "input-package": [
           "Wulato.UIKit.InputSystem.Tests.AdapterPackageTests.AdapterManifest_PinsCoreAndInputVersions",
           "Wulato.UIKit.InputSystem.Tests.AdapterPackageTests.AdapterAssemblyReferences_OnlyPointToAllowedRuntimeAssemblies"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.EqualButDistinctServices_BothDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.InvalidRootLayer_DoesNotAllocatePartialHierarchy",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ServiceLookup_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedService_IsNotDisposedByContext",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryFails_PreviousServicesDisposeReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.UnregisteredService_Throws",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.StoppedContext_ServiceLookupRejectedButSnapshotReadable",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SourceSettingsMutated_RuntimeUnchanged",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedArbiter_BuildsTwoContexts",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SecondDefaultArbiter_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.DifferentInjectedArbiterForSameDomain_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
         ]
       }
     }
@@ -692,6 +741,13 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.Builder_DefaultResources_OpensAndClosesActualView",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
         ]
       },
       "EditMode": {
@@ -753,6 +809,23 @@
           "Wulato.UIKit.Tests.BudgetTests.OpenAndLayout_ShareOneLifecycleBudget",
           "Wulato.UIKit.Tests.BudgetTests.ShutdownTotalBudget_IsNotResetForEachSession",
           "Wulato.UIKit.Tests.BudgetTests.ShutdownInterruptsAlreadyRunningClose_UsingNewTotalDeadline"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.EqualButDistinctServices_BothDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.InvalidRootLayer_DoesNotAllocatePartialHierarchy",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ServiceLookup_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedService_IsNotDisposedByContext",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryFails_PreviousServicesDisposeReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.UnregisteredService_Throws",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.StoppedContext_ServiceLookupRejectedButSnapshotReadable",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SourceSettingsMutated_RuntimeUnchanged",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedArbiter_BuildsTwoContexts",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SecondDefaultArbiter_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.DifferentInjectedArbiterForSameDomain_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
         ]
       }
     },
@@ -944,6 +1017,13 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.Builder_DefaultResources_OpensAndClosesActualView",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.RootDestruction_StopsOwnedServices",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FailedDefaultBuild_PreservesOwner_AndExplicitSharingTransfersForeground",
+          "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.FactoryObserver_BindsSession_AndDisposesAfterTermination"
         ]
       },
       "EditMode": {
@@ -1009,6 +1089,24 @@
         "input-package": [
           "Wulato.UIKit.InputSystem.Tests.AdapterPackageTests.AdapterManifest_PinsCoreAndInputVersions",
           "Wulato.UIKit.InputSystem.Tests.AdapterPackageTests.AdapterAssemblyReferences_OnlyPointToAllowedRuntimeAssemblies"
+        ],
+        "integration": [
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.EqualButDistinctServices_BothDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.InvalidRootLayer_DoesNotAllocatePartialHierarchy",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ServiceLookup_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedService_IsNotDisposedByContext",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryFails_PreviousServicesDisposeReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.UnregisteredService_Throws",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.StoppedContext_ServiceLookupRejectedButSnapshotReadable",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SourceSettingsMutated_RuntimeUnchanged",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SharedInjectedArbiter_BuildsTwoContexts",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SecondDefaultArbiter_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.DifferentInjectedArbiterForSameDomain_BuildFailsAndRollsBack",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
         ]
       }
     }

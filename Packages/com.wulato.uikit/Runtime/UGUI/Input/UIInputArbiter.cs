@@ -16,6 +16,7 @@ namespace Wulato.UIKit
         long generation,order;
         UIModalMask mask;
         bool disposed,arbitrating,rerun;
+        internal bool Matches(UnityEngine.EventSystems.EventSystem events)=>!disposed && domain.EventSystem==events && domain.Arbiter==this;
         public UIInputArbiter(UIInputDomain domain) {this.domain=domain??throw new ArgumentNullException(nameof(domain));domain.Register(this);}
         public IDisposable Register(UIContextId contextId,UIInputRegistration registration)
         {

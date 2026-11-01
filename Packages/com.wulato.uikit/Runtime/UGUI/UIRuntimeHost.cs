@@ -43,6 +43,7 @@ namespace Wulato.UIKit
             var attachment = new Attachment { Queue = notifications, Orphans = orphans };
             attachments.Add(attachment); return new Lease(() => attachment.Released = true);
         }
+        void OnApplicationQuit() => UIContextFacade.StopPlaySession();
         void LateUpdate()
         {
             for (int i = attachments.Count - 1; i >= 0; i--)

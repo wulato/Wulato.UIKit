@@ -27,7 +27,7 @@ namespace Wulato.UIKit
                 safeArea = value;
             }
         }
-        internal void ValidateAndInitialize()
+        internal void ValidateConfiguration()
         {
             var canvas = Canvas;
             if (canvas.renderMode == RenderMode.WorldSpace ||
@@ -40,9 +40,20 @@ namespace Wulato.UIKit
             Transform mount = safeArea != null ? safeArea : transform;
             for (int i = 0; i < layers.Length; i++)
             {
-                if (layers[i] == null) layers[i] = CreateRect(((UILayer)i).ToString(), mount);
+                if (layers[i] == null) continue;
                 if (layers[i].parent != mount) throw new InvalidOperationException("Logical layers must be direct children of the configured mount.");
                 for (int j = 0; j < i; j++) if (layers[i] == layers[j]) throw new InvalidOperationException("Logical layers must be distinct.");
+            }
+        }
+        internal void ValidateAndInitialize()
+        {
+            ValidateConfiguration();
+            if (initialized) return;
+            var canvas = Canvas;
+            Transform mount = safeArea != null ? safeArea : transform;
+            for (int i = 0; i < layers.Length; i++)
+            {
+                if (layers[i] == null) layers[i] = CreateRect(((UILayer)i).ToString(), mount);
                 var layerCanvas = layers[i].GetComponent<Canvas>();
                 if (layerCanvas == null) layerCanvas = layers[i].gameObject.AddComponent<Canvas>();
                 layerCanvas.overrideSorting = true; layerCanvas.sortingOrder = canvas.sortingOrder + i * 100;
