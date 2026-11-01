@@ -18,7 +18,7 @@ namespace Wulato.UIKit
             cancellationToken.ThrowIfCancellationRequested();
             if (view != null) view.GetComponentInParent<UIViewGateGuard>(true)?.ValidateNow();
             if (view == null || !view.gameObject.activeInHierarchy) throw new InvalidOperationException("View became unavailable before the layout barrier.");
-            Canvas.ForceUpdateCanvases();
+            using(UIProfiler.Layout.Auto())Canvas.ForceUpdateCanvases();
         }
     }
 }

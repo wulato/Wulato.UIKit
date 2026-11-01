@@ -70,8 +70,9 @@ namespace Wulato.UIKit.Acceptance.Editor
             var variant=AssetDatabase.LoadAssetAtPath<GameObject>(Folder+"/ViewA.prefab");
             if(PrefabUtility.GetPrefabAssetType(variant)!=PrefabAssetType.Variant || variant.GetComponent<UIBindingMarker>().bindings[0].target.name!="Renamed Variant Label")throw new InvalidOperationException("Variant/rename binding fixture was not retained.");
             var registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(UICodegenPipeline.RegistryPath);
-            if(registry.CopyValidated().Entries.Count!=3)throw new InvalidOperationException("Expected three mixed-assembly providers.");
-            var serialized=new SerializedObject(registry);if(serialized.FindProperty("providers").arraySize!=3)throw new InvalidOperationException("Missing provider assets.");
+            var entries=registry.CopyValidated().Entries;
+            if(entries.Count(e=>e.Key.Value.StartsWith("generated-",StringComparison.Ordinal))!=3)throw new InvalidOperationException("Expected three mixed-assembly providers.");
+            var serialized=new SerializedObject(registry);if(serialized.FindProperty("providers").arraySize!=entries.Select(e=>e.ViewType.Assembly).Distinct().Count())throw new InvalidOperationException("Missing provider assets.");
             var marker=AssetDatabase.LoadAssetAtPath<GameObject>(Folder+"/ViewA.prefab").GetComponent<UIBindingMarker>();var old=marker.typeKey;
             try {marker.typeKey="stale";ExpectRejected(UICodegenPipeline.Validate,"StaleFingerprint_PreventsBuild");}finally{marker.typeKey=old;}
             var wrong=UICodegenPipeline.Root+"/Assembly.asmref";

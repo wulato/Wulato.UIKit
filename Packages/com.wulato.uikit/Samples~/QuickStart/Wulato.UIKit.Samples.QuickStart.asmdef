@@ -1,0 +1,9 @@
+{
+  "name": "Wulato.UIKit.Samples.QuickStart",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "UniTask",
+    "UnityEngine.UI"
+  ]
+}

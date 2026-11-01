@@ -49,6 +49,15 @@
         "com.wulato.uikit": "0.1.0"
       }
     },
+    "com.wulato.uikit.acceptance.samples": {
+      "version": "file:../../../Packages/com.wulato.uikit.acceptance.samples",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.1.0",
+        "com.unity.ugui": "1.0.0"
+      }
+    },
     "com.wulato.uikit.verification": {
       "version": "file:../../../Packages/com.wulato.uikit.verification",
       "depth": 0,

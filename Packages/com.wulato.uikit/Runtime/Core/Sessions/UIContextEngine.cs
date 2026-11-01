@@ -71,6 +71,10 @@ namespace Wulato.UIKit
 
         T Callback<T>(Func<T> callback) => callbacks.Invoke(callback);
         void Callback(Action callback) => callbacks.Invoke(callback);
+        T Callback<T>(Func<T> callback,Unity.Profiling.ProfilerMarker marker)
+        {using(marker.Auto())return callbacks.Invoke(callback);}
+        void Callback(Action callback,Unity.Profiling.ProfilerMarker marker)
+        {using(marker.Auto())callbacks.Invoke(callback);}
         void Report(UIException error)
         {
             try { Callback(() => dependencies.ErrorSink.Report(error)); }
@@ -164,7 +168,7 @@ namespace Wulato.UIKit
                     if (cached == null)
                     {
                         session.Instance = new UIInstanceScope();
-                        Callback(session.View.InvokeCreate);
+                        Callback(session.View.InvokeCreate,UIProfiler.Hooks);
                     }
                     opening.Token.ThrowIfCancellationRequested();
                     session.Scope = new DefaultUISessionScope(session.Id, id, dependencies.Scheduler,
@@ -239,7 +243,7 @@ namespace Wulato.UIKit
                     phase.Token.ThrowIfCancellationRequested();
                     record = new UIOperationRecord<bool>(ToValue(Callback(() => entering
                         ? transition.EnterAsync(context, phase.Token)
-                        : transition.ExitAsync(context, phase.Token))));
+                        : transition.ExitAsync(context, phase.Token),UIProfiler.Transition)));
                     // EnterAsync applies its initial state synchronously before this gate opens.
                     if (entering) Callback(() => session.Host.SetVisible(true));
                     await record.WaitAsync(phase.Token);
@@ -294,7 +298,7 @@ namespace Wulato.UIKit
                 try
                 {
                     phase.Token.ThrowIfCancellationRequested();
-                    record = new UIOperationRecord<T>(Callback(() => invoke(phase.Token)));
+                    record = new UIOperationRecord<T>(Callback(() => invoke(phase.Token),UIProfiler.Stage(stage)));
                     return await record.WaitAsync(phase.Token);
                 }
                 catch (Exception e)

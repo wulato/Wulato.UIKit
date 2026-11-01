@@ -197,6 +197,20 @@
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
+        ],
+        "samples": [
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Settings_OpenAndOwnerClose",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.TwoModals_RestoreFocus",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.InventoryArgs_DisplayCorrectTab",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.FiftyCacheCycles_LeaseCountDoesNotGrow",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Scenes_BootstrapAndExternalConfirmation"
+        ],
+        "performance": [
+          "Wulato.UIKit.Acceptance.Samples.PerformanceBaselineTests.Modal_ThreeModes_FiftyCycles",
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "performance-markers": [
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
         ]
       },
       "EditMode": {
@@ -493,6 +507,20 @@
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
+        ],
+        "samples": [
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Settings_OpenAndOwnerClose",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.TwoModals_RestoreFocus",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.InventoryArgs_DisplayCorrectTab",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.FiftyCacheCycles_LeaseCountDoesNotGrow",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Scenes_BootstrapAndExternalConfirmation"
+        ],
+        "performance": [
+          "Wulato.UIKit.Acceptance.Samples.PerformanceBaselineTests.Modal_ThreeModes_FiftyCycles",
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "performance-markers": [
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
         ]
       },
       "EditMode": {
@@ -793,6 +821,20 @@
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
+        ],
+        "samples": [
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Settings_OpenAndOwnerClose",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.TwoModals_RestoreFocus",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.InventoryArgs_DisplayCorrectTab",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.FiftyCacheCycles_LeaseCountDoesNotGrow",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Scenes_BootstrapAndExternalConfirmation"
+        ],
+        "performance": [
+          "Wulato.UIKit.Acceptance.Samples.PerformanceBaselineTests.Modal_ThreeModes_FiftyCycles",
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "performance-markers": [
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
         ]
       },
       "EditMode": {
@@ -1089,6 +1131,20 @@
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_DriveSessionsCacheTransitionsInputAndComposition",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_CanceledLoadReleasesLateLeaseAndQueueRecovers",
           "Wulato.UIKit.Tests.PlayMode.GeneratedRegistryIntegrationTests.GeneratedMappings_EnterCancellationStopsAndReleasesBindings"
+        ],
+        "samples": [
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Settings_OpenAndOwnerClose",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.TwoModals_RestoreFocus",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.InventoryArgs_DisplayCorrectTab",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.FiftyCacheCycles_LeaseCountDoesNotGrow",
+          "Wulato.UIKit.Acceptance.Samples.SampleAcceptanceTests.Scenes_BootstrapAndExternalConfirmation"
+        ],
+        "performance": [
+          "Wulato.UIKit.Acceptance.Samples.PerformanceBaselineTests.Modal_ThreeModes_FiftyCycles",
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "performance-markers": [
+          "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
         ]
       },
       "EditMode": {

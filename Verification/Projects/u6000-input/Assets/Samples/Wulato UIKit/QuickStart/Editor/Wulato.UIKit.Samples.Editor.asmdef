@@ -1,0 +1,1 @@
+{"name":"Wulato.UIKit.Samples.Editor","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","Wulato.UIKit.Editor","UnityEngine.UI"],"includePlatforms":["Editor"]}

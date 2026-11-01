@@ -7,5 +7,22 @@
   "dependencies": {
     "com.unity.ugui": "1.0.0",
     "com.cysharp.unitask": "2.5.11"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "QuickStart",
+      "description": "Settings page with explicit Context composition",
+      "path": "Samples~/QuickStart"
+    },
+    {
+      "displayName": "Modals",
+      "description": "Stacked modal sessions and restored focus",
+      "path": "Samples~/Modals"
+    },
+    {
+      "displayName": "Inventory",
+      "description": "Typed arguments, ordinary ScrollRect and CacheOne",
+      "path": "Samples~/Inventory"
+    }
+  ]
 }

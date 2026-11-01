@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: UIRegistry
   m_EditorClassIdentifier: 
   providers:
+  - {fileID: 11400000, guid: 18605b602878e4e76b13752208177f23, type: 2}
+  - {fileID: 11400000, guid: ea1b89a0355b64ca5b4ab1e17242e903, type: 2}
   - {fileID: 11400000, guid: c19d71396071140b79af1c1388bc3c45, type: 2}
+  - {fileID: 11400000, guid: d85eff8761cb443a98e1b16cd78669e0, type: 2}
   - {fileID: 11400000, guid: 41e4947784c0141f19c17b8d7e7e60c4, type: 2}
   - {fileID: 11400000, guid: 156cf00f047124073a2953e0c4ff0b57, type: 2}

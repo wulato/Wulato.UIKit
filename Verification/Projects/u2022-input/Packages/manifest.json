@@ -13,7 +13,8 @@
     "com.wulato.uikit.input-system": "file:../../../../Packages/com.wulato.uikit.input-system",
     "com.wulato.uikit": "file:../../../../Packages/com.wulato.uikit",
     "com.wulato.uikit.acceptance": "file:../../../Packages/com.wulato.uikit.acceptance",
-    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11"
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11",
+    "com.wulato.uikit.acceptance.samples": "file:../../../Packages/com.wulato.uikit.acceptance.samples"
   },
   "testables": [
     "com.wulato.uikit.verification",
@@ -21,6 +22,7 @@
     "com.wulato.uikit",
     "com.wulato.uikit.acceptance",
     "com.unity.inputsystem",
-    "com.wulato.uikit.input-system"
+    "com.wulato.uikit.input-system",
+    "com.wulato.uikit.acceptance.samples"
   ]
 }

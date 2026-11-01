@@ -21,7 +21,7 @@ def digest(files):
 def package_sources(host):
  manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
  for name,value in manifest['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.input-system')):continue
   if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
   actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name in ('com.wulato.uikit','com.wulato.uikit.input-system') else (V/'Packages'/name)).resolve()
   if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
@@ -48,7 +48,7 @@ def snapshot(ver,backend,host):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.input-system')):continue
   path=(host/'Packages'/value.removeprefix('file:')).resolve()
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)
@@ -88,6 +88,10 @@ def unity(args,ver,host,out,test=False):
  if (out/'editor.log').exists():(out/'editor.log').write_text(log)
  actual=re.search(r'(?:Unity Editor version:|Initialize engine version:)\s*(\d+\.\d+\.\w+)',log)
  return rc,timeout,log,actual.group(1) if actual else None
+
+def applicable_suites(matrix,manifest):
+ optional={'samples','performance','performance-markers'}
+ return {name:cases for name,cases in matrix.items() if name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']}
 
 def _run_locked(args):
  from evidence import seal,sha256
@@ -130,7 +134,7 @@ def _run_locked(args):
     else:manifest=dict(dependencies=deps,testables=testables)
     dump(host/'Packages/manifest.json',manifest)
    else:
-    matrix=json.loads((C/'matrix.json').read_text())[ver][backend][mode]
+    matrix=applicable_suites(json.loads((C/'matrix.json').read_text())[ver][backend][mode],json.loads((host/'Packages/manifest.json').read_text()))
     required=matrix[suite] if suite!='all' else sum(matrix.values(),[])
     metadata['source_before']=fingerprint(host);dump(out/'run.json',metadata)
    if args.command=='prepare' and args.phase=='runtime':args.execute_method='Wulato.UIKit.Acceptance.Editor.T2HostProbe.Prepare'
@@ -176,12 +180,16 @@ def main():
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
   if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime'],required=True)
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
- for name in ('codegen','check-generated'):
+ for name in ('codegen','check-generated','prepare-samples'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
+ q=sub.choices['prepare-samples'];q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
  q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight'],required=True)
  a=p.parse_args()
+ if a.command=='prepare-samples':
+  from samples import prepare
+  return prepare(a)
  if a.command in ('codegen','check-generated'):
   from codegen import run_codegen
   return run_codegen(a)

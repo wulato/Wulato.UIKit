@@ -36,17 +36,23 @@ namespace Wulato.UIKit.Tests.Editor
                 var generated=manifest.files.Single(f=>f.path.EndsWith(guid+".Bindings.cs")).path;
                 Assert.That(CompilationPipeline.GetAssemblyNameFromScriptPath(generated),Is.EqualTo(CompilationPipeline.GetAssemblyNameFromScriptPath(AssetDatabase.GetAssetPath(script))));
                 var root=AssetDatabase.LoadAssetAtPath<GameObject>(prefab);var view=root.GetComponent(script.GetClass());
-                Assert.That(new SerializedObject(view).FindProperty("label").objectReferenceValue,Is.Not.Null);
+                var authoredBindings=new SerializedObject(marker).FindProperty("bindings");
+                for(int i=0;i<authoredBindings.arraySize;i++)
+                {
+                    var binding=authoredBindings.GetArrayElementAtIndex(i);var field=binding.FindPropertyRelative("fieldName").stringValue;
+                    Assert.That(new SerializedObject(view).FindProperty(field).objectReferenceValue,Is.EqualTo(binding.FindPropertyRelative("target").objectReferenceValue),prefab+" / "+field);
+                }
             }
-            Assert.That(manifest.prefabs.Length,Is.EqualTo(3));
+            Assert.That(manifest.prefabs.Count(p=>p.StartsWith("Assets/UIKitCodegenFixture/",StringComparison.Ordinal)),Is.EqualTo(3));
         }
         [Serializable] class FileEntry { public string path; }
         [Serializable] class Manifest { public string[] prefabs;public FileEntry[] files; }
         [Test] public void MixedAssemblyProviders_PopulateRegistryWithoutReverseReferences()
         {
             Validate();var registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(Root+"/UIRegistry.asset");var entries=registry.CopyValidated().Entries;
-            Assert.That(entries.Count,Is.EqualTo(3));Assert.That(entries.Select(e=>e.ViewType.Assembly).Distinct().Count(),Is.EqualTo(3));
-            var providers=new SerializedObject(registry).FindProperty("providers");Assert.That(providers.arraySize,Is.EqualTo(3));
+            var fixtureEntries=entries.Where(e=>e.Key.Value.StartsWith("generated-",StringComparison.Ordinal)).ToArray();
+            Assert.That(fixtureEntries.Length,Is.EqualTo(3));Assert.That(fixtureEntries.Select(e=>e.ViewType.Assembly).Distinct().Count(),Is.EqualTo(3));
+            var providers=new SerializedObject(registry).FindProperty("providers");Assert.That(providers.arraySize,Is.EqualTo(entries.Select(e=>e.ViewType.Assembly).Distinct().Count()));
             for(int i=0;i<providers.arraySize;i++)
             {
                 var provider=providers.GetArrayElementAtIndex(i).objectReferenceValue;

@@ -2,6 +2,14 @@
 
 ## 0.1.0 — development checkpoints
 
+### T10 — samples, profiling and integration documentation (2026-11-01)
+
+- Ship QuickStart settings, stacked Modals and typed Inventory samples with uGUI Text, ordinary ScrollRect, explicit Context composition and routed generated bindings.
+- Import sample assemblies before mounting the optional sample acceptance package; preserve consumer scenes and asset GUIDs.
+- Record 50 first-context loads, warm Release rebuilds and CacheOne reopens for a representative Modal, including frame allocations, available Canvas profiler data and independent live resource counts.
+- Add synchronous load/layout/hook/transition/cache profiler scopes and installation, lifecycle, cancellation/error, extension and performance guides.
+- T9 generator, T8 composition and T7 input are implemented checkpoints. Whole-phase mobile/IL2CPP release acceptance remains T11.
+
 ### T5 — caching and bounded cleanup (2026-11-01)
 
 - Add healthy CacheOne instance reuse with a hard-capacity LRU, explicit clearing and independent Session identities.
@@ -30,4 +38,4 @@
 - Add validated settings and immutable completion, registry and diagnostic data.
 - Establish Core, Loading and UGUI assembly boundaries and contract tests.
 
-T5 remains a development checkpoint. Production transition adapters/transactions, input arbitration, Builder and mobile acceptance remain later tasks.
+The package remains a development checkpoint until the T11 clean-install and complete mobile/IL2CPP release gate is satisfied.

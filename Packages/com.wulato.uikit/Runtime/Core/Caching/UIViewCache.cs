@@ -23,23 +23,32 @@ namespace Wulato.UIKit
         internal IReadOnlyList<UIViewTypeKey> Keys => lru.Select(e => e.Registration.Key).ToArray();
         internal UICachedInstance Take(UIViewTypeKey key)
         {
-            if (!entries.TryGetValue(key, out var node)) return null;
-            entries.Remove(key); lru.Remove(node); return node.Value;
+            using(UIProfiler.Cache.Auto())
+            {
+                if (!entries.TryGetValue(key, out var node)) return null;
+                entries.Remove(key); lru.Remove(node); return node.Value;
+            }
         }
         internal void Put(UICachedInstance item, Action<UICachedInstance> evict)
         {
-            var previous = Take(item.Registration.Key); if (previous != null) evict(previous);
-            if (capacity == 0) { evict(item); return; }
-            entries.Add(item.Registration.Key, lru.AddLast(item));
-            while (entries.Count > capacity)
+            using(UIProfiler.Cache.Auto())
             {
-                var oldest = lru.First.Value; Take(oldest.Registration.Key); evict(oldest);
+                var previous = Take(item.Registration.Key); if (previous != null) evict(previous);
+                if (capacity == 0) { evict(item); return; }
+                entries.Add(item.Registration.Key, lru.AddLast(item));
+                while (entries.Count > capacity)
+                {
+                    var oldest = lru.First.Value; Take(oldest.Registration.Key); evict(oldest);
+                }
             }
         }
         internal void Clear(Action<UICachedInstance> release)
         {
-            var snapshot = lru.ToArray(); lru.Clear(); entries.Clear();
-            foreach (var item in snapshot) release(item);
+            using(UIProfiler.Cache.Auto())
+            {
+                var snapshot = lru.ToArray(); lru.Clear(); entries.Clear();
+                foreach (var item in snapshot) release(item);
+            }
         }
     }
 }
