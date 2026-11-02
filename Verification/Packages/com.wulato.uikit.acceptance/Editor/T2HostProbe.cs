@@ -20,7 +20,7 @@ namespace Wulato.UIKit.Acceptance.Editor
             if(string.IsNullOrEmpty(folder))throw new InvalidOperationException("Missing evidence directory.");
             File.WriteAllText(Path.Combine(folder,"dependency-snapshot.json"),JsonUtility.ToJson(report,true));
             var ugui=Application.unityVersion.StartsWith("6000.") ? "2.0.0" : "1.0.0";
-            foreach(var requirement in new[]{("com.wulato.uikit","0.1.0"),("com.cysharp.unitask","2.5.11"),("com.unity.ugui",ugui)})
+            foreach(var requirement in new[]{("com.wulato.uikit","0.2.0"),("com.cysharp.unitask","2.5.11"),("com.unity.ugui",ugui)})
                 if(!packages.Any(p=>p.name==requirement.Item1 && p.version==requirement.Item2))throw new InvalidOperationException("Resolved package mismatch: "+requirement.Item1);
             Wulato.UIKit.Verification.Editor.FixtureBuilder.Create();
             Debug.Log("UIKIT_T2_DEPENDENCIES_OK");

@@ -10,6 +10,7 @@ namespace Wulato.UIKit
     internal sealed class UIRuntimeDependencies
     {
         internal Action<Action<Exception>> StopResources { get; }
+        internal UIContextLifetime Lifetime { get; }
         public bool EnableTransactions { get; }
         public UIRegistrySnapshot Registry { get; }
         public UIContextSettingsSnapshot Settings { get; }
@@ -24,8 +25,9 @@ namespace Wulato.UIKit
         public IReadOnlyDictionary<Type,object> Services { get; }
         public UIRuntimeDependencies(UIRegistrySnapshot registry,UIContextSettingsSnapshot settings,IUIViewLoader loader,
             IUIAsyncScheduler scheduler,IUIViewHostFactory hostFactory,IUILayoutReady layoutReady,IUITransition transition,
-            IUIInputArbiter inputArbiter,IUIErrorSink errorSink,IEnumerable<IUISessionLifecycleObserver> observers,IDictionary<Type,object> services, bool enableTransactions = false, Action<Action<Exception>> stopResources = null)
+            IUIInputArbiter inputArbiter,IUIErrorSink errorSink,IEnumerable<IUISessionLifecycleObserver> observers,IDictionary<Type,object> services, bool enableTransactions = false, Action<Action<Exception>> stopResources = null, UIContextLifetime lifetime = null)
         {
+            Lifetime=lifetime ?? new UIContextLifetime();
             StopResources=stopResources;EnableTransactions=enableTransactions;
             Registry=registry ?? throw new ArgumentNullException(nameof(registry));Settings=settings ?? throw new ArgumentNullException(nameof(settings));
             Loader=loader ?? throw new ArgumentNullException(nameof(loader));Scheduler=scheduler ?? throw new ArgumentNullException(nameof(scheduler));

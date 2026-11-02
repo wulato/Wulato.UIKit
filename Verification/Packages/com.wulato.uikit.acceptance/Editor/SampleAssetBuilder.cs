@@ -19,7 +19,13 @@ namespace Wulato.UIKit.Acceptance.Editor
         static void Call(string method)
         {
             var type=Type.GetType("Wulato.UIKit.Samples.Editor.SampleSetup, Wulato.UIKit.Samples.Editor",true);
-            type.GetMethod(method).Invoke(null,null);ReportChecks(method);
+            type.GetMethod(method).Invoke(null,null);
+            if(Directory.Exists("Assets/Samples/Wulato UIKit/BusinessFlow")&&(method=="Author"||method=="Validate"))
+            {
+                var flow=Type.GetType("Wulato.UIKit.Samples.BusinessFlow.Editor.BusinessFlowSetup, Wulato.UIKit.Samples.BusinessFlow.Editor",true);
+                flow.GetMethod(method).Invoke(null,null);
+            }
+            ReportChecks(method);
         }
         public static void Author()=>Call("Author");
         public static void Generate()=>Call("Generate");

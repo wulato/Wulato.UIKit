@@ -18,6 +18,7 @@ namespace Wulato.UIKit
         IUILayoutReady layout;
         IUIErrorSink sink;
         IUIInputArbiter input;
+        bool transactions;
         readonly List<IUISessionLifecycleObserver> observers = new List<IUISessionLifecycleObserver>();
         readonly List<KeyValuePair<Type,Func<IUIContext,object>>> factories = new List<KeyValuePair<Type,Func<IUIContext,object>>>();
         public UIContextBuilder(UIRoot root, UIRegistry registry)
@@ -34,9 +35,13 @@ namespace Wulato.UIKit
         public UIContextBuilder WithServiceFactory<TService>(Func<IUIContext,TService> factory) where TService:class
         {
             Required(factory);
+            if(typeof(TService)==typeof(IUIContextLifetime)||typeof(TService)==typeof(UIRegistrySnapshot)||typeof(TService)==typeof(IUITransactionAccess)||typeof(TService)==typeof(IUIPageTransactionAccess))
+                throw new InvalidOperationException("Built-in service types are reserved.");
             if(factories.Exists(f=>f.Key==typeof(TService)))throw new InvalidOperationException("Duplicate service type.");
             factories.Add(new KeyValuePair<Type,Func<IUIContext,object>>(typeof(TService),ui=>factory(ui)));return this;
         }
+        /// <summary>Enable the explicit first-party transaction capability.</summary>
+        public UIContextBuilder WithTransactions() { transactions=true;return this; }
         public IUIContext Build()
         {
             if(!PlayerLoopHelper.IsMainThread)throw new InvalidOperationException("Build requires the main thread.");
@@ -61,6 +66,8 @@ namespace Wulato.UIKit
                 else if(!(arbiter is UIInputArbiter concrete)||!concrete.Matches(events))
                     throw new InvalidOperationException("The injected arbiter must own the current EventSystem domain.");
                 facade.Claim();
+                services.Values.Add(typeof(IUIContextLifetime),facade.Lifetime);
+                services.Values.Add(typeof(UIRegistrySnapshot),mapping);
                 var allObservers=new List<IUISessionLifecycleObserver>(observers);
                 foreach(var factory in factories.ToArray())
                 {
@@ -70,12 +77,20 @@ namespace Wulato.UIKit
                 hosts=new UIViewHostFactory(root);
                 facade.Initialize(new UIContextEngine(facade.Id,new UIRuntimeDependencies(mapping,config,loader??new DefaultLoader(),
                     scheduler??new UniTaskUIAsyncScheduler(),hosts,layout??new UILayoutReady(),transition??new ImmediateUITransition(),
-                    arbiter,sink??new UnityErrorSink(),allObservers,services.Values,stopResources:facade.Release)),ownedDomain,ownedArbiter);
+                    arbiter,sink??new UnityErrorSink(),allObservers,services.Values,enableTransactions:transactions,stopResources:facade.Release,lifetime:facade.Lifetime)),ownedDomain,ownedArbiter);
                 return facade;
             }
-            catch
+            catch(Exception original)
             {
-                hosts?.Dispose();services.Dispose();ownedArbiter?.Dispose();ownedDomain?.Dispose();facade.Rollback();throw;
+                var errors=new List<Exception>{original};
+                facade.StopFailedBuild(errors.Add);
+                try{hosts?.Dispose();}catch(Exception error){errors.Add(error);}
+                services.Release(errors.Add);
+                try{ownedArbiter?.Dispose();}catch(Exception error){errors.Add(error);}
+                try{ownedDomain?.Dispose();}catch(Exception error){errors.Add(error);}
+                facade.Rollback();
+                if(errors.Count>1)throw new AggregateException(errors);
+                throw;
             }
         }
         sealed class DefaultLoader:IUIViewLoader

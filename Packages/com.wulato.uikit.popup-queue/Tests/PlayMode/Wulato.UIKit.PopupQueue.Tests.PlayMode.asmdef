@@ -1,0 +1,14 @@
+{
+  "name": "Wulato.UIKit.PopupQueue.Tests.PlayMode",
+  "references": [
+    "Wulato.UIKit.PopupQueue",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

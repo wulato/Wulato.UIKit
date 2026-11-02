@@ -99,7 +99,7 @@ python3 Tools/Verification/run.py tests --editor all --backend input --mode Edit
 python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite input-runtime
 ```
 
-Runtime preparation now adds the actual `com.wulato.uikit.input-system` package only to input hosts. Its metadata pins the main package to 0.1.0 and Input System to 1.17.0. The two `input-package` cases per input host read the actual package manifest/asmdef and resolved versions. Adapter sources participate in canonical-path and fingerprint checks. No automatic optional-package discovery is introduced into Core.
+Runtime preparation now adds the actual `com.wulato.uikit.input-system` package only to input hosts. Its metadata pins the main package to 0.2.0 and Input System to 1.17.0. The two `input-package` cases per input host read the actual package manifest/asmdef and resolved versions. Adapter sources participate in canonical-path and fingerprint checks. No automatic optional-package discovery is introduced into Core.
 
 Final T7 module acceptance is 176/176; direct P1 input, sessions PlayMode and transitions regressions are 334/334, with 18/18 targeted Python tool tests. See [T7 acceptance and raw evidence](Reports/2026-11-01-t7.md), including the four-host negative controls and exact source restoration. Builder/default composition and real Build rollback remain T8; no full acceptance matrix or mobile/IL2CPP release acceptance is claimed.
 
@@ -187,3 +187,31 @@ Build IDs bind the source/spec fingerprint, source commit, editor/backend/platfo
 The self-hosted workflows use dedicated `uikit-phase1` / `uikit-phase1-mobile` macOS labels. Configure both exact editor versions, matching mobile modules, SDKs, device variables and signing before enabling them. `release_ci.py` calls the existing runner sequentially; missing devices and manual touch steps do not become a green CI result. No workflow publishes, tags or merges a release. Platform execution remains unverified on a machine missing its toolchain; committed orchestration is not device acceptance.
 
 本轮执行结果（包含阻塞矩阵与恢复要求）：[T11 验收记录](Reports/2026-11-01-t11.md)。
+
+## 第二阶段：可选业务流程扩展
+
+主包与 Input System 适配为 0.2.0；Navigation、Presentation、Dialogs、Popup Queue 各为独立 0.1.0 包，显式依赖核心 0.2.0。公共契约见 [Spec 第二阶段](../docs/superpowers/specs/2026-10-31-wulato-uikit-design.md)，任务及实际证据见 [第二阶段执行计划](../docs/superpowers/plans/2026-11-01-wulato-uikit-phase2-implementation.md)。
+
+专项 `navigation`、`presentation`、`dialogs`、`popup-queue` 以 EditMode 验证调度、身份及所有权；`transitions` 和 `flow-integration` 在 PlayMode 验证实际 Shell、输入与退出。组合样例的 PlayMode 专项为 `flow-samples`，需要先 `prepare-samples` 导入全部四个扩展的 BusinessFlow。样例 Author 只补缺失资源，并根据消费宿主选择输入驱动；不覆盖其他业务场景内容。
+
+```sh
+python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite navigation
+python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite flow-integration
+python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite flow-samples
+```
+
+PR 工作流根据变更路径选择直接相关 suite；只有显式 `full` 输入或移动发布门禁运行完整 Editor/Reload 矩阵。文档修改不触发 Unity。新增公共 API 使用正负编译探针，带参 View 的无参 Push/Open 必须编译失败。
+
+发布阶段使用 `build --phase phase2` 与 `gate --name release --phase phase2`；默认 phase1 仍保留原七例。第二阶段移动报告必须在原七例上增加 NavigationPushBack、NavigationRollback、DialogTokenCancel、PopupPauseResume、PausedQueueShutdown、PresenterCacheReopen，合计十三例。phase 绑定请求、build-id、原始报告及汇总；旧阶段报告不能满足第二阶段要求。
+
+`build --prepare-only` 只验证固定 Git 消费、生成、写回和编译，成功安装的 `install_status=PASS` 与预期非零退出/BLOCKED 不等于 Player 通过。仅允许原始证据完整、当前指纹一致且唯一阻塞为 no mobile Player built 的安装结果；其他错误不得忽略。
+
+独立扩展依赖隔离使用已有 build 入口的安装限定范围：
+
+```sh
+python3 Tools/Verification/run.py build --phase phase2 --editor all --backend legacy --target Android --profile clean --package-set navigation --prepare-only
+```
+
+`--package-set` 可选 main/navigation/presentation/dialogs/popup-queue，限定范围仅用于 phase2 clean prepare-only；all 是默认完整组合。独立安装在两个指定编辑器的 legacy 消费环境验证，组合安装覆盖四宿主；Input System 兼容由四宿主专项和最终移动矩阵验证。各范围有独立登记目录，不能用单包安装记录代替完整组合。
+
+P8 明确要求四宿主完整 EditMode/PlayMode、16 个 Reload 组合、四宿主固定 Git 组合安装、八个 ARM64 IL2CPP 实体设备组合，以及两个 Android/Input System clean 构建。iOS 必须 Xcode 编译/签名/安装/启动；TouchClose 需要用户真实触摸。模块专项通过不代表这些发布门禁已经完成。

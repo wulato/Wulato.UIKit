@@ -1,0 +1,14 @@
+{
+  "name": "Wulato.UIKit.Dialogs.Tests.PlayMode",
+  "references": [
+    "Wulato.UIKit.Dialogs",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

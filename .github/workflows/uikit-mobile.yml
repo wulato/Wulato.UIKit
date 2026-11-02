@@ -2,6 +2,11 @@ name: UIKit mobile release gate
 on:
   workflow_dispatch:
     inputs:
+      phase:
+        type: choice
+        options: [phase2, phase1]
+        default: phase2
+        description: Explicit acceptance contract
       scope:
         type: choice
         options: [android, release]
@@ -24,6 +29,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Stable-input full release acceptance
         env:
+          UIKIT_ACCEPTANCE_PHASE: ${{ inputs.phase }}
           UIKIT_RELEASE_SCOPE: ${{ inputs.scope }}
         run: python3 Tools/Verification/release_ci.py
       - uses: actions/upload-artifact@v4

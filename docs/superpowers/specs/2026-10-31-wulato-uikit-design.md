@@ -622,7 +622,21 @@ popupQueue.Enqueue(
 
 ### 第二阶段：业务流程扩展
 
-按项目需要实现 Navigation、Dialogs、Popup Queue 和 Presentation；先验证事务与所有权，再扩展便利 API。
+Navigation、Dialogs、Popup Queue 和 Presentation 分别作为可选 UPM 包交付，先验证事务与所有权，再扩展便利 API。第二阶段主包和 Input System 适配包为 0.2.0，四扩展为 0.1.0，依赖核心 0.2.0；第一阶段历史版本和证据不因此改写。
+
+#### 第二阶段已确认公共契约（2026-11-01）
+
+- `IUIContextLifetime.Stopping` 在开始停止、Root 销毁和 Build 回滚时取消。先提交停止状态，再发信号；回调不得提交并等待同一 Context 队列。工厂可读取已创建依赖、内建 lifetime 和本次不可变 `UIRegistrySnapshot`，不得在构造期打开 UI 或取得未初始化事务引擎。内建服务不可覆盖。Build 失败始终回滚并解除 Root 占用；保留原始及收尾错误，多错误聚合返回。
+- `UIContextBuilder.WithTransactions()` 默认不启用，由 Navigation 显式启用。保留 `IUITransactionSteps` 成员，通过新增 `IUIPageTransactionSteps` 提供 `AnimatePairAsync(from,to,transition,ct)` 与 `CommitReplacement(from,to,participant)`。
+- `INavigationTransition` 声明 FromWrites、ToWrites，提供 PlayAsync、同步幂等 Stop/Reset。核心显示 prepared 页但保持输入锁，成对转场不执行默认 Enter/Exit。首开 from 可空，不允许跨 Context 或双方相同。成对超时默认 2 秒，配置在组合时复制校验。Stop/隔离与单界面转场遵守相同契约。
+- `IUITransactionParticipant` 提供同步 Prepare/Commit/Rollback。导航提前计算历史；Prepare 不修改已发布状态，Commit 只替换预计算状态、不 await/通知/执行业务逻辑，Rollback 幂等。先执行可能失败的准备，再提交页面/历史/输入，最后通知。违反参与者契约报告协议错误，不承诺恢复任意外部副作用。
+- 页面事务提交前取消恢复旧页、历史与焦点；提交后忽略调用方取消并完成旧页有界关闭，Shutdown 仍可接管。旧页关闭错误保留在 UICompletion/错误报告，不伪装成导航未提交。
+- Navigator 的 PushAsync(key,args,ct) 返回 Session，BackAsync(ct) 返回 bool；泛型入口保持 UIView/UIView<TArgs> 约束。History 包含当前页描述而非实例；首页 Back=false，Single 同类型 Push 拒绝，当前页外部关闭清空历史，导航自身替换关闭不影响新历史。Modal 不入历史且不能因导航错误失去显示或输入。
+- Presentation 提供 IPresenterFactory.Create(view,args,session)、IUIPresenter.Bind/Dispose；Create 返回 null 表示不采用 Presenter。每 Session 绑定/释放一次，部分失败保留原始及清理错误，外部 Model 默认不释放。
+- Dialogs 显式注册请求与 View，提供 ShowAsync<TResult> 与每请求 responder。DialogResult 状态为 Submitted/UserCanceled/ContextStopped，并携带最终 UICompletion；没有 CallerCanceled。调用方 Token 覆盖整个等待期，打开回滚或关闭屏障完成后抛 OperationCanceledException；打开失败保持原异常，关闭错误保留在 UICompletion。Context 停止覆盖未完成的终结意图，已发布结果不改写。提前提交不能把随后失败的打开变成成功；旧 responder 不影响新 Session。
+- IPopupRequest 仅提供 ViewType 和 Arguments，由队列统一 OpenAsync。优先级降序、同优先级 FIFO、不抢占；null key 不去重，空串有效，Ordinal 比较。多来源 AcquirePause 租约全部释放才恢复出队，暂停不取消/隐藏当前项。等待 Closed 后释放 key 并推进。
+- Queue 提供共享完成的 StopAsync 和幂等 Dispose。主动停止结果 QueueStopped，Context 停止结果 ContextStopped；前者请求 Owner 关闭当前项并等待屏障，后者交由核心停止收尾。终结等待请求、释放 key/订阅；晚释放暂停租约不能重启。失败记录并继续。不交付自定义异步打开回调、抢占或真正挂起恢复。
+- 四扩展显式 Use* Builder 接入；便利入口引用 UGUI，Core 不引用扩展。新包测试不能依赖仓库私有验证夹具。第二阶段发布沿用双编辑器/双输入和移动八组合，并验证扩展裁剪后实际路径；独立安装证据仍为必需项。
 
 ### 第三阶段：生态适配
 

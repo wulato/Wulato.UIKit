@@ -11,3 +11,17 @@ public static class ContractCompileProbe
 #endif
     }
 }
+
+#if UIKIT_NAVIGATION_PROBE
+public static class NavigationCompileProbe
+{
+    public static void Check(Wulato.UIKit.Navigation.IUINavigator navigator)
+    {
+#if UIKIT_NEGATIVE_PROBE
+        navigator.PushAsync<ArgsView>();
+#else
+        navigator.PushAsync<ArgsView,int>(42);
+#endif
+    }
+}
+#endif

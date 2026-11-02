@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Add opt-in business flow composition and Context stop capability; preserve existing View/Session and transaction entry points.
+- Declare the 0.2.0 core baseline for optional extensions.
+
+
 ## 0.1.0 — development checkpoints
 
 ### T10 — samples, profiling and integration documentation (2026-11-01)

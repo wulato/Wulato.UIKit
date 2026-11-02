@@ -6,6 +6,7 @@ from results import evaluate
 R=Path(__file__).resolve().parents[2]; V=R/'Verification'; A=R/'Artifacts/uikit'; C=Path(__file__).parent
 VERSIONS={'2022.3.62f2':('u2022','1.0.0','1.1.33'),'6000.3.22f1':('u6000','2.0.0','1.6.0')}
 COMMON='com.wulato.uikit.verification'
+from runtime import is_extension_package, EXTENSIONS
 def dump(p,v): p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
 def selected(args):
  for ver,(short,_,_) in VERSIONS.items():
@@ -21,9 +22,9 @@ def digest(files):
 def package_sources(host):
  manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
  for name,value in manifest['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
   if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
-  actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name in ('com.wulato.uikit','com.wulato.uikit.input-system') else (V/'Packages'/name)).resolve()
+  actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name in ('com.wulato.uikit','com.wulato.uikit.input-system') or is_extension_package(name) else (V/'Packages'/name)).resolve()
   if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
   if json.loads((actual/'package.json').read_text())['name']!=name:raise ValueError('local-name:'+name)
   sources[name]=actual
@@ -48,7 +49,7 @@ def snapshot(ver,backend,host):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
-  if not (name.startswith(COMMON) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
   path=(host/'Packages'/value.removeprefix('file:')).resolve()
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)
@@ -64,6 +65,12 @@ def snapshot(ver,backend,host):
   errors.extend(validate_main_package(json.loads((package/'package.json').read_text()),assemblies))
  try:
   sources={name:str(path) for name,path in package_sources(host).items()};fp=fingerprint(host)
+  from runtime import validate_extension_package
+  for name in EXTENSIONS:
+   if name in sources:
+    path=Path(sources[name]);definitions=list((path/'Runtime').glob('*.asmdef'))
+    if len(definitions)!=1:errors.append('extension-runtime-definition:'+name)
+    else:errors.extend(validate_extension_package(json.loads((path/'package.json').read_text()),json.loads(definitions[0].read_text()).get('references',[])))
  except (OSError,ValueError,KeyError) as e:sources={};fp=None;errors.append(str(e))
  return {'editor':ver,'backend':backend,'host':str(host),'manifest':m,'lock':lock,'settings':setting,'errors':errors,'sources':sources,'fingerprint':fp}
 def verify_editor(exe,expected):
@@ -90,8 +97,11 @@ def unity(args,ver,host,out,test=False):
  return rc,timeout,log,actual.group(1) if actual else None
 
 def applicable_suites(matrix,manifest):
- optional={'samples','performance','performance-markers'}
- return {name:cases for name,cases in matrix.items() if name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']}
+ optional={'samples','performance','performance-markers','flow-samples'}
+ mapping={suite:package for package,suite in EXTENSIONS.items()}
+ mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
+ mapping['flow-samples']='com.wulato.uikit.acceptance.flows'
+ return {name:cases for name,cases in matrix.items() if (name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']) and (name not in mapping or mapping[name] in manifest['dependencies'])}
 
 def _run_locked(args):
  from evidence import seal,sha256
@@ -185,9 +195,9 @@ def main():
  q=sub.choices['prepare-samples'];q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
  q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
- q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True)
+ q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')
  for name in ('build',):
-  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
+  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
  q=sub.add_parser('smoke');q.add_argument('--build',required=True);q.add_argument('--device',required=True);q.add_argument('--timeout',type=int,default=180)
  a=p.parse_args()
  if a.command=='build':
@@ -210,7 +220,7 @@ def main():
   return run_probe(a)
  if a.command=='gate' and a.name=='release':
   from release_gate import release
-  return release(R)
+  return release(R,a.phase)
  if a.command=='gate':
   from gates import preflight
   return preflight(R)

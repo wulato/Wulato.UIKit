@@ -1,0 +1,16 @@
+{
+  "name": "Wulato.UIKit.Navigation.Tests.EditMode",
+  "references": [
+    "Wulato.UIKit.Navigation",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

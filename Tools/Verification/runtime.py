@@ -15,6 +15,13 @@ def runtime_manifest(ver,backend):
         deps['com.unity.inputsystem']='1.17.0';tests.append('com.unity.inputsystem')
         deps[MAIN+'.input-system']='file:../../../../Packages/'+MAIN+'.input-system';tests.append(MAIN+'.input-system')
     deps.update({MAIN:'file:../../../../Packages/'+MAIN,ACCEPTANCE:'file:../../../Packages/'+ACCEPTANCE,'com.cysharp.unitask':UNITASK})
+    from pathlib import Path
+    root=Path(__file__).resolve().parents[2]
+    for name in EXTENSIONS:
+        if (root/'Packages'/name/'package.json').is_file():
+            deps[name]='file:../../../../Packages/'+name;tests.append(name)
+    if all(name in deps for name in EXTENSIONS) and (root/'Verification/Packages/com.wulato.uikit.acceptance.flows/package.json').is_file():
+        name='com.wulato.uikit.acceptance.flows';deps[name]='file:../../../Packages/'+name;tests.append(name)
     return dict(dependencies=deps,testables=tests)
 
 def validate_dependencies(ver,manifest,lock):
@@ -44,7 +51,7 @@ def prepare_runtime_manifest(ver,backend,manifest,lock):
 def validate_main_package(package,assemblies):
     errors=[]
     expected={'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}
-    if package.get('name')!=MAIN or package.get('version')!='0.1.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
+    if package.get('name')!=MAIN or package.get('version')!='0.2.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
         errors.append('main-package-identity-or-unity-baseline')
     if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
     graph={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
@@ -58,10 +65,22 @@ def validate_installed_report(ver,folder):
     path=folder/'dependency-snapshot.json'
     if not path.is_file():return ['missing-actual-package-metadata']
     data=json.loads(path.read_text())
-    expected={'com.wulato.uikit':'0.1.0','com.cysharp.unitask':'2.5.11','com.unity.ugui':VERSIONS[ver][1]}
+    expected={'com.wulato.uikit':'0.2.0','com.cysharp.unitask':'2.5.11','com.unity.ugui':VERSIONS[ver][1]}
     errors=[]
     if data.get('editor')!=ver:errors.append('resolved-report-editor')
     actual={item['name']:item for item in data.get('packages',[])}
     for name,version in expected.items():
         if actual.get(name,{}).get('version')!=version:errors.append('actual-package-version:'+name)
+    return errors
+
+# Explicit optional package identities, never a permissive namespace prefix.
+EXTENSIONS={MAIN+'.'+name:name for name in ('navigation','presentation','dialogs','popup-queue')}
+def is_extension_package(name):
+    return name in EXTENSIONS
+
+def validate_extension_package(package,references):
+    errors=[]
+    if not is_extension_package(package.get('name')) or package.get('version')!='0.1.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':errors.append('extension-identity-or-unity-baseline')
+    if package.get('dependencies')!={'com.wulato.uikit':'0.2.0','com.cysharp.unitask':'2.5.11'}:errors.append('extension-core-or-optional-dependency')
+    if set(references)!={'Wulato.UIKit.Core','Wulato.UIKit.UGUI','UniTask'}:errors.append('extension-runtime-assembly-boundary')
     return errors

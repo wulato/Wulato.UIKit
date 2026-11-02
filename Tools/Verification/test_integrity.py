@@ -14,6 +14,9 @@ class FingerprintTests(unittest.TestCase):
         shutil.copytree(run.V/'Packages',root/'Verification/Packages')
         shutil.copytree(run.R/'Packages/com.wulato.uikit',root/'Packages/com.wulato.uikit')
         source=run.V/'Projects/u2022-legacy';self.host=root/'Verification/Projects/u2022-legacy'
+        dependencies=json.loads((source/'Packages/manifest.json').read_text())['dependencies']
+        for name in run.EXTENSIONS:
+            if name in dependencies:shutil.copytree(run.R/'Packages'/name,root/'Packages'/name)
         for name in ('Assets','Packages','ProjectSettings'):shutil.copytree(source/name,self.host/name)
         for key,value in [('R',root),('V',root/'Verification'),('C',root/'Tools/Verification')]:
             p=patch.object(run,key,value);p.start();self.addCleanup(p.stop)

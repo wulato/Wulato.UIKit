@@ -66,27 +66,27 @@ namespace Wulato.UIKit
             readonly CancellationToken token;
             readonly UISessionHandle[] original;
             readonly UIInputOwner? oldOwner;
-            readonly List<UISessionHandle> prepared = new List<UISessionHandle>();
+            internal readonly List<UISessionHandle> prepared = new List<UISessionHandle>();
             public bool Active = true;
             public bool InFlight;
             UniTaskCompletionSource stepSettled;
-            void BeginStep() { InFlight = true; stepSettled = new UniTaskCompletionSource(); }
-            void EndStep() { InFlight = false; stepSettled.TrySetResult(); }
+            internal void BeginStep() { InFlight = true; stepSettled = new UniTaskCompletionSource(); }
+            internal void EndStep() { InFlight = false; stepSettled.TrySetResult(); }
             internal UniTask WaitForStepAsync() => InFlight ? stepSettled.Task : UniTask.CompletedTask;
-            bool committed;
+            internal bool committed;
             internal TransactionSteps(UIContextEngine engine, CancellationToken token)
             {
                 this.engine = engine; this.token = token;
                 original = engine.sessions.Where(s => s.State == UIState.Open).ToArray(); oldOwner = engine.inputOwner;
             }
-            void Guard()
+            internal void Guard()
             {
                 var error = engine.SubmissionError();
                 if (error != null) throw error;
                 if (!Active || InFlight) throw engine.Error(UIErrorCode.InvalidRequest, "transaction-step");
                 token.ThrowIfCancellationRequested();
             }
-            UISessionHandle Find(IUISession session)
+            internal UISessionHandle Find(IUISession session)
             {
                 if (session is IUISessionReference reference) session = reference.Session;
                 var handle = engine.sessions.FirstOrDefault(s => ReferenceEquals(s, session));
@@ -126,7 +126,7 @@ namespace Wulato.UIKit
                 try { engine.CommitPrepared(handle, token); committed = true; }
                 catch { Rollback(handle); throw; }
             }
-            void Rollback(UISessionHandle handle)
+            internal void Rollback(UISessionHandle handle)
             {
                 handle.Reason = token.IsCancellationRequested ? UICloseReason.OpenCanceled : UICloseReason.OpenFailed;
                 engine.TerminateResources(handle); engine.Finish(handle, handle.OpenEntered);

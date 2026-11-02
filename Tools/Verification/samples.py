@@ -38,7 +38,7 @@ def prepare(args):
                     print(host.name,name,steps[-1]['status'],flush=True)
                     if not ok:raise ValueError('sample-stage-failed:'+str(folder))
                 try:
-                    for name in NAMES:import_sample(run.R/'Packages/com.wulato.uikit/Samples~'/name,host)
+                    for source in sample_sources(run.R,host):import_sample(source,host)
                     step('01-import-compile','CheckAssemblies')
                     install_tests(host)
                     step('02-validate' if args.check_only else '02-acceptance-red' if args.red else '02-author','Validate' if args.check_only else 'CheckAssemblies' if args.red else 'Author')
@@ -53,3 +53,10 @@ def prepare(args):
             run.dump(batch/'summary.json',reports);print('EVIDENCE',batch,flush=True)
             return int(not reports or any(r['status']!='PASS' for r in reports))
     except (VerificationBusy,ValueError,OSError) as e:print('FAIL',str(e),flush=True);return 1
+
+def sample_sources(root,host):
+    from runtime import EXTENSIONS
+    sources=[root/"Packages/com.wulato.uikit/Samples~"/name for name in NAMES]
+    dependencies=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
+    if all(name in dependencies for name in EXTENSIONS):sources.append(root/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow')
+    return sources

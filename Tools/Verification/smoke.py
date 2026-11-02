@@ -19,7 +19,7 @@ def android_report_path(package,user):
     return '/storage/emulated/'+user+'/Android/data/'+package+'/files/uikit-smoke.json'
 
 def validate_player_report(raw,summary):
-    return ['raw-player-report:'+key for key in ('build_id','status','cases') if raw.get(key)!=summary.get(key)]
+    return ['raw-player-report:'+key for key in ('build_id','status','cases','phase') if raw.get(key)!=summary.get(key)]
 
 def smoke(args):
     import run
@@ -27,11 +27,11 @@ def smoke(args):
     try:
         with guard(run.A):
             folder=Path(args.build).resolve();build=json.loads((folder/'summary.json').read_text())
-            errors=assess_build(build,source_fingerprint())+verify_files(folder,build)
+            errors=assess_build(build,source_fingerprint(),build.get('phase','phase1'))+verify_files(folder,build)
             if build.get('profile')!='smoke':errors.append('requires-smoke-build')
             if errors:print('FAIL',errors);return 1
             out=folder/'device';out.mkdir(exist_ok=True)
-            result=dict(build_id=build['build_id'],fingerprint=build['fingerprint'],editor=build['editor'],backend=build['backend'],target=build['target'],profile='smoke',architecture='ARM64',scripting_backend='IL2CPP',compiled=False,installed=False,launched=False,physical_device=False,device=args.device,cases=[],status='FAIL',errors=[])
+            result=dict(phase=build.get('phase','phase1'),build_id=build['build_id'],fingerprint=build['fingerprint'],editor=build['editor'],backend=build['backend'],target=build['target'],profile='smoke',architecture='ARM64',scripting_backend='IL2CPP',compiled=False,installed=False,launched=False,physical_device=False,device=args.device,cases=[],status='FAIL',errors=[])
             try:
                 if build['target']=='Android':
                     prefix=[ADB,'-s',args.device];listing=subprocess.check_output([ADB,'devices','-l'],text=True);(out/'devices.txt').write_text(listing)
@@ -93,7 +93,7 @@ def smoke(args):
                             result.update(status=raw.get('status','FAIL'),cases=raw.get('cases',[]));break
                         time.sleep(1)
                     else:raise ValueError('iOS-device-report-timeout (TouchClose requires physical tap)')
-                result['errors']+=assess_mobile(result,build['build_id'],source_fingerprint())
+                result['errors']+=assess_mobile(result,build['build_id'],source_fingerprint(),build.get('phase','phase1'))
                 result['errors']+=validate_player_report(json.loads((out/'player-report.json').read_text()),result)
             except (OSError,ValueError,subprocess.SubprocessError) as e:
                 if isinstance(e,FileNotFoundError):result['status']='BLOCKED'

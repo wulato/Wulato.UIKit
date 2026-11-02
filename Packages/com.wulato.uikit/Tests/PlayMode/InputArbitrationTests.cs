@@ -44,6 +44,17 @@ namespace Wulato.UIKit.Tests.PlayMode
             var go=new GameObject(name,typeof(RectTransform),typeof(CanvasGroup),typeof(InputEventSpy));
             go.transform.SetParent(Scene.Spies[0].transform.parent,false);return go.AddComponent<InputRuntimeView>();
         }
+        [Test] public void ModalBarrier_LockedSameContextPageCannotStealInput()
+        {
+            Arbiter.Commit(PrepareB());Neutral();
+            var page=NewCandidateView("Page under modal");
+            using(Arbiter.AcquireLock(Scene.Gate.Contexts[1]))
+            {
+                var grant=Arbiter.Prepare(new UIInputCandidate(Scene.Gate.Contexts[1],new UISessionId(21),page,new UIInputPolicy(true,false)));
+                Assert.That(grant.IsEligible,Is.False);Arbiter.Commit(grant);
+            }
+            Neutral();Assert.That(Scene.Events.currentSelectedGameObject,Is.EqualTo(Scene.Spies[1].gameObject));
+        }
         [Test] public void ModalBarrier_OrdinaryOverlayCannotStealInput()
         {
             Arbiter.Commit(PrepareB());Neutral();

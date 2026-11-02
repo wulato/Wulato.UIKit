@@ -9,8 +9,8 @@ namespace Wulato.UIKit.Editor.Verification
     /// <summary>Explicit CLI entry, never invoked by ordinary package builds.</summary>
     public static class UIPlayerBuild
     {
-        [Serializable] public sealed class Request { public string editor,backend,target,profile,build_id,fingerprint; }
-        [Serializable] sealed class Report { public string status,output,application_id,build_id,architecture="ARM64",scripting_backend="IL2CPP";public string[] player_assemblies;public int errors; }
+        [Serializable] public sealed class Request { public string editor,backend,target,profile,build_id,fingerprint,phase,package_set; }
+        [Serializable] sealed class Report { public string status,output,application_id,build_id,phase,architecture="ARM64",scripting_backend="IL2CPP";public string[] player_assemblies;public int errors; }
         static string Out=>Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");
         static Request Input=>JsonUtility.FromJson<Request>(File.ReadAllText(Environment.GetEnvironmentVariable("UIKIT_BUILD_REQUEST")));
         static void OK()=>Debug.Log("UIKIT_BUILD_STAGE_OK");
@@ -26,12 +26,17 @@ namespace Wulato.UIKit.Editor.Verification
             File.WriteAllText(Path.Combine(Out,"unity-platform-support.json"),JsonUtility.ToJson(report,true));
             Debug.Log("UIKIT_PLATFORM_SUPPORT "+JsonUtility.ToJson(report));OK();
         }
-        public static void PrepareSamples(){Sample("CheckAssemblies");Sample("Author");if(Input.profile=="smoke")Type.GetType("Wulato.UIKit.Acceptance.Editor.MobileSmokeSceneBuilder, Wulato.UIKit.MobileSmoke.Editor",true).GetMethod("Author").Invoke(null,null);OK();}
+        static void Flow(string method)
+        {
+            if(!Directory.Exists("Assets/Samples/Wulato UIKit/BusinessFlow"))return;
+            Type.GetType("Wulato.UIKit.Samples.BusinessFlow.Editor.BusinessFlowSetup, Wulato.UIKit.Samples.BusinessFlow.Editor",true).GetMethod(method).Invoke(null,null);
+        }
+        public static void PrepareSamples(){Sample("CheckAssemblies");Sample("Author");Flow("Author");if(Input.profile=="smoke")Type.GetType("Wulato.UIKit.Acceptance.Editor.MobileSmokeSceneBuilder, Wulato.UIKit.MobileSmoke.Editor",true).GetMethod("Author").Invoke(null,null);OK();}
         public static void Generate(){Sample("Generate");OK();}
         public static void Complete(){Sample("Complete");OK();}
         public static void Wire()
         {
-            Sample("FinalizeSamples");
+            Sample("FinalizeSamples");Flow("SelectInput");
             foreach(var name in new[]{"QuickStart","Modals","Inventory"})
             {
                 var path="Assets/Samples/Wulato UIKit/"+name+"/"+(name=="QuickStart"?"Settings":name)+"Scene.unity";
@@ -48,7 +53,7 @@ namespace Wulato.UIKit.Editor.Verification
         [Serializable] sealed class Dependencies {public string editor;public Package[] packages;}
         public static void Validate()
         {
-            Sample("Validate");UICodegenPipeline.Validate();
+            Sample("Validate");Flow("Validate");UICodegenPipeline.Validate();
             var packages=UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p=>p.name.StartsWith("com.wulato.uikit")||p.name=="com.cysharp.unitask"||p.name=="com.unity.ugui").Select(p=>new Package{name=p.name,version=p.version,source=p.source.ToString(),resolvedPath=p.resolvedPath}).ToArray();
             foreach(var name in new[]{"com.wulato.uikit", "com.cysharp.unitask","com.unity.ugui"})
                 if(!packages.Any(p=>p.name==name))throw new InvalidOperationException("Missing installed package: "+name);
@@ -68,14 +73,14 @@ namespace Wulato.UIKit.Editor.Verification
             else {PlayerSettings.SetArchitecture(group,1);PlayerSettings.iOS.sdkVersion=iOSSdkVersion.DeviceSDK;}
             var app="com.wulato.uikit.acceptance."+input.backend+"."+input.profile;
             PlayerSettings.SetApplicationIdentifier(group,app);
-            var scenes=input.profile=="smoke"?new[]{"Assets/UIKitMobileSmokeScene.unity"}:new[]{"Assets/Samples/Wulato UIKit/QuickStart/SettingsScene.unity"};
+            var scenes=input.profile=="smoke"?new[]{"Assets/UIKitMobileSmokeScene.unity"}:Directory.Exists("Assets/Samples/Wulato UIKit/BusinessFlow")?new[]{"Assets/Samples/Wulato UIKit/BusinessFlow/BusinessFlowScene.unity"}:new[]{"Assets/Samples/Wulato UIKit/QuickStart/SettingsScene.unity"};
             var output=Path.Combine(Out,target==BuildTarget.Android?"UIKit.apk":"Xcode");
             var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=scenes,locationPathName=output,target=target,options=input.profile=="smoke"?BuildOptions.Development:BuildOptions.None});
             var assemblies=result.GetFiles().Select(f=>f.path).Where(p=>p.EndsWith(".dll",StringComparison.OrdinalIgnoreCase)).Select(Path.GetFileName).Distinct().OrderBy(n=>n).ToArray();
             // BuildReport files alone can omit IL2CPP inputs. Preserve the actual managed stripping input inventory.
             var managed="Library/Bee/artifacts";
             if(Directory.Exists(managed))assemblies=assemblies.Concat(Directory.GetFiles(managed,"*.dll",SearchOption.AllDirectories).Where(p=>p.Contains("ManagedStripped")).Select(Path.GetFileName)).Distinct().OrderBy(n=>n).ToArray();
-            var report=new Report{status=result.summary.result==BuildResult.Succeeded?"PASS":"FAIL",output=output,application_id=app,build_id=input.build_id,errors=(int)result.summary.totalErrors,player_assemblies=assemblies};
+            var report=new Report{phase=input.phase,status=result.summary.result==BuildResult.Succeeded?"PASS":"FAIL",output=output,application_id=app,build_id=input.build_id,errors=(int)result.summary.totalErrors,player_assemblies=assemblies};
             File.WriteAllText(Path.Combine(Out,"build-report.json"),JsonUtility.ToJson(report,true));
             if(input.profile=="clean" && (!assemblies.Any() || assemblies.Any(n=>new[]{"test","acceptance","verification","nunit"}.Any(s=>n.ToLowerInvariant().Contains(s)))))throw new InvalidOperationException("Clean player contains verification/test assemblies, or no assembly evidence");
             if(report.status!="PASS")throw new InvalidOperationException("Player build failed");OK();

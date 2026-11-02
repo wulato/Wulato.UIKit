@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Wulato.UIKit
 {
     /// <summary>Logical command engine. Unity host construction is a separate first-party backend.</summary>
-    internal sealed partial class UIContextEngine : IUIContext, IUITransactionAccess
+    internal sealed partial class UIContextEngine : IUIContext, IUITransactionAccess, IUIPageTransactionAccess
     {
         readonly UIContextId id;
         readonly UIRuntimeDependencies dependencies;
@@ -16,7 +16,7 @@ namespace Wulato.UIKit
         readonly UICommandQueue commands;
         readonly List<UISessionHandle> sessions = new List<UISessionHandle>();
         readonly List<UICompletion> shutdownCompletions = new List<UICompletion>();
-        readonly CancellationTokenSource stopping = new CancellationTokenSource();
+        readonly CancellationTokenSource stopping;
         readonly UniTaskCompletionSource<UIShutdownCompletion> shutdown = new UniTaskCompletionSource<UIShutdownCompletion>();
         readonly IDisposable inputRegistration;
         readonly UIViewCache cache;
@@ -39,6 +39,7 @@ namespace Wulato.UIKit
         {
             this.id = id;
             this.dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
+            stopping = dependencies.Lifetime.Source;
             cache = new UIViewCache(dependencies.Settings.CacheCapacity);
             shutdownBudget = new UIShutdownBudget(dependencies.Scheduler, dependencies.Settings.ShutdownBudget);
             orphans = new UIOrphanRegistry(dependencies.Scheduler, dependencies.ErrorSink, id, callbacks.Invoke);
@@ -563,7 +564,7 @@ namespace Wulato.UIKit
             if (state == UIContextState.Stopping) return shutdown.Task;
             state = UIContextState.Stopping; shutdownBudget.Start();
             commands.RejectPending();
-            try { stopping.Cancel(); } catch (Exception e) { Report(Error(UIErrorCode.LifecycleFailed, "stop-signal", null, e)); }
+            try { Callback(stopping.Cancel); } catch (Exception e) { Report(Error(UIErrorCode.LifecycleFailed, "stop-signal", null, e)); }
             commands.Enqueue(async () =>
             {
                 foreach (var session in sessions.ToArray())
@@ -644,6 +645,9 @@ namespace Wulato.UIKit
         {
             if(Thread.CurrentThread.ManagedThreadId!=mainThread)throw Error(UIErrorCode.InvalidRequest,"main-thread");
             if (state != UIContextState.Running) throw Error(UIErrorCode.ContextStopped, "service");
+            if (typeof(TService) == typeof(IUIContextLifetime)) return (TService)(object)dependencies.Lifetime;
+            if (typeof(TService) == typeof(UIRegistrySnapshot)) return (TService)(object)dependencies.Registry;
+            if (typeof(TService) == typeof(IUIPageTransactionAccess) && dependencies.EnableTransactions) return (TService)(object)this;
             if (typeof(TService) == typeof(IUITransactionAccess) && dependencies.EnableTransactions) return (TService)(object)this;
             if (dependencies.Services.TryGetValue(typeof(TService), out var service)) return (TService)service;
             throw new InvalidOperationException("Service is not registered.");

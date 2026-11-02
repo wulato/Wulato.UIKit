@@ -10,6 +10,7 @@ namespace Wulato.UIKit
         static readonly Dictionary<UIRoot,UIContextFacade> roots=new Dictionary<UIRoot,UIContextFacade>();
         readonly UIRoot root;
         readonly UIServiceRegistry services;
+        internal readonly UIContextLifetime Lifetime=new UIContextLifetime();
         UIContextEngine engine;
         UIInputDomain domain;
         UIInputArbiter arbiter;
@@ -19,6 +20,7 @@ namespace Wulato.UIKit
         internal static void AssertAvailable(UIRoot root){if(roots.ContainsKey(root))throw new InvalidOperationException("The root already has a live Context.");}
         internal void Claim(){AssertAvailable(root);roots.Add(root,this);}
         internal void Initialize(UIContextEngine engine,UIInputDomain domain,UIInputArbiter arbiter){this.engine=engine;this.domain=domain;this.arbiter=arbiter;}
+        internal void StopFailedBuild(Action<Exception> error) { released=true;try { Lifetime.Source.Cancel(); } catch(Exception e) { error(e); } }
         internal void Rollback(){if(roots.TryGetValue(root,out var value)&&value==this)roots.Remove(root);released=true;}
         internal void Release(Action<Exception> error)
         {

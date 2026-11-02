@@ -1,9 +1,18 @@
 name: UIKit checks
 on:
   pull_request:
-    paths: ['Packages/com.wulato.uikit/**', 'Packages/com.wulato.uikit.input-system/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
+    paths: ['Packages/com.wulato.uikit/**', 'Packages/com.wulato.uikit.*/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
   workflow_dispatch:
+    inputs:
+      full:
+        type: boolean
+        default: false
+        description: Run the explicit full Editor and Reload gate
   workflow_call:
+    inputs:
+      full:
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -15,16 +24,33 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select affected modules
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --github-output "$GITHUB_OUTPUT"
       - name: Python verifier regression
+        if: inputs.full || steps.scope.outputs.tools == 'true'
         run: python3 -m unittest discover -s Tools/Verification -p 'test_*.py'
-      - name: Prepare and compile generated consumers
+      - name: Prepare clean generated consumers
+        if: inputs.full || steps.scope.outputs.count != '0'
         run: |
           python3 Tools/Verification/run.py prepare --phase runtime --editor all --backend all
           python3 Tools/Verification/run.py codegen --editor all --backend all
           python3 Tools/Verification/run.py prepare-samples --editor all --backend all
           python3 Tools/Verification/run.py check-generated --editor all --backend all
-          python3 Tools/Verification/run.py compile-probe --editor all
-      - name: Full Editor matrices and reload configurations
+      - name: Compile API probes
+        if: inputs.full || steps.scope.outputs.probe == 'true'
+        run: python3 Tools/Verification/run.py compile-probe --editor all
+      - name: Affected module suites
+        if: ${{ !inputs.full && steps.scope.outputs.count != '0' }}
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA"
+      - name: Explicit full Editor and Reload gate
+        if: inputs.full
         run: |
           python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite all
           python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite all

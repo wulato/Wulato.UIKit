@@ -33,3 +33,17 @@ class ReleaseGateTests(unittest.TestCase):
         from release_gate import assess_matrix
         rows=[dict(editor=v,backend=b,target=t,status='PASS') for v,b,t in combinations()]
         self.assertEqual([],assess_matrix(rows));self.assertTrue(assess_matrix(rows[:-1]))
+
+class PhaseTwoGateTests(unittest.TestCase):
+    report=ReleaseGateTests.report
+    def test_phase_one_cases_cannot_satisfy_phase_two(self):
+        self.assertIn('phase',assess_mobile(self.report(),'build','current',phase='phase2'))
+    def test_phase_two_requires_all_six_extension_cases(self):
+        from release_gate import PHASE2_CASES
+        report=self.report();report['phase']='phase2';report['cases'] += [dict(name=name,status='PASS') for name in PHASE2_CASES]
+        self.assertEqual([],assess_mobile(report,'build','current',phase='phase2'))
+        report['cases'].pop();self.assertIn('smoke-cases',assess_mobile(report,'build','current',phase='phase2'))
+    def test_phase_two_clean_requires_extension_assemblies(self):
+        from release_gate import assess_build
+        report=dict(status='PASS',phase='phase2',fingerprint='current',source_after='current',generation_compiled=True,profile='clean',build_id='build',architecture='ARM64',scripting_backend='IL2CPP',player_assemblies=['Wulato.UIKit.Core.dll'])
+        self.assertIn('phase2-runtime-assemblies',assess_build(report,'current',phase='phase2'))

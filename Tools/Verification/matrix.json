@@ -140,7 +140,17 @@
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Shutdown_DuringPrepareDoesNotRunConcurrentClose",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalAnimationCancel_StopsAndRollsBack",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.CallerCancel_DuringPrepareReleasesStepBeforeNextCommand",
-          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld"
+          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PagePair_CommitsStateWithoutCoreDefault",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantPrepareFails_RestoresOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CallerCancelAfterCommit_StillClosesOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_ShowWindowIsVisibleButNotInteractive",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairTimeout_StopsAndQuarantinesUncooperativeOperation",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairFailure_IsTransitionFailed",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_PlayEntryAlreadyHasVisibleNonInteractiveTarget",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CancellationInsideInputCommit_RollsBackBeforePublication",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantCommitFailure_RestoresPublishedStateAndOldOwner",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_RestoresBothDeclaredSurfacesWithoutOverwritingBusinessLayout"
         ],
         "input-runtime": [
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Unlocked_ClickSubmitCancelAndMove_Control",
@@ -184,7 +194,8 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.CachedView_ReopenedSameFrame_RetainsInputGateAfterDestroyBoundary",
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
-          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -211,6 +222,14 @@
         ],
         "performance-markers": [
           "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "flow-integration": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+        ],
+        "flow-samples": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
         ]
       },
       "EditMode": {
@@ -288,7 +307,12 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
-          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -308,6 +332,55 @@
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+        ],
+        "navigation": [
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.SingleRepeat_FailsWithoutChangingHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ExternalCurrentClose_ClearsHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ArgumentMismatch_FailsBeforeLoading",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BlockedPush_HoldsFIFOAndOrdinaryCommands",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.CancelBeforeCommit_RestoresOldPageAndHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+        ],
+        "presentation": [
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.PartialBindFailure_RollsBackOwnership",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DisposeFailure_DoesNotBlockClosedOrLeaseRelease",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.UnmatchedView_DoesNotCreatePresenter",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.ExternalModel_RemainsOwnedByCaller",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DuplicatePresentationRegistration_IsRejected"
+        ],
+        "dialogs": [
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmittedFalse_IsAValidResultAfterClosed",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelAfterOpen_ClosesBeforeCancellation",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.UserClose_ReturnsUserCanceledAndInvalidatesResponder",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmitEarly_ThenOpenFailureDoesNotPublishSuccess",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_EndsWaiterAsContextStopped",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CachedReopen_OldResponderCannotResolveNewWaiter",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CanceledBeforeOpen_DoesNotLoad",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CancelUncooperativeOpen_ObservesLateCleanup",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CloseFailure_RemainsInSubmittedCompletion",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+        ],
+        "popup-queue": [
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ActiveItemIsNotPreempted_KeyReleasedAfterClosed",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhilePaused_ReleasesWaitersAndDoesNotRestart",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ContextShutdown_EndsActiveAndPausedPendingRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.FailedOpen_ReleasesKeyAndContinues",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PauseDuringOpen_DoesNotCancelCurrentAndBlocksNext",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopDuringUncooperativeOpen_ReleasesLateLease",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Contexts_DoNotSharePauseOrDeduplicationKeys",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
         ]
       }
     },
@@ -452,7 +525,17 @@
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Shutdown_DuringPrepareDoesNotRunConcurrentClose",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalAnimationCancel_StopsAndRollsBack",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.CallerCancel_DuringPrepareReleasesStepBeforeNextCommand",
-          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld"
+          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PagePair_CommitsStateWithoutCoreDefault",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantPrepareFails_RestoresOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CallerCancelAfterCommit_StillClosesOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_ShowWindowIsVisibleButNotInteractive",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairTimeout_StopsAndQuarantinesUncooperativeOperation",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairFailure_IsTransitionFailed",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_PlayEntryAlreadyHasVisibleNonInteractiveTarget",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CancellationInsideInputCommit_RollsBackBeforePublication",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantCommitFailure_RestoresPublishedStateAndOldOwner",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_RestoresBothDeclaredSurfacesWithoutOverwritingBusinessLayout"
         ],
         "input-runtime": [
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Unlocked_ClickSubmitCancelAndMove_Control",
@@ -498,7 +581,8 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.CachedView_ReopenedSameFrame_RetainsInputGateAfterDestroyBoundary",
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
-          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -525,6 +609,14 @@
         ],
         "performance-markers": [
           "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "flow-integration": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+        ],
+        "flow-samples": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
         ]
       },
       "EditMode": {
@@ -607,7 +699,12 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -627,6 +724,55 @@
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+        ],
+        "navigation": [
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.SingleRepeat_FailsWithoutChangingHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ExternalCurrentClose_ClearsHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ArgumentMismatch_FailsBeforeLoading",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BlockedPush_HoldsFIFOAndOrdinaryCommands",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.CancelBeforeCommit_RestoresOldPageAndHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+        ],
+        "presentation": [
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.PartialBindFailure_RollsBackOwnership",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DisposeFailure_DoesNotBlockClosedOrLeaseRelease",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.UnmatchedView_DoesNotCreatePresenter",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.ExternalModel_RemainsOwnedByCaller",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DuplicatePresentationRegistration_IsRejected"
+        ],
+        "dialogs": [
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmittedFalse_IsAValidResultAfterClosed",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelAfterOpen_ClosesBeforeCancellation",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.UserClose_ReturnsUserCanceledAndInvalidatesResponder",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmitEarly_ThenOpenFailureDoesNotPublishSuccess",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_EndsWaiterAsContextStopped",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CachedReopen_OldResponderCannotResolveNewWaiter",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CanceledBeforeOpen_DoesNotLoad",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CancelUncooperativeOpen_ObservesLateCleanup",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CloseFailure_RemainsInSubmittedCompletion",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+        ],
+        "popup-queue": [
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ActiveItemIsNotPreempted_KeyReleasedAfterClosed",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhilePaused_ReleasesWaitersAndDoesNotRestart",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ContextShutdown_EndsActiveAndPausedPendingRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.FailedOpen_ReleasesKeyAndContinues",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PauseDuringOpen_DoesNotCancelCurrentAndBlocksNext",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopDuringUncooperativeOpen_ReleasesLateLease",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Contexts_DoNotSharePauseOrDeduplicationKeys",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
         ]
       }
     }
@@ -772,7 +918,17 @@
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Shutdown_DuringPrepareDoesNotRunConcurrentClose",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalAnimationCancel_StopsAndRollsBack",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.CallerCancel_DuringPrepareReleasesStepBeforeNextCommand",
-          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld"
+          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PagePair_CommitsStateWithoutCoreDefault",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantPrepareFails_RestoresOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CallerCancelAfterCommit_StillClosesOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_ShowWindowIsVisibleButNotInteractive",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairTimeout_StopsAndQuarantinesUncooperativeOperation",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairFailure_IsTransitionFailed",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_PlayEntryAlreadyHasVisibleNonInteractiveTarget",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CancellationInsideInputCommit_RollsBackBeforePublication",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantCommitFailure_RestoresPublishedStateAndOldOwner",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_RestoresBothDeclaredSurfacesWithoutOverwritingBusinessLayout"
         ],
         "input-runtime": [
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Unlocked_ClickSubmitCancelAndMove_Control",
@@ -816,7 +972,8 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.CachedView_ReopenedSameFrame_RetainsInputGateAfterDestroyBoundary",
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
-          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -843,6 +1000,14 @@
         ],
         "performance-markers": [
           "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "flow-integration": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+        ],
+        "flow-samples": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
         ]
       },
       "EditMode": {
@@ -920,7 +1085,12 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryCannotOpenOrShutdown_AndDuplicateServicesRejected",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
-          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads"
+          "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -940,6 +1110,55 @@
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+        ],
+        "navigation": [
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.SingleRepeat_FailsWithoutChangingHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ExternalCurrentClose_ClearsHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ArgumentMismatch_FailsBeforeLoading",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BlockedPush_HoldsFIFOAndOrdinaryCommands",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.CancelBeforeCommit_RestoresOldPageAndHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+        ],
+        "presentation": [
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.PartialBindFailure_RollsBackOwnership",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DisposeFailure_DoesNotBlockClosedOrLeaseRelease",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.UnmatchedView_DoesNotCreatePresenter",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.ExternalModel_RemainsOwnedByCaller",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DuplicatePresentationRegistration_IsRejected"
+        ],
+        "dialogs": [
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmittedFalse_IsAValidResultAfterClosed",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelAfterOpen_ClosesBeforeCancellation",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.UserClose_ReturnsUserCanceledAndInvalidatesResponder",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmitEarly_ThenOpenFailureDoesNotPublishSuccess",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_EndsWaiterAsContextStopped",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CachedReopen_OldResponderCannotResolveNewWaiter",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CanceledBeforeOpen_DoesNotLoad",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CancelUncooperativeOpen_ObservesLateCleanup",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CloseFailure_RemainsInSubmittedCompletion",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+        ],
+        "popup-queue": [
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ActiveItemIsNotPreempted_KeyReleasedAfterClosed",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhilePaused_ReleasesWaitersAndDoesNotRestart",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ContextShutdown_EndsActiveAndPausedPendingRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.FailedOpen_ReleasesKeyAndContinues",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PauseDuringOpen_DoesNotCancelCurrentAndBlocksNext",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopDuringUncooperativeOpen_ReleasesLateLease",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Contexts_DoNotSharePauseOrDeduplicationKeys",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
         ]
       }
     },
@@ -1084,7 +1303,17 @@
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Shutdown_DuringPrepareDoesNotRunConcurrentClose",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalAnimationCancel_StopsAndRollsBack",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.CallerCancel_DuringPrepareReleasesStepBeforeNextCommand",
-          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld"
+          "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.InputCommitFault_RollsBackReplacementAndRestoresOld",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PagePair_CommitsStateWithoutCoreDefault",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantPrepareFails_RestoresOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CallerCancelAfterCommit_StillClosesOldPage",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_ShowWindowIsVisibleButNotInteractive",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairTimeout_StopsAndQuarantinesUncooperativeOperation",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.PairFailure_IsTransitionFailed",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_PlayEntryAlreadyHasVisibleNonInteractiveTarget",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.CancellationInsideInputCommit_RollsBackBeforePublication",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.ParticipantCommitFailure_RestoresPublishedStateAndOldOwner",
+          "Wulato.UIKit.Tests.PlayMode.NavigationTransactionTests.Pair_RestoresBothDeclaredSurfacesWithoutOverwritingBusinessLayout"
         ],
         "input-runtime": [
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Unlocked_ClickSubmitCancelAndMove_Control",
@@ -1130,7 +1359,8 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.CachedView_ReopenedSameFrame_RetainsInputGateAfterDestroyBoundary",
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
-          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce"
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -1157,6 +1387,14 @@
         ],
         "performance-markers": [
           "Wulato.UIKit.Acceptance.Samples.ProfilerStageTests.Markers_CoverSynchronousStagesWithoutCrossFrameScopes"
+        ],
+        "flow-integration": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+        ],
+        "flow-samples": [
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
         ]
       },
       "EditMode": {
@@ -1239,7 +1477,12 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.OwnedServices_DisposeReverseOrderOnShutdown",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.SameRootRejected_ThenReusableAfterShutdown",
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -1259,6 +1502,55 @@
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+        ],
+        "navigation": [
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.SingleRepeat_FailsWithoutChangingHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ExternalCurrentClose_ClearsHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.ArgumentMismatch_FailsBeforeLoading",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BlockedPush_HoldsFIFOAndOrdinaryCommands",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.CancelBeforeCommit_RestoresOldPageAndHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+        ],
+        "presentation": [
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.PartialBindFailure_RollsBackOwnership",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DisposeFailure_DoesNotBlockClosedOrLeaseRelease",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.UnmatchedView_DoesNotCreatePresenter",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.ExternalModel_RemainsOwnedByCaller",
+          "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.DuplicatePresentationRegistration_IsRejected"
+        ],
+        "dialogs": [
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmittedFalse_IsAValidResultAfterClosed",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelAfterOpen_ClosesBeforeCancellation",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.UserClose_ReturnsUserCanceledAndInvalidatesResponder",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.SubmitEarly_ThenOpenFailureDoesNotPublishSuccess",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_EndsWaiterAsContextStopped",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CachedReopen_OldResponderCannotResolveNewWaiter",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CanceledBeforeOpen_DoesNotLoad",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CancelUncooperativeOpen_ObservesLateCleanup",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CloseFailure_RemainsInSubmittedCompletion",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+        ],
+        "popup-queue": [
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ActiveItemIsNotPreempted_KeyReleasedAfterClosed",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhilePaused_ReleasesWaitersAndDoesNotRestart",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ContextShutdown_EndsActiveAndPausedPendingRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.FailedOpen_ReleasesKeyAndContinues",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PauseDuringOpen_DoesNotCancelCurrentAndBlocksNext",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopDuringUncooperativeOpen_ReleasesLateLease",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Contexts_DoNotSharePauseOrDeduplicationKeys",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
         ]
       }
     }

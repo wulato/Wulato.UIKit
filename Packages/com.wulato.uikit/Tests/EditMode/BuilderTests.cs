@@ -54,6 +54,51 @@ namespace Wulato.UIKit.Tests.EditMode
             finally {unexpected?.ShutdownAsync().GetAwaiter().GetResult();UnityEngine.Object.DestroyImmediate(legacy);original.enabled=true;}
         }
 #endif
+        [Test] public void BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot()
+        {
+            bool released=false;
+            var error=Assert.Throws<AggregateException>(()=>Builder().WithServiceFactory(context=>
+            {
+                context.GetService<IUIContextLifetime>().Stopping.Register(()=>throw new InvalidOperationException("stop-callback"));
+                return new Resource(()=>{released=true;throw new InvalidOperationException("service-dispose");});
+            }).WithServiceFactory<string>(_=>throw new InvalidOperationException("factory-original")).Build());
+            var messages=new List<string>();foreach(var cause in error.Flatten().InnerExceptions)messages.Add(cause.Message);
+            Assert.That(messages,Does.Contain("factory-original"));Assert.That(messages,Does.Contain("stop-callback"));Assert.That(messages,Does.Contain("service-dispose"));Assert.That(released,Is.True);Keep(Builder().Build());
+        }
+        [Test] public void FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose()
+        {
+            IUIContextLifetime lifetime=null;bool signaled=false,disposed=false;
+            var ui=Keep(Builder().WithServiceFactory(context=>
+            {
+                lifetime=context.GetService<IUIContextLifetime>();
+                Assert.That(context.GetService<UIRegistrySnapshot>(),Is.Not.Null);
+                lifetime.Stopping.Register(()=>{signaled=true;Assert.That(context.GetDiagnostics().State,Is.EqualTo(UIContextState.Stopping));});
+                return new Resource(()=>{Assert.That(signaled,Is.True);disposed=true;});
+            }).Build());
+            Assert.That(lifetime.Stopping.IsCancellationRequested,Is.False);
+            ui.ShutdownAsync().GetAwaiter().GetResult();Assert.That(disposed,Is.True);
+        }
+        [Test] public void BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices()
+        {
+            IUIContextLifetime lifetime=null;bool disposed=false;
+            Assert.Throws<Exception>(()=>Builder().WithServiceFactory(context=>
+            {lifetime=context.GetService<IUIContextLifetime>();return new Resource(()=>{Assert.That(lifetime.Stopping.IsCancellationRequested,Is.True);disposed=true;});})
+                .WithServiceFactory<string>(_=>throw new Exception("later-factory")).Build());
+            Assert.That(disposed,Is.True);Keep(Builder().Build());
+        }
+        [Test] public void ProductionBuilder_ExplicitTransactionsOnly()
+        {
+            var ui=Keep(Builder().WithTransactions().Build());
+            Assert.That(ui.GetService<IUITransactionAccess>(),Is.Not.Null);
+            ui.ShutdownAsync().GetAwaiter().GetResult();
+            var normal=Keep(Builder().Build());
+            Assert.Throws<InvalidOperationException>(()=>normal.GetService<IUITransactionAccess>());
+        }
+        [Test] public void BuiltInServices_CannotBeOverridden()
+        {
+            Assert.Throws<InvalidOperationException>(()=>Builder().WithServiceFactory<IUIContextLifetime>(_=>null).Build());
+            Assert.Throws<InvalidOperationException>(()=>Builder().WithServiceFactory<UIRegistrySnapshot>(_=>null).Build());
+        }
         [Test] public void EqualButDistinctServices_BothDispose()
         {
             var first=new EqualResource();var second=new EqualResource();

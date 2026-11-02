@@ -1,0 +1,8 @@
+{
+  "name": "Wulato.UIKit.PopupQueue",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "UniTask"
+  ]
+}

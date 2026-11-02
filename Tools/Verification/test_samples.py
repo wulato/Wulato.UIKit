@@ -36,3 +36,13 @@ class SamplesTests(unittest.TestCase):
             root=Path(d);source=root/'source';source.mkdir();(source/'Scene.unity').write_text('upstream');(source/'Scene.unity.meta').write_text('guid: upstream')
             host=root/'host';samples.import_sample(source,host);target=host/'Assets/Samples/Wulato UIKit/source';(target/'Scene.unity').write_text('consumer');(target/'Scene.unity.meta').write_text('guid: original')
             samples.import_sample(source,host);self.assertEqual((target/'Scene.unity').read_text(),'consumer');self.assertEqual((target/'Scene.unity.meta').read_text(),'guid: original')
+
+    def test_business_flow_is_imported_only_with_all_four_extensions(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);host=root/'host';(host/'Packages').mkdir(parents=True)
+            manifest=host/'Packages/manifest.json'
+            manifest.write_text(json.dumps({'dependencies':{'com.wulato.uikit.navigation':'file:nav'}}))
+            self.assertNotIn('BusinessFlow',[p.name for p in samples.sample_sources(root,host)])
+            deps={'com.wulato.uikit.'+n:'file:'+n for n in ('navigation','dialogs','presentation','popup-queue')}
+            manifest.write_text(json.dumps({'dependencies':deps}))
+            self.assertIn('BusinessFlow',[p.name for p in samples.sample_sources(root,host)])

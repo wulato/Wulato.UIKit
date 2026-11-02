@@ -78,7 +78,12 @@ namespace Wulato.UIKit
             if(owner!=null&&registrations.TryGetValue(owner.Value.ContextId,out var old)&&old.Locks>0)
             {
                 if(best!=null&&best.Value.Policy.EmergencyPreemption&&registrations[best.Value.ContextId].Value.Priority>old.Value.Priority)return best;
-                if(proposed!=null&&proposed.Value.ContextId==owner.Value.ContextId)return proposed.Value.Policy.TakesInput?proposed:owner;
+                if(proposed!=null&&proposed.Value.ContextId==owner.Value.ContextId)
+                {
+                    // A Context lock permits replacement, but never bypasses its existing modal barrier.
+                    if(!proposed.Value.Policy.BlocksLower&&barrier!=null&&barrier.Value.ContextId==proposed.Value.ContextId)return owner;
+                    return proposed.Value.Policy.TakesInput?proposed:owner;
+                }
                 return owner;
             }
             return best;

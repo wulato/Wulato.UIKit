@@ -17,10 +17,10 @@ namespace Wulato.UIKit.InputSystem.Tests
         {
             var path=Path.Combine(PackagePath,"package.json");
             var text=File.ReadAllText(path);var manifest=JsonUtility.FromJson<Manifest>(text);
-            Assert.That(manifest.name,Is.EqualTo("com.wulato.uikit.input-system"));Assert.That(manifest.version,Is.EqualTo("0.1.0"));
-            StringAssert.IsMatch("\"com.wulato.uikit\"\\s*:\\s*\"0.1.0\"",text);
+            Assert.That(manifest.name,Is.EqualTo("com.wulato.uikit.input-system"));Assert.That(manifest.version,Is.EqualTo("0.2.0"));
+            StringAssert.IsMatch("\"com.wulato.uikit\"\\s*:\\s*\"0.2.0\"",text);
             StringAssert.IsMatch("\"com.unity.inputsystem\"\\s*:\\s*\"1.17.0\"",text);
-            Assert.That(PackageInfo.FindForAssembly(typeof(UIViewBase).Assembly).version,Is.EqualTo("0.1.0"));
+            Assert.That(PackageInfo.FindForAssembly(typeof(UIViewBase).Assembly).version,Is.EqualTo("0.2.0"));
             Assert.That(PackageInfo.FindForAssembly(typeof(UnityEngine.InputSystem.InputAction).Assembly).version,Is.EqualTo("1.17.0"));
             Save();
         }

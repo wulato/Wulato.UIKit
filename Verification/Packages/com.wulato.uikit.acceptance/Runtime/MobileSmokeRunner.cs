@@ -9,13 +9,13 @@ namespace Wulato.UIKit.Acceptance
     public sealed class MobileSmokeRunner : MonoBehaviour
     {
         public UnityEngine.UI.Text statusLabel;
-        public UIRoot root;public UIRegistry directRegistry,resourceRegistry;public string buildId;
+        public UIRoot root;public UIRegistry directRegistry,resourceRegistry,flowRegistry;public string buildId;public string phase="phase1";
         [Serializable] sealed class Case {public string name,status="PASS";}
-        [Serializable] sealed class Report {public string build_id,status="FAIL",error,editor;public List<Case> cases=new List<Case>();}
+        [Serializable] sealed class Report {public string build_id,status="FAIL",error,editor,phase;public List<Case> cases=new List<Case>();}
         public static UIArguments GeneratedArguments(string name)=>name=="ViewA"?UIArguments.From(73):UIArguments.None;
         async void Start()
         {
-            var report=new Report{build_id=buildId,editor=Application.unityVersion};IUIContext ui=null;
+            var report=new Report{build_id=buildId,editor=Application.unityVersion,phase=phase};IUIContext ui=null;
             if(statusLabel)statusLabel.text="Running smoke checks. Tap the green Close button when shown.";
             try
             {
@@ -42,13 +42,22 @@ namespace Wulato.UIKit.Acceptance
                 // Never invoke onClick or ExecuteEvents: the physical touch must traverse the selected driver.
                 var completion=await erased.Closed;Require(completion.Reason==UICloseReason.UserRequest&&completion.Errors.Count==0,"touch close");report.cases.Add(new Case{name="TouchClose"});
                 var shutdown=await ui.ShutdownAsync();Require(shutdown.Errors.Count==0&&shutdown.PendingCleanupCount==0,"shutdown");
-                Require(ui.GetDiagnostics().ActiveLeaseCount==0,"leases after shutdown");report.cases.Add(new Case{name="Shutdown"});report.status="PASS";
+                Require(ui.GetDiagnostics().ActiveLeaseCount==0,"leases after shutdown");report.cases.Add(new Case{name="Shutdown"});
+                if(phase=="phase2")
+                {
+#if UIKIT_PHASE2_SMOKE
+                    await PhaseTwoSmoke.RunAsync(root,flowRegistry,name=>report.cases.Add(new Case{name=name}));
+#else
+                    throw new InvalidOperationException("Phase2 requires all extension assemblies.");
+#endif
+                }
+                report.status="PASS";
             }
             catch(Exception e){report.error=e.ToString();Debug.LogException(e);}
             finally
             {
                 if(ui!=null)try{await ui.ShutdownAsync();}catch(Exception e){Debug.LogException(e);}
-                if(statusLabel)statusLabel.text=report.status=="PASS"?"PASS: 7 / 7 checks completed. Return Home to exit.":"FAIL: "+(report.error??"Unknown error").Split('\n')[0];
+                if(statusLabel)statusLabel.text=report.status=="PASS"?"PASS: "+report.cases.Count+" checks completed. Return Home to exit.":"FAIL: "+(report.error??"Unknown error").Split('\n')[0];
                 File.WriteAllText(Path.Combine(Application.persistentDataPath,"uikit-smoke.json"),JsonUtility.ToJson(report,true));
                 Debug.Log("UIKIT_MOBILE_SMOKE "+JsonUtility.ToJson(report));
             }
