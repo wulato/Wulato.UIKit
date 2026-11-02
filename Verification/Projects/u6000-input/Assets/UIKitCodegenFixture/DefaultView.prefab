@@ -56,6 +56,8 @@ MonoBehaviour:
     target: {fileID: 264479544054719406}
   includeInRegistry: 1
   typeKey: generated-DefaultView
+  externalProviderId: 
+  externalAssetId: 
   layer: 0
   multiplicity: 0
   closePolicy: 0

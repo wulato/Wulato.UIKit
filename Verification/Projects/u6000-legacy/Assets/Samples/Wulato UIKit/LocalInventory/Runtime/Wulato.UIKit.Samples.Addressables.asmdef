@@ -1,0 +1,10 @@
+{
+  "name": "Wulato.UIKit.Samples.Addressables",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Addressables",
+    "UniTask",
+    "UnityEngine.UI"
+  ]
+}

@@ -1,8 +1,9 @@
 {
     "version": 1,
-    "fingerprint": "27979e9f4a7a924a26ceb1deb43fb981e244aa3749b5fd28648f5c242d14b476",
+    "fingerprint": "d4c75e653f42c041c4e3a4b0dd130a9644b613f5589e4319cddd85f0ff0890f6",
     "prefabs": [
         "Assets/Samples/Wulato UIKit/Inventory/InventoryView.prefab",
+        "Assets/Samples/Wulato UIKit/LocalInventory/AddressableInventory.prefab",
         "Assets/Samples/Wulato UIKit/Modals/StackedModalView.prefab",
         "Assets/Samples/Wulato UIKit/QuickStart/SettingsView.prefab",
         "Assets/UIKitCodegenFixture/DefaultView.prefab",
@@ -10,6 +11,18 @@
         "Assets/UIKitCodegenFixture/ViewB.prefab"
     ],
     "files": [
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/Assembly.asmref",
+            "hash": "060808467739a805b850452cabd5f48747527ae5fc14462dfd5e3b9c646b6e74"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/UIProvider_55daefbfa8e62d5c.cs",
+            "hash": "6343227c2ff2d11a1fdc6613ed35495c278a5f564ff681cf375ca5725289e5f9"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/cbdf7069fcca4ddab99916765b2abe33.Bindings.cs",
+            "hash": "310c99c4a6dc4b82f95db17f7f8acec9b9ae9f36e3b81e1090ddd9c7a29abeb1"
+        },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/21557346274574545b2ebf2c020714a0/Assembly.asmref",
             "hash": "1d4f55c111d6684891d3fe4534f114029110348c71159d5e90969a354e7a3035"
@@ -20,11 +33,11 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/21557346274574545b2ebf2c020714a0/a5c27c1b892084e7bb4b9c8058701b80.Bindings.cs",
-            "hash": "99f1b1b350109ac0ab6badb0680017dd03fe8ef35937c5fc71913a4f6f2c2cef"
+            "hash": "6e2f937d9a063788dc19bafd3e788e878291ad119c4193d3c4bc97d14cb8da20"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/285243358a044609a3b8d1c05527248d/713a01d5fa724c6bbda6ffb8efaf3db3.Bindings.cs",
-            "hash": "48313a2df1fdec94b9ca3f0b0ff45fe4c971730a532af29b5b0e76acc6f32aa9"
+            "hash": "f6f28ea49f3580e7b0cd823e43f60f284ba8631a2246cfb16b7f2d2aada2a2dd"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/285243358a044609a3b8d1c05527248d/Assembly.asmref",
@@ -36,7 +49,7 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/332e74350bf24f74962a7859a5dedddc/25d75e8bd6024b85961020742aad770e.Bindings.cs",
-            "hash": "a7d699f52884003d1a2081595cc482a0f9328aacc3e44b6638dc10fb782096aa"
+            "hash": "65a386b4fede9104adee19eb0f511313ad8b177fb81fa93908afcd34d038ccd0"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/332e74350bf24f74962a7859a5dedddc/Assembly.asmref",
@@ -56,7 +69,7 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/4d86cc70afc21446ab0ca3e634cb5df7/f211185a265944a6797076fd30560e14.Bindings.cs",
-            "hash": "cda7e5a7b69f4742bb07ba352062953ea3195b85d6c8b5a063f8601ae0d76757"
+            "hash": "cfbb5b7aaaf5ccce16ce9a3d0d280f4bedaeb6dc991d8340b764b9022c657cfe"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/Assembly.asmref",
@@ -68,11 +81,11 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/f7330409dcd447cbb316f8d1656ce3b4.Bindings.cs",
-            "hash": "0afebe94b0281e8b08c6d91db1a24264189f24859308af0f6c1477e5d7c431bb"
+            "hash": "6105cabd0200835edeb556c551e5c8d43798ece15c554d136d4abd0f49fae587"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/7eb9be1144c694014ab09fab7482e889.Bindings.cs",
-            "hash": "1b3436a72f80b1828303ced2bf20fb26c282dfa823717a67ee788ca13cf99309"
+            "hash": "4d20bb844bbd3faf145eb01a481300c16bc6e9d85aca10d72f8c11ec6b746903"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/UIProvider_6d589e57b3871572.cs",

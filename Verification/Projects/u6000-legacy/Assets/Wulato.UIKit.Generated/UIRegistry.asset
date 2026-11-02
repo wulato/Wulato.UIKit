@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: UIRegistry
   m_EditorClassIdentifier: Wulato.UIKit.Core::Wulato.UIKit.UIRegistry
   providers:
+  - {fileID: 11400000, guid: 3f239e9d4ba9746b79b6a6a5488514b2, type: 2}
   - {fileID: 11400000, guid: dde93814a465042af8b4016329765b85, type: 2}
   - {fileID: 11400000, guid: bcf09fc94ab344c35b08c5d27b8a88ef, type: 2}
   - {fileID: 11400000, guid: da7097b024fb44cd7a46ffa2bd4fa38a, type: 2}

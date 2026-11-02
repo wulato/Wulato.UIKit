@@ -215,3 +215,17 @@ python3 Tools/Verification/run.py build --phase phase2 --editor all --backend le
 `--package-set` 可选 main/navigation/presentation/dialogs/popup-queue，限定范围仅用于 phase2 clean prepare-only；all 是默认完整组合。独立安装在两个指定编辑器的 legacy 消费环境验证，组合安装覆盖四宿主；Input System 兼容由四宿主专项和最终移动矩阵验证。各范围有独立登记目录，不能用单包安装记录代替完整组合。
 
 P8 明确要求四宿主完整 EditMode/PlayMode、16 个 Reload 组合、四宿主固定 Git 组合安装、八个 ARM64 IL2CPP 实体设备组合，以及两个 Android/Input System clean 构建。iOS 必须 Xcode 编译/签名/安装/启动；TouchClose 需要用户真实触摸。模块专项通过不代表这些发布门禁已经完成。
+
+## 第三阶段：Addressables 本地内容适配
+
+独立包 `com.wulato.uikit.addressables` 0.1.0，核心及输入适配 0.3.0、四业务扩展 0.1.1。2022.3.62f2 固定 Addressables 1.21.21 / SBP 1.21.25，6000.3.22f1 固定 2.9.1 / 2.6.1；旧统一版本前置失败证据保留。
+
+先 runtime prepare，再 codegen/prepare-samples；源输入稳定后执行 `prepare --phase addressables --editor all --backend all` 构建 StandaloneOSX 本地内容并封存证据。首次新增描述字段需要重新生成。内容证据校验实际依赖、Existing Build 类型、真实 Bundle、运行时源码/宿主资产指纹和内容哈希。修改内容输入后先重新准备；不能使用 AssetDatabase/Fast Mode 冒充。
+
+新增 EditMode `addressables`，PlayMode `addressables-runtime`、`addressables-integration`；`addressables-preflight` 保留入口验证。包缺席时不纳入对应专项。真实组合覆盖缓存/LRU、导航、Presenter、Dialog、Queue、迟到清理、资源来源路由和 LocalInventory 场景。模块专项通过不代表移动发布。
+
+固定 Git 接入只允许：`build --phase phase3 --editor all --backend legacy --target Android --profile clean --package-set main --prepare-only`，另运行 addressables 同组合及 all 的四宿主组合，共八项。target 仅沿用安装身份，不构建 Player。prepare-only 预期非零/BLOCKED 仅在 install_status=PASS、生成编译完成、当前指纹及原始证据正确且唯一阻塞为未构建 Player 时接受。校验实际安装版本、包来源、主包隔离及运行时程序集；不新增 phase3 release gate。
+
+安装范围的运行时隔离读取 `GetAssemblies(Player)` 的实际引用图，从消费 Assets 源码与所选 UIKit 程序集计算完整闭包，同时检查可达预编译 DLL。候选列表中的未引用 `autoReferenced=false` SDK 测试程序集不等于 Player 依赖；保留候选、根、全部边、可达闭包和未引用项作为原始证据，任何可达 TestRunner/NUnit/验收程序集仍失败。此检查只证明编译依赖，不代替 Player 构建/裁剪验收。
+
+预编译 DLL 的编译器候选（例如 SDK 自动引用的 NUnit）还须与实际 Editor 编译的 Runtime DLL 导入元数据求交；保留原始 DLL、副本哈希及导入清单。缺元数据或实际导入测试框架均失败。该证据明确限于 Editor 安装编译，不代替目标 Player 的条件编译、构建或裁剪验证。

@@ -37,13 +37,24 @@ def prepare(args):
                     steps.append(dict(stage=name,status='PASS' if ok else 'FAIL',source_before=before,source_after=run.fingerprint(host),returncode=rc,timed_out=to,actual_editor=actual,report=report))
                     print(host.name,name,steps[-1]['status'],flush=True)
                     if not ok:raise ValueError('sample-stage-failed:'+str(folder))
+                def addressable_step(name,method):
+                    if not (host/'Assets/Samples/Wulato UIKit/LocalInventory').exists():return
+                    folder=out/name;folder.mkdir();args.execute_method='Wulato.UIKit.Samples.Addressables.Editor.LocalInventorySetup.'+method
+                    before=run.fingerprint(host);rc,to,log,actual=run.unity(args,ver,host,folder)
+                    passed=rc==0 and not to and actual==ver and 'UIKIT_ADDRESSABLES_SAMPLE_OK' in log and not re.search(r'error CS\d+|Scripts have compiler errors',log)
+                    if method=='Validate' and before!=run.fingerprint(host):passed=False
+                    print(host.name,name,'PASS' if passed else 'FAIL',flush=True)
+                    steps.append(dict(stage=name,status='PASS' if passed else 'FAIL',source_before=before,source_after=run.fingerprint(host)))
+                    if not passed:raise ValueError('addressables-sample-stage:'+str(folder))
                 try:
                     for source in sample_sources(run.R,host):import_sample(source,host)
                     step('01-import-compile','CheckAssemblies')
                     install_tests(host)
                     step('02-validate' if args.check_only else '02-acceptance-red' if args.red else '02-author','Validate' if args.check_only else 'CheckAssemblies' if args.red else 'Author')
+                    if args.check_only:addressable_step('02-addressables-validate','Validate')
                     if not args.red and not args.check_only:
-                        step('03-generate','Generate');step('04-writeback','Complete');step('05-usage-scenes','FinalizeSamples');step('06-validate','Validate')
+                        addressable_step('02-addressables-author','Author')
+                        step('03-generate','Generate');step('04-writeback','Complete');step('05-usage-scenes','FinalizeSamples');addressable_step('05-addressables-scene','FinalizeSample');step('06-validate','Validate');addressable_step('06-addressables-validate','Validate')
                     snap=run.snapshot(ver,backend,host);run.dump(out/'host-snapshot.json',snap)
                     if snap['errors']:raise ValueError(str(snap['errors']))
                     result=dict(status='PASS',editor=ver,backend=backend,steps=steps,fingerprint=run.fingerprint(host),evidence=str(out),red=args.red)
@@ -55,8 +66,9 @@ def prepare(args):
     except (VerificationBusy,ValueError,OSError) as e:print('FAIL',str(e),flush=True);return 1
 
 def sample_sources(root,host):
-    from runtime import EXTENSIONS
+    from runtime import FLOW_EXTENSIONS
     sources=[root/"Packages/com.wulato.uikit/Samples~"/name for name in NAMES]
     dependencies=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
-    if all(name in dependencies for name in EXTENSIONS):sources.append(root/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow')
+    if all(name in dependencies for name in FLOW_EXTENSIONS):sources.append(root/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow')
+    if 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
     return sources

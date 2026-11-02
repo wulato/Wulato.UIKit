@@ -1,8 +1,0 @@
-{
-  "name": "UIKit.Codegen.A.Renamed",
-  "references": [
-    "Wulato.UIKit.Core",
-    "UniTask"
-  ],
-  "autoReferenced": true
-}

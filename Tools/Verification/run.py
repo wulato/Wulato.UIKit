@@ -37,6 +37,7 @@ def fingerprint(host):
   if path.with_suffix(path.suffix+'.meta').is_file():files.append(path.with_suffix(path.suffix+'.meta'))
  for folder in ('Assets','ProjectSettings','Packages'):
   files.extend(p for p in (host/folder).rglob('*') if p.is_file() and p.name!='.DS_Store')
+ if (host/'AddressablesContent.json').is_file():files.append(host/'AddressablesContent.json')
  files+=list(C.glob('*.py'))+[C/'matrix.json']
  return digest(files)
 def snapshot(ver,backend,host):
@@ -99,6 +100,10 @@ def unity(args,ver,host,out,test=False):
 def applicable_suites(matrix,manifest):
  optional={'samples','performance','performance-markers','flow-samples'}
  mapping={suite:package for package,suite in EXTENSIONS.items()}
+ mapping['addressables']='com.wulato.uikit.addressables'
+ mapping['addressables-integration']='com.wulato.uikit.verification.addressables'
+ mapping['addressables-runtime']='com.wulato.uikit.addressables'
+ mapping['addressables-preflight']='com.wulato.uikit.verification.addressables'
  mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
  mapping['flow-samples']='com.wulato.uikit.acceptance.flows'
  return {name:cases for name,cases in matrix.items() if (name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']) and (name not in mapping or mapping[name] in manifest['dependencies'])}
@@ -132,11 +137,11 @@ def _run_locked(args):
           **{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
     testables=[COMMON]
     if backend=='input':deps['com.unity.inputsystem']='1.17.0'
-    if args.phase in ('p1','runtime'):
+    if args.phase in ('p1','runtime','addressables'):
      package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
      deps[package]='file:../../../Packages/'+package;testables.append(package)
      if backend=='input':testables.append('com.unity.inputsystem')
-    if args.phase=='runtime':
+    if args.phase in ('runtime','addressables'):
      from runtime import prepare_runtime_manifest
      current=json.loads((host/'Packages/manifest.json').read_text())
      current_lock=json.loads((host/'Packages/packages-lock.json').read_text())
@@ -146,18 +151,28 @@ def _run_locked(args):
    else:
     matrix=applicable_suites(json.loads((C/'matrix.json').read_text())[ver][backend][mode],json.loads((host/'Packages/manifest.json').read_text()))
     required=matrix[suite] if suite!='all' else sum(matrix.values(),[])
+    if suite in ('addressables-preflight','addressables-integration'):
+     from addressables_content import verify_content
+     content_errors=verify_content(host,ver)
+     if content_errors:raise ValueError(str(content_errors))
     metadata['source_before']=fingerprint(host);dump(out/'run.json',metadata)
-   if args.command=='prepare' and args.phase=='runtime':args.execute_method='Wulato.UIKit.Acceptance.Editor.T2HostProbe.Prepare'
+   if args.command=='prepare' and args.phase in ('runtime','addressables'):args.execute_method='Wulato.UIKit.Acceptance.Editor.T2HostProbe.Prepare'
+   if args.command=='prepare' and args.phase=='addressables':args.execute_method='Wulato.UIKit.Verification.Addressables.Editor.AddressablesContent.Prepare'
    rc,to,log,actual=unity(args,ver,host,out,args.command=='tests')
+   if args.command=='prepare' and args.phase=='addressables' and rc==0:
+    from addressables_content import seal_content
+    seal_content(host,out,ver)
    snap=snapshot(ver,backend,host);dump(out/'host-snapshot.json',snap)
    result=evaluate(out/'results.xml',log,required,rc,to) if args.command=='tests' else {
        'status':'PASS' if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else 'FAIL','errors':([] if rc==0 and not to and not re.search(r'error CS\d+|Scripts have compiler errors',log) else ['prepare-editor-failed'])}
    if args.command=='tests' and metadata['source_before']!=snap['fingerprint']:
     snap['errors'].append('inputs-changed-during-run')
    if actual!=ver:snap['errors'].append('actual-editor:'+str(actual))
-   if args.command=='prepare' and args.phase=='runtime':
+   if args.command=='prepare' and args.phase in ('runtime','addressables'):
     from runtime import validate_installed_report
     result['errors']+=validate_installed_report(ver,out)
+   if args.command=='tests' and suite in ('addressables-preflight','addressables-integration'):
+    result['errors']+=verify_content(host,ver)
    result['errors']+=snap['errors']
    if result['errors']:result['status']='FAIL'
    traces={p.name:json.loads(p.read_text()) for p in out.glob('*.trace.json')};dump(out/'trace.json',traces)
@@ -188,7 +203,7 @@ def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
  for name in ('prepare','tests'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
-  if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime'],required=True)
+  if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime','addressables'],required=True)
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
  for name in ('codegen','check-generated','prepare-samples'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
@@ -197,7 +212,7 @@ def main():
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')
  for name in ('build',):
-  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
+  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2','phase3'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue','addressables'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
  q=sub.add_parser('smoke');q.add_argument('--build',required=True);q.add_argument('--device',required=True);q.add_argument('--timeout',type=int,default=180)
  a=p.parse_args()
  if a.command=='build':

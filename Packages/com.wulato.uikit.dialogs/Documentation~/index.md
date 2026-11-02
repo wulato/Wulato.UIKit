@@ -1,6 +1,6 @@
 # Dialogs
 
-可选包0.1.0，依赖核心0.2.0和 UniTask 2.5.11；无需 Navigation/Presentation/Popup Queue。
+可选包0.1.1，依赖核心0.3.0和 UniTask 2.5.11；无需 Navigation/Presentation/Popup Queue。
 
 请求实现 IDialogRequest<TResult>。对应 View 继承 UIView<DialogArguments<TRequest,TResult>>，在 OnOpenAsync 接收 Request 与 Responder；显式 DialogRegistry.Register<TRequest,TResult>(viewKey)，再 builder.UseDialogs(registry)。注册集合在服务创建时复制校验。
 

@@ -1,0 +1,19 @@
+{
+  "name": "Wulato.UIKit.Verification.Addressables.Editor",
+  "references": [
+    "Wulato.UIKit.Verification.Addressables",
+    "Wulato.UIKit.Acceptance.Editor",
+    "Wulato.UIKit.Core",
+    "Unity.Addressables",
+    "Unity.Addressables.Editor",
+    "Unity.ResourceManager",
+    "UniTask",
+    "Unity.ScriptableBuildPipeline.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

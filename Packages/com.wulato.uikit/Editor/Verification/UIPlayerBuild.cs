@@ -50,15 +50,38 @@ namespace Wulato.UIKit.Editor.Verification
             OK();
         }
         [Serializable] sealed class Package {public string name,version,source,resolvedPath;}
-        [Serializable] sealed class Dependencies {public string editor;public Package[] packages;}
+        [Serializable] sealed class AssemblyNode {public string name;public string[] references,precompiledReferences,metadataReferences;public string metadataFile,metadataSha256;public bool assetSource;}
+        [Serializable] sealed class Dependencies {public string editor;public Package[] packages;public string[] runtimeAssemblies;public AssemblyNode[] runtimeAssemblyGraph;}
+        static AssemblyNode[] RuntimeGraph()
+        {
+            var assets=Path.GetFullPath(Application.dataPath)+Path.DirectorySeparatorChar;
+            return UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.Player)
+                .Select(a=>
+                {
+                    var node=new AssemblyNode{name=a.name,references=a.assemblyReferences.Select(r=>r.name).OrderBy(n=>n).ToArray(),
+                        precompiledReferences=a.compiledAssemblyReferences.Select(Path.GetFileNameWithoutExtension).OrderBy(n=>n).ToArray(),
+                        assetSource=a.sourceFiles.Any(f=>Path.GetFullPath(f).StartsWith(assets,StringComparison.Ordinal))};
+                    // Installation scope: inspect the existing Editor-compiled runtime DLL, never build a Player.
+                    var dll=Path.Combine("Library/ScriptAssemblies",a.name+".dll");
+                    if(File.Exists(dll))
+                    {
+                        var source=Path.GetFullPath(dll);
+                        node.metadataReferences=System.Reflection.Assembly.ReflectionOnlyLoadFrom(source).GetReferencedAssemblies().Select(n=>n.Name).OrderBy(n=>n).ToArray();
+                        node.metadataFile="runtime-metadata/"+a.name+".dll";
+                        Directory.CreateDirectory(Path.Combine(Out,"runtime-metadata"));File.Copy(source,Path.Combine(Out,node.metadataFile),true);
+                        using(var hash=System.Security.Cryptography.SHA256.Create())node.metadataSha256=BitConverter.ToString(hash.ComputeHash(File.ReadAllBytes(source))).Replace("-","").ToLowerInvariant();
+                    }
+                    return node;
+                }).OrderBy(a=>a.name).ToArray();
+        }
         public static void Validate()
         {
             Sample("Validate");Flow("Validate");UICodegenPipeline.Validate();
-            var packages=UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p=>p.name.StartsWith("com.wulato.uikit")||p.name=="com.cysharp.unitask"||p.name=="com.unity.ugui").Select(p=>new Package{name=p.name,version=p.version,source=p.source.ToString(),resolvedPath=p.resolvedPath}).ToArray();
+            var packages=UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p=>p.name.StartsWith("com.wulato.uikit")||p.name=="com.cysharp.unitask"||p.name=="com.unity.ugui"||p.name=="com.unity.addressables"||p.name=="com.unity.scriptablebuildpipeline").Select(p=>new Package{name=p.name,version=p.version,source=p.source.ToString(),resolvedPath=p.resolvedPath}).ToArray();
             foreach(var name in new[]{"com.wulato.uikit", "com.cysharp.unitask","com.unity.ugui"})
                 if(!packages.Any(p=>p.name==name))throw new InvalidOperationException("Missing installed package: "+name);
             if(packages.Single(p=>p.name=="com.wulato.uikit").source!="Git"||packages.Single(p=>p.name=="com.cysharp.unitask").version!="2.5.11")throw new InvalidOperationException("Expected Git package and pinned UniTask");
-            File.WriteAllText(Path.Combine(Out,"dependency-snapshot.json"),JsonUtility.ToJson(new Dependencies{editor=Application.unityVersion,packages=packages},true));OK();
+            File.WriteAllText(Path.Combine(Out,"dependency-snapshot.json"),JsonUtility.ToJson(new Dependencies{editor=Application.unityVersion,packages=packages,runtimeAssemblies=UnityEditor.Compilation.CompilationPipeline.GetAssemblies(UnityEditor.Compilation.AssembliesType.Player).Select(a=>a.name).OrderBy(n=>n).ToArray(),runtimeAssemblyGraph=RuntimeGraph()},true));OK();
         }
         public static void Build()
         {

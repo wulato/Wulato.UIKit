@@ -257,6 +257,8 @@ MonoBehaviour:
     target: {fileID: 6936468867041727758}
   includeInRegistry: 1
   typeKey: sample-Modals
+  externalProviderId: 
+  externalAssetId: 
   layer: 2
   multiplicity: 1
   closePolicy: 0

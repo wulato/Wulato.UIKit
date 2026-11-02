@@ -379,6 +379,8 @@ MonoBehaviour:
     target: {fileID: 8220858161570112563}
   includeInRegistry: 1
   typeKey: sample-Inventory
+  externalProviderId: 
+  externalAssetId: 
   layer: 2
   multiplicity: 0
   closePolicy: 1

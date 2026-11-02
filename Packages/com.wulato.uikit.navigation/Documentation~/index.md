@@ -1,6 +1,6 @@
 # Navigation
 
-安装 `com.wulato.uikit.navigation` 0.1.0 和核心 0.2.0；在消费 manifest 显式锁定主包与扩展的同一 Git commit，UniTask 固定 2.5.11。Unity 最低 2022.3.62f2，Unity 6 宿主显式锁 uGUI 2.0.0。
+安装 `com.wulato.uikit.navigation` 0.1.1 和核心 0.3.0；在消费 manifest 显式锁定主包与扩展的同一 Git commit，UniTask 固定 2.5.11。Unity 最低 2022.3.62f2，Unity 6 宿主显式锁 uGUI 2.0.0。
 
 ```csharp
 using Wulato.UIKit.Navigation;

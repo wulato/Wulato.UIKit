@@ -109,3 +109,12 @@ beamable-export-*
 /Artifacts/
 /.superpowers/
 **/__pycache__/
+
+# UIKit Addressables local build evidence and content-update state (regenerate per host)
+/Verification/Projects/*/AddressablesContent.json
+/Verification/Projects/*/Assets/AddressableAssetsData/OSX/
+/Verification/Projects/*/Assets/AddressableAssetsData/OSX.meta
+
+# UPM source folders must survive a machine-wide *~ ignore rule
+!/Packages/com.wulato.uikit.addressables/Samples~/
+!/Packages/com.wulato.uikit.addressables/Documentation~/

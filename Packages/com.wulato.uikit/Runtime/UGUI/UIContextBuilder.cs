@@ -97,7 +97,11 @@ namespace Wulato.UIKit
         {
             readonly PrefabUIViewLoader prefab=new PrefabUIViewLoader();readonly ResourcesUIViewLoader resources=new ResourcesUIViewLoader();
             public UniTask<IUIViewLease> CreateAsync(UIViewAsset asset,Transform parent,CancellationToken token)
-                =>asset.Kind==UIViewAssetKind.Prefab?prefab.CreateAsync(asset,parent,token):resources.CreateAsync(asset,parent,token);
+                {
+                if(asset!=null && asset.Kind==UIViewAssetKind.External)
+                    return UniTask.FromException<IUIViewLease>(new ArgumentException("External provider requires an explicitly injected loader: "+asset.ProviderId,nameof(asset)));
+                return asset!=null && asset.Kind==UIViewAssetKind.Prefab?prefab.CreateAsync(asset,parent,token):resources.CreateAsync(asset,parent,token);
+            }
         }
         sealed class UnityErrorSink:IUIErrorSink { public void Report(UIException error)=>Debug.LogException(error); }
     }

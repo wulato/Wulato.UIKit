@@ -1,0 +1,15 @@
+{
+  "name": "Wulato.UIKit.Samples.Addressables.Editor",
+  "references": [
+    "Wulato.UIKit.Samples.Addressables",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Editor",
+    "Wulato.UIKit.Addressables.Editor",
+    "Unity.Addressables.Editor",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

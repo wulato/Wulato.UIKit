@@ -79,8 +79,11 @@ namespace Wulato.UIKit.Editor
                     if(views.Length>1 || (views.Length==1 && (views[0].GetType()!=type || !views[0].enabled)))throw new InvalidOperationException("Wrong, disabled or duplicate root View component.");
                     if(prefab.GetComponentsInChildren<Canvas>(true).Any(c=>c.overrideSorting) || prefab.GetComponentsInChildren<CanvasGroup>(true).Any(c=>c.ignoreParentGroups))throw new InvalidOperationException("Canvas/CanvasGroup bypasses Shell gates.");
                     if(!Enum.IsDefined(typeof(UILayer),marker.layer)||!Enum.IsDefined(typeof(UIMultiplicity),marker.multiplicity)||!Enum.IsDefined(typeof(UIClosePolicy),marker.closePolicy)||!Enum.IsDefined(typeof(UIBackAction),marker.backAction)||marker.multiplicity==UIMultiplicity.Multi&&marker.closePolicy==UIClosePolicy.CacheOne)throw new InvalidOperationException("Invalid registration policy.");
+                    if(!string.IsNullOrEmpty(marker.externalProviderId) || !string.IsNullOrEmpty(marker.externalAssetId))
+                        UIViewAsset.External(marker.externalProviderId,marker.externalAssetId);
                     var names=new HashSet<string>(StringComparer.Ordinal);var identity=new StringBuilder("T9-v1|"+guid+"|"+route.Assembly+"|"+route.AsmdefGuid+"|"+source+"|"+key+"|"+(int)marker.layer+"|"+(int)marker.multiplicity+"|"+(int)marker.closePolicy+"|"+(int)marker.backAction);
                     identity.Append('|').Append(AssetDatabase.AssetPathToGUID(path));
+                    identity.Append('|').Append(marker.externalProviderId).Append('|').Append(marker.externalAssetId);
                     if(route.AsmdefGuid!="")identity.Append(File.ReadAllText(AssetDatabase.GUIDToAssetPath(route.AsmdefGuid)));
                     foreach(var binding in marker.bindings??throw new InvalidOperationException("Bindings list missing."))
                     {
@@ -162,6 +165,12 @@ namespace Wulato.UIKit.Editor
             if(Application.isBatchMode||!File.Exists(Pending))return;
             EditorApplication.delayCall+=()=>{try{Complete();}catch(Exception e){Debug.LogException(e);}};
         }
+        static bool AssetMatches(UIViewAsset asset,ViewInput view)
+        {
+            return string.IsNullOrEmpty(view.Marker.externalProviderId)
+                ? asset.Kind==UIViewAssetKind.Prefab && asset.Prefab==view.Prefab
+                : asset.Kind==UIViewAssetKind.External && asset.ProviderId==view.Marker.externalProviderId && asset.AssetId==view.Marker.externalAssetId;
+        }
         [MenuItem("Tools/Wulato/UIKit/Validate")]
         public static void Validate()=>ValidateFor(Discover());
         public static void ValidateFor(string[] prefabs)
@@ -187,7 +196,7 @@ namespace Wulato.UIKit.Editor
             var registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(RegistryPath);
             if(registry==null)throw new InvalidOperationException(RegistryPath+": Missing registry.");
             var entries=registry.CopyValidated().Entries;
-            if(entries.Count!=views.Length || views.Any(v=>!entries.Any(e=>e.ViewType==v.Type&&e.Key.Value==v.Key&&e.Asset.Prefab==v.Prefab&&e.Layer==v.Marker.layer&&e.Multiplicity==v.Marker.multiplicity&&e.ClosePolicy==v.Marker.closePolicy&&e.BackAction==v.Marker.backAction)))throw new InvalidOperationException(RegistryPath+": Stale generated provider mappings.");
+            if(entries.Count!=views.Length || views.Any(v=>!entries.Any(e=>e.ViewType==v.Type&&e.Key.Value==v.Key&&AssetMatches(e.Asset,v)&&e.Layer==v.Marker.layer&&e.Multiplicity==v.Marker.multiplicity&&e.ClosePolicy==v.Marker.closePolicy&&e.BackAction==v.Marker.backAction)))throw new InvalidOperationException(RegistryPath+": Stale generated provider mappings.");
         }
     }
 }

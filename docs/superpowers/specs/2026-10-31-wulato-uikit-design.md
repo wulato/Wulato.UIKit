@@ -642,6 +642,12 @@ Navigation、Dialogs、Popup Queue 和 Presentation 分别作为可选 UPM 包�
 
 按真实项目需求增加 Addressables、R3、DOTween 与 Collections。先固定扩展点再分别验证适配，不同时实现所有后端。
 
+#### 第三阶段首批已确认契约（2026-11-02）
+
+本批只交付 Addressables 本地内容适配。UIViewAssetKind 追加 External（保留原数值），新增 UIViewAsset.External(providerId,assetId) 与只读标识；拒绝空白、不 Trim、Ordinal。默认加载器拒绝 External；com.wulato.uikit.addressables 的 AddressablesUIViewLoader 显式注入，识别 addressables 并兼容原 Prefab/Resources。唯一 location、LoadAssetAsync<GameObject>、非激活实例化；实例及句柄随租约，CacheOne 保留，实际销毁后释放。取消仍使用核心单次观察与迟到清理，不改变生命周期或 View/Session 契约。
+
+Marker 的 externalProviderId/externalAssetId 成对配置并进入生成指纹；External 注册不输出直接 Prefab 引用。后端校验位于可选包 Editor。主包/输入适配 0.3.0，第二阶段四扩展 0.1.1 依赖核心 0.3.0，新包 0.1.0；Addressables 包最低基线 1.21.21；用户确认双宿主矩阵为 2022.3.62f2：Addressables 1.21.21 / SBP 1.21.25，6000.3.22f1：Addressables 2.9.1 / SBP 2.6.1，并已通过入口验证。执行与验收见 [第三阶段计划](../plans/2026-11-02-wulato-uikit-phase3-implementation.md)。本批仅四宿主专项和固定 Git 干净接入，不构成移动端或完整发布验收。
+
 ### 必须验证的行为
 
 | 用例组 ID | 设计条款 | 类别 | 验收重点 |

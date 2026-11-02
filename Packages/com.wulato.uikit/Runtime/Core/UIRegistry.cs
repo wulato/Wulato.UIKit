@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Wulato.UIKit
 {
-    public enum UIViewAssetKind { Prefab, Resources }
+    public enum UIViewAssetKind { Prefab=0, Resources=1, External=2 }
     /// <summary>Explicit source, never inferred from the View name.</summary>
     [Serializable]
     public sealed class UIViewAsset
@@ -14,10 +14,14 @@ namespace Wulato.UIKit
         [SerializeField] private UIViewAssetKind kind;
         [SerializeField] private GameObject prefab;
         [SerializeField] private string resourceId;
+        [SerializeField] private string providerId;
+        [SerializeField] private string assetId;
         internal UIViewAsset CopyValidated()
         {
             switch(kind)
             {
+                case UIViewAssetKind.External:
+                    return External(providerId,assetId);
                 case UIViewAssetKind.Resources:
                     if(string.IsNullOrWhiteSpace(resourceId))throw new ArgumentException("Resource identifier is required.");
                     return Resources(resourceId);
@@ -30,7 +34,18 @@ namespace Wulato.UIKit
         public UIViewAssetKind Kind => kind;
         public GameObject Prefab => prefab;
         public string ResourceId => resourceId;
+        /// <summary>Explicit external backend identity, compared ordinally without normalization.</summary>
+        public string ProviderId => providerId;
+        /// <summary>Opaque backend asset identifier; whitespace within a nonblank identifier is preserved.</summary>
+        public string AssetId => assetId;
         private UIViewAsset() { }
+        /// <summary>Describe an optional loader backend without depending on its package.</summary>
+        public static UIViewAsset External(string providerId,string assetId)
+        {
+            if(string.IsNullOrWhiteSpace(providerId))throw new ArgumentException("A provider identifier is required.",nameof(providerId));
+            if(string.IsNullOrWhiteSpace(assetId))throw new ArgumentException("An asset identifier is required.",nameof(assetId));
+            return new UIViewAsset{kind=UIViewAssetKind.External,providerId=providerId,assetId=assetId};
+        }
         public static UIViewAsset Resources(string id)
         {
             if(string.IsNullOrWhiteSpace(id))throw new ArgumentException("Resource identifier is required.",nameof(id));

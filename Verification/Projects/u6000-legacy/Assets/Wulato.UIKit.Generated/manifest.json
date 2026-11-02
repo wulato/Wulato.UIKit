@@ -1,8 +1,9 @@
 {
     "version": 1,
-    "fingerprint": "00f2a56faf43cbc81d9aaccf63d777fb4b785e06ae48c5f111bb118e314421d2",
+    "fingerprint": "021a43d0fcddfd6d732f8c59886d3391f76d39432f431b0ed0240a09dd3eaf1a",
     "prefabs": [
         "Assets/Samples/Wulato UIKit/Inventory/InventoryView.prefab",
+        "Assets/Samples/Wulato UIKit/LocalInventory/AddressableInventory.prefab",
         "Assets/Samples/Wulato UIKit/Modals/StackedModalView.prefab",
         "Assets/Samples/Wulato UIKit/QuickStart/SettingsView.prefab",
         "Assets/UIKitCodegenFixture/DefaultView.prefab",
@@ -11,8 +12,20 @@
     ],
     "files": [
         {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/Assembly.asmref",
+            "hash": "060808467739a805b850452cabd5f48747527ae5fc14462dfd5e3b9c646b6e74"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/UIProvider_55daefbfa8e62d5c.cs",
+            "hash": "6343227c2ff2d11a1fdc6613ed35495c278a5f564ff681cf375ca5725289e5f9"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/124bc504eb0c4f7694bc9bf9257e8f93/cbdf7069fcca4ddab99916765b2abe33.Bindings.cs",
+            "hash": "2c696a451eafbecebec60b621ca0f2737ef26146b68389d0bb36dca590bc42f5"
+        },
+        {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/285243358a044609a3b8d1c05527248d/713a01d5fa724c6bbda6ffb8efaf3db3.Bindings.cs",
-            "hash": "a0128196498be819536a11371bc0113743fd44d187c01e42656bd85ffd21f0d9"
+            "hash": "d39392f15995a6095e8ccb5cd12f86ba5b21718bd0d2b38bf0c72ebfc0912da6"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/285243358a044609a3b8d1c05527248d/Assembly.asmref",
@@ -24,7 +37,7 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/332e74350bf24f74962a7859a5dedddc/25d75e8bd6024b85961020742aad770e.Bindings.cs",
-            "hash": "291d053f022f76037caea6c1fe0b89ef08bb7665ac5c80300550401c119fddac"
+            "hash": "218881f3e77a60cccf6e71abee3c4a14f35664db5eafe1c26e999dace5a2f559"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/332e74350bf24f74962a7859a5dedddc/Assembly.asmref",
@@ -36,7 +49,7 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/93a00f99a135e46458e342ab818cbef5/5d408ade6955c41e38f828da74e5d310.Bindings.cs",
-            "hash": "800e2d7de2bc12f6374b074cac6e4ca401d60e9b65ab852a0f890d3ad30dda51"
+            "hash": "7ddd78e5075ec4c043db7e38de3409ab71774a8fb8fa3d9931d823803dd14d55"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/93a00f99a135e46458e342ab818cbef5/Assembly.asmref",
@@ -56,7 +69,7 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/f7330409dcd447cbb316f8d1656ce3b4.Bindings.cs",
-            "hash": "ee570da10c5c82ae09efe1616cea9368b50347491bd32c0b07e6cb9237191614"
+            "hash": "82c3d79566d3ec02910f79ac11b55e3b5613b4148027f9fc98e281cac9d4c626"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/c6810b3124ca64b208d020bc5f95815a/Assembly.asmref",
@@ -68,11 +81,11 @@
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Assemblies/c6810b3124ca64b208d020bc5f95815a/f4ba8e879842c431c89fc557b220abf9.Bindings.cs",
-            "hash": "db4c87ff3fb5d044f39c8dc2dd64bd8f08eadf4b75a71e1f2eb05ed4a8242510"
+            "hash": "e9a2d9bb1086cec468855bd57bf1edeff04e4cc34331708b89b7394562492a9a"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/01809e613ce1c4a05b34a15df786c203.Bindings.cs",
-            "hash": "31904e9520374626667af9274fd116fa00213a69cc4d0ccb16273bbcdac90084"
+            "hash": "cd7291cc92786597977541e73d60293f4a724664b8ddab47fef422800bb5197b"
         },
         {
             "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/UIProvider_6d589e57b3871572.cs",

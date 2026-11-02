@@ -1,6 +1,6 @@
 # Popup Queue
 
-可选包0.1.0，依赖核心0.2.0和 UniTask 2.5.11；不依赖 Dialogs。builder.UsePopupQueue() 后取得 IUIPopupQueue。
+可选包0.1.1，依赖核心0.3.0和 UniTask 2.5.11；不依赖 Dialogs。builder.UsePopupQueue() 后取得 IUIPopupQueue。
 
 IPopupRequest 仅提供 ViewType 和 UIArguments；业务先完成数据准备，队列统一调用核心 OpenAsync。参数应为不可变快照。
 

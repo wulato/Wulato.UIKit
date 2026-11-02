@@ -378,6 +378,8 @@ MonoBehaviour:
     target: {fileID: 783840414382437991}
   includeInRegistry: 1
   typeKey: sample-QuickStart
+  externalProviderId: 
+  externalAssetId: 
   layer: 0
   multiplicity: 0
   closePolicy: 0

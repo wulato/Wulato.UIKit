@@ -1,6 +1,6 @@
 # Presentation
 
-可选包0.1.0，依赖核心0.2.0与 UniTask 2.5.11。显式 `builder.UsePresentation(factory)`；不匹配的 View 可由 IPresenterFactory.Create 返回 null。重复注册拒绝。
+可选包0.1.1，依赖核心0.3.0与 UniTask 2.5.11。显式 `builder.UsePresentation(factory)`；不匹配的 View 可由 IPresenterFactory.Create 返回 null。重复注册拒绝。
 
 Presenter 是普通 C# 对象，每 Session 创建一次。Create/Bind 位于 Awake 后、OnOpenAsync 前；Bind 为同步工作。异步数据准备留给 OnOpenAsync 或业务服务，不能在 Bind 内等待同一 Context 命令。
 

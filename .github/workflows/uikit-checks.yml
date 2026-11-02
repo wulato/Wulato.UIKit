@@ -41,6 +41,9 @@ jobs:
           python3 Tools/Verification/run.py codegen --editor all --backend all
           python3 Tools/Verification/run.py prepare-samples --editor all --backend all
           python3 Tools/Verification/run.py check-generated --editor all --backend all
+      - name: Prepare real Addressables bundles
+        if: inputs.full || steps.scope.outputs.content == 'true'
+        run: python3 Tools/Verification/run.py prepare --phase addressables --editor all --backend all
       - name: Compile API probes
         if: inputs.full || steps.scope.outputs.probe == 'true'
         run: python3 Tools/Verification/run.py compile-probe --editor all

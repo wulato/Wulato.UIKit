@@ -16,8 +16,11 @@
     "com.wulato.uikit.presentation": "file:../../../../Packages/com.wulato.uikit.presentation",
     "com.wulato.uikit.dialogs": "file:../../../../Packages/com.wulato.uikit.dialogs",
     "com.wulato.uikit.popup-queue": "file:../../../../Packages/com.wulato.uikit.popup-queue",
+    "com.wulato.uikit.addressables": "file:../../../../Packages/com.wulato.uikit.addressables",
     "com.wulato.uikit.acceptance.flows": "file:../../../Packages/com.wulato.uikit.acceptance.flows",
-    "com.wulato.uikit.acceptance.samples": "file:../../../Packages/com.wulato.uikit.acceptance.samples"
+    "com.wulato.uikit.verification.addressables": "file:../../../Packages/com.wulato.uikit.verification.addressables",
+    "com.unity.addressables": "1.21.21",
+    "com.unity.scriptablebuildpipeline": "1.21.25"
   },
   "testables": [
     "com.wulato.uikit.verification",
@@ -28,7 +31,8 @@
     "com.wulato.uikit.presentation",
     "com.wulato.uikit.dialogs",
     "com.wulato.uikit.popup-queue",
+    "com.wulato.uikit.addressables",
     "com.wulato.uikit.acceptance.flows",
-    "com.wulato.uikit.acceptance.samples"
+    "com.wulato.uikit.verification.addressables"
   ]
 }

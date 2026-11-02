@@ -47,7 +47,7 @@ class RuntimePreparationTests(unittest.TestCase):
         self.assertEqual(UNITASK,prepared['dependencies']['com.cysharp.unitask'])
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
-        package={'name':'com.wulato.uikit','version':'0.2.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
+        package={'name':'com.wulato.uikit','version':'0.3.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
         assemblies={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
@@ -78,10 +78,10 @@ class ExtensionBoundaryTests(unittest.TestCase):
 class ExtensionMetadataTests(unittest.TestCase):
     def test_extensions_require_new_core_and_no_optional_backends(self):
         from runtime import validate_extension_package
-        package={'name':'com.wulato.uikit.navigation','version':'0.1.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.2.0','com.cysharp.unitask':'2.5.11'}}
+        package={'name':'com.wulato.uikit.navigation','version':'0.1.1','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.3.0','com.cysharp.unitask':'2.5.11'}}
         refs=['Wulato.UIKit.Core','Wulato.UIKit.UGUI','UniTask']
         self.assertEqual([],validate_extension_package(package,refs))
         package['dependencies']['com.wulato.uikit']='0.1.0'
         self.assertTrue(validate_extension_package(package,refs))
-        package['dependencies']['com.wulato.uikit']='0.2.0'
+        package['dependencies']['com.wulato.uikit']='0.3.0'
         self.assertTrue(validate_extension_package(package,refs+['Unity.InputSystem']))

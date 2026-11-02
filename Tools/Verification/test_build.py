@@ -83,7 +83,7 @@ class BuildTests(unittest.TestCase):
 class PhaseTwoConsumerTests(unittest.TestCase):
     def test_phase_two_consumes_all_extensions_from_same_git_revision(self):
         import run
-        from runtime import EXTENSIONS
+        from runtime import FLOW_EXTENSIONS as EXTENSIONS
         with tempfile.TemporaryDirectory() as folder:
             host=Path(folder)/'consumer';prepare_consumer(host,'2022.3.62f2','legacy',run.R,'b'*40,'clean',phase='phase2')
             manifest=json.loads((host/'Packages/manifest.json').read_text())
@@ -98,3 +98,77 @@ class PhaseTwoConsumerTests(unittest.TestCase):
             manifest=json.loads((host/'Packages/manifest.json').read_text())
             self.assertEqual({'com.wulato.uikit.navigation'},set(EXTENSIONS)&set(manifest['dependencies']))
             self.assertFalse((host/'Assets/Samples/Wulato UIKit/BusinessFlow').exists())
+
+class PhaseThreeConsumerTests(unittest.TestCase):
+    def test_main_install_does_not_pull_addressables(self):
+        import run
+        with tempfile.TemporaryDirectory() as folder:
+            host=Path(folder)/'consumer';prepare_consumer(host,'6000.3.22f1','legacy',run.R,'d'*40,'clean',phase='phase3',package_set='main')
+            deps=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
+            self.assertNotIn('com.wulato.uikit.addressables',deps);self.assertNotIn('com.unity.addressables',deps)
+    def test_addressables_install_is_independent_and_pinned_per_editor(self):
+        import run
+        from runtime import EXTENSIONS
+        for editor,wanted in [('2022.3.62f2','1.21.21'),('6000.3.22f1','2.9.1')]:
+            with tempfile.TemporaryDirectory() as folder:
+                host=Path(folder)/'consumer';prepare_consumer(host,editor,'legacy',run.R,'e'*40,'clean',phase='phase3',package_set='addressables')
+                deps=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
+                self.assertEqual({'com.wulato.uikit.addressables'},set(EXTENSIONS)&set(deps))
+                self.assertIn('#'+'e'*40,deps['com.wulato.uikit.addressables']);self.assertEqual(wanted,deps['com.unity.addressables'])
+                self.assertTrue((host/'Assets/Samples/Wulato UIKit/LocalInventory/Runtime/LocalInventoryDemo.cs').is_file())
+    def test_phase3_all_installs_every_extension_at_same_revision(self):
+        import run
+        from runtime import EXTENSIONS
+        with tempfile.TemporaryDirectory() as folder:
+            host=Path(folder)/'consumer';prepare_consumer(host,'2022.3.62f2','input',run.R,'f'*40,'clean',phase='phase3')
+            deps=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
+            for name in EXTENSIONS:self.assertIn('#'+'f'*40,deps[name])
+            self.assertNotIn('testables',json.loads((host/'Packages/manifest.json').read_text()))
+    def test_phase3_rejects_player_builds_and_wrong_scope(self):
+        from build import validate_build_scope
+        import argparse
+        for profile,prepare_only,package_set in [('smoke',True,'all'),('clean',False,'all'),('clean',True,'navigation')]:
+            self.assertTrue(validate_build_scope(argparse.Namespace(phase='phase3',profile=profile,prepare_only=prepare_only,package_set=package_set)))
+        self.assertEqual([],validate_build_scope(argparse.Namespace(phase='phase3',profile='clean',prepare_only=True,package_set='addressables')))
+
+class RuntimeClosureTests(unittest.TestCase):
+    def fixture(self):
+        return {'runtimeAssemblies':['UIKit.Consumer','Wulato.UIKit.Core','UnityEngine.TestRunner'],
+                'runtimeAssemblyGraph':[{'name':'UIKit.Consumer','references':['Wulato.UIKit.Core'],'metadataReferences':[],'assetSource':True},
+                    {'name':'Wulato.UIKit.Core','references':[],'metadataReferences':[],'assetSource':False},
+                    {'name':'UnityEngine.TestRunner','references':[],'metadataReferences':[],'assetSource':False}]}
+    def test_unused_test_candidate_is_not_a_player_dependency(self):
+        from build import runtime_dependency_closure
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(self.fixture()))
+    def test_reachable_test_assembly_is_rejected(self):
+        from build import runtime_dependency_closure
+        report=self.fixture();report['runtimeAssemblyGraph'][0]['references'].append('UnityEngine.TestRunner')
+        with self.assertRaises(ValueError):runtime_dependency_closure(report)
+    def test_missing_graph_or_unresolved_reference_cannot_pass(self):
+        from build import runtime_dependency_closure
+        for report in ({'runtimeAssemblies':['UIKit.Consumer']},self.fixture()):
+            if 'runtimeAssemblyGraph' in report:report['runtimeAssemblyGraph'][0]['references'].append('Missing.Assembly')
+            with self.assertRaises(ValueError):runtime_dependency_closure(report)
+
+class PrecompiledRuntimeClosureTests(unittest.TestCase):
+    def fixture(self):return RuntimeClosureTests().fixture()
+    def test_reachable_precompiled_nunit_is_rejected(self):
+        from build import runtime_dependency_closure
+        report=self.fixture();report['runtimeAssemblyGraph'][0]['precompiledReferences']=['nunit.framework']
+        report['runtimeAssemblyGraph'][0]['metadataReferences']=['nunit.framework']
+        with self.assertRaises(ValueError):runtime_dependency_closure(report)
+
+class EngineProtocolReferenceTests(unittest.TestCase):
+    def test_builtin_engine_protocol_is_not_a_test_framework(self):
+        from build import runtime_dependency_closure
+        report=RuntimeClosureTests().fixture()
+        report['runtimeAssemblyGraph'][0]['precompiledReferences']=['UnityEngine.UnityTestProtocolModule','UnityEngine.CoreModule']
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(report))
+
+class CompilerOnlyReferenceTests(unittest.TestCase):
+    def test_unused_compiler_nunit_reference_is_not_an_il_import(self):
+        from build import runtime_dependency_closure
+        report=RuntimeClosureTests().fixture()
+        report['runtimeAssemblyGraph'][0]['precompiledReferences']=['nunit.framework']
+        report['runtimeAssemblyGraph'][0]['metadataReferences']=[]
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(report))

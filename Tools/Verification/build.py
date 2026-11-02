@@ -81,8 +81,11 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
     deps={'com.wulato.uikit':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit#'+revision,'com.cysharp.unitask':UNITASK,'com.unity.ugui':run.VERSIONS[ver][1],**{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
     if backend=='input':deps.update({'com.unity.inputsystem':'1.17.0','com.wulato.uikit.input-system':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit.input-system#'+revision})
     from runtime import EXTENSIONS
-    selected=[name for name,suite in EXTENSIONS.items() if package_set=='all' or package_set==suite] if phase=='phase2' else []
+    selected=selected_packages(phase,package_set)
     for name in selected:deps[name]='git+'+source.as_uri()+'?path=Packages/'+name+'#'+revision
+    if 'com.wulato.uikit.addressables' in selected:
+        from addressables_content import VERSIONS as ADDRESSABLES_VERSIONS
+        deps.update(dict(zip(('com.unity.addressables','com.unity.scriptablebuildpipeline'),ADDRESSABLES_VERSIONS[ver])))
     if profile=='smoke':
         # Only the isolated runtime smoke assembly is copied. No TestAssemblies or prototypes.
         shutil.copytree(run.V/'Packages/com.wulato.uikit.acceptance/Runtime',host/'Assets/UIKitMobileSmoke')
@@ -100,12 +103,17 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         (editor/'MobileSmokeSceneBuilder.cs').write_text(body)
         run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
-    if phase=='phase2' and package_set=='all':shutil.copytree(source/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow',host/'Assets/Samples/Wulato UIKit/BusinessFlow')
+    if phase in ('phase2','phase3') and package_set=='all':shutil.copytree(source/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow',host/'Assets/Samples/Wulato UIKit/BusinessFlow')
     if phase=='phase2' and package_set not in ('all','main'):
         assembly={'navigation':'Navigation','dialogs':'Dialogs','presentation':'Presentation','popup-queue':'PopupQueue'}[package_set]
         probe=host/'Assets/ExtensionCompileProbe';probe.mkdir()
         run.dump(probe/'ExtensionCompileProbe.asmdef',dict(name='UIKit.ExtensionConsumer',references=['Wulato.UIKit.Core','Wulato.UIKit.'+assembly]))
         (probe/'Probe.cs').write_text('public static class ExtensionCompileProbe { public static System.Type Contract => typeof(Wulato.UIKit.'+assembly+'.'+{'navigation':'IUINavigator','dialogs':'IUIDialogs','presentation':'IPresenterFactory','popup-queue':'IUIPopupQueue'}[package_set]+'); }\n')
+    if 'com.wulato.uikit.addressables' in selected:
+        shutil.copytree(source/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory',host/'Assets/Samples/Wulato UIKit/LocalInventory')
+        probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
+        run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Addressables']))
+        (probe/'Probe.cs').write_text('public static class AddressablesCompileProbe { public static Wulato.UIKit.UIContextBuilder Compose(Wulato.UIKit.UIContextBuilder b) => b.WithLoader(new Wulato.UIKit.AddressablesUIViewLoader()); }\n')
     for name in ('QuickStart','Modals','Inventory'):
         shutil.copytree(source/'Packages/com.wulato.uikit/Samples~'/name,host/'Assets/Samples/Wulato UIKit'/name)
 
@@ -113,8 +121,9 @@ def run_build(args):
     import run
     from locking import guard,VerificationBusy
     phase=getattr(args,'phase','phase1');package_set=getattr(args,'package_set','all')
-    if package_set!='all' and (phase!='phase2' or not args.prepare_only or args.profile!='clean'):
-        print('FAIL single-package scope requires phase2 clean prepare-only');return 1
+    scope_errors=validate_build_scope(args)
+    if scope_errors:
+        print('FAIL',scope_errors);return 1
     try:
         with guard(run.A):
             batch=run.A/('install-checks' if args.prepare_only else 'mobile')/(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-'+uuid.uuid4().hex[:6]);batch.mkdir(parents=True)
@@ -137,6 +146,13 @@ def run_build(args):
                         source,revision=git_source(out);host=out/'consumer';prepare_consumer(host,ver,backend,source,revision,args.profile,phase,package_set)
                         result.update(git_revision=revision,git_source=str(source))
                         env=os.environ.copy();env.update(UIKIT_BUILD_REQUEST=str((out/'request.json').resolve()),UIKIT_EVIDENCE_DIR=str(out.resolve()))
+                        def addressable_stage(name,method):
+                            log=out/(name+'.log')
+                            cmd=[str(exe),'-batchmode','-quit','-projectPath',str(host),'-executeMethod','Wulato.UIKit.Samples.Addressables.Editor.LocalInventorySetup.'+method,'-logFile',str(log)]
+                            rc=command(cmd,out/(name+'-stdout.log'),args.timeout,env)
+                            body=log.read_text(errors='replace') if log.exists() else ''
+                            body=re.sub(r'(Serial number assigned to: ).*',r'\1[REDACTED]',body);log.write_text(body)
+                            if rc or re.search(r'error CS\d+|Scripts have compiler errors',body) or 'UIKIT_ADDRESSABLES_SAMPLE_OK' not in body:raise ValueError('addressables-stage-failed:'+name)
                         # Generate and complete run in distinct editor invocations; build only validates.
                         for step,method in [('01-import','PrepareSamples'),('02-generate','Generate'),('03-complete','Complete'),('04-wire','Wire'),('05-compile-validate','Validate'),('06-build','Build')]:
                             if args.prepare_only and method=='Build':continue
@@ -145,6 +161,9 @@ def run_build(args):
                             body=log.read_text(errors='replace') if log.exists() else ''
                             body=re.sub(r'(Serial number assigned to: ).*',r'\1[REDACTED]',body);log.write_text(body)
                             if rc or re.search(r'error CS\d+|Scripts have compiler errors',body) or 'UIKIT_BUILD_STAGE_OK' not in body:raise ValueError('stage-failed:'+step)
+                            if phase=='phase3' and package_set!='main':
+                                if method=='PrepareSamples':addressable_stage('01-addressables-author','Author')
+                                if method=='Wire':addressable_stage('04-addressables-scene','FinalizeSample')
                             if method=='Generate' and args.profile=='smoke':
                                 from codegen import usage
                                 usage(host/'Assets/UIKitCodegenFixture',run.V/'Packages/com.wulato.uikit.acceptance/Fixtures/Codegen')
@@ -159,8 +178,9 @@ def run_build(args):
                         result['generation_compiled']=True
                         lock=host/'Packages/packages-lock.json';shutil.copy2(lock,out/'packages-lock.json')
                         dependencies=json.loads(lock.read_text())['dependencies']
-                        for name in ('com.wulato.uikit',*(['com.wulato.uikit.input-system'] if backend=='input' else []),*([n for n,suite in __import__('runtime').EXTENSIONS.items() if package_set=='all' or package_set==suite] if phase=='phase2' else [])):
+                        for name in ('com.wulato.uikit',*(['com.wulato.uikit.input-system'] if backend=='input' else []),*selected_packages(phase,package_set)):
                             if dependencies[name].get('source')!='git' or revision not in dependencies[name].get('version',''):raise ValueError('not-pinned-git-install:'+name)
+                        if phase=='phase3':validate_phase3_install(out,ver,backend,package_set,revision)
                         result['dependency_lock_sha256']=hashlib.sha256(lock.read_bytes()).hexdigest()
                 except (OSError,ValueError,subprocess.SubprocessError,KeyError) as e:
                     result.update(status='FAIL',install_status='FAIL');result['errors'].append(str(e))
@@ -173,3 +193,68 @@ def run_build(args):
             write_matrix_report(batch,rows);print('EVIDENCE',batch,flush=True)
             return int(any(r['status']!='PASS' for r in rows) or not rows)
     except VerificationBusy as e:print('FAIL',e);return 1
+
+def validate_build_scope(args):
+    phase=getattr(args,'phase','phase1');scope=getattr(args,'package_set','all')
+    if phase=='phase3':
+        return [] if args.profile=='clean' and args.prepare_only and scope in ('main','addressables','all') else ['phase3 requires clean prepare-only and main/addressables/all']
+    if scope=='addressables' or (scope!='all' and (phase!='phase2' or not args.prepare_only or args.profile!='clean')):return ['single-package scope requires phase2 clean prepare-only']
+    return []
+
+def selected_packages(phase,scope):
+    from runtime import EXTENSIONS,FLOW_EXTENSIONS
+    choices=EXTENSIONS if phase=='phase3' else FLOW_EXTENSIONS if phase=='phase2' else {}
+    return [name for name,suite in choices.items() if scope=='all' or scope==suite]
+
+def validate_phase3_install(folder,editor,backend,scope,revision):
+    from addressables_content import VERSIONS
+    from runtime import EXTENSIONS
+    report=json.loads((folder/'dependency-snapshot.json').read_text())
+    packages={p['name']:p for p in report['packages']}
+    expected=set(selected_packages('phase3',scope))
+    if set(EXTENSIONS)&set(packages)!=expected:raise ValueError('phase3-package-isolation')
+    if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.3.0':raise ValueError('phase3-installed-baseline')
+    for name in expected:
+        if packages[name].get('source')!='Git':raise ValueError('phase3-non-git-package:'+name)
+    if scope=='main':
+        if 'com.unity.addressables' in packages:raise ValueError('main-pulled-addressables')
+    else:
+        for name,wanted in zip(('com.unity.addressables','com.unity.scriptablebuildpipeline'),VERSIONS[editor]):
+            if packages.get(name,{}).get('version')!=wanted:raise ValueError('phase3-resolved-version:'+name)
+    assemblies=runtime_dependency_closure(report)
+    excluded=sorted(set(report['runtimeAssemblies'])-set(assemblies))
+    from evidence import sha256
+    for node in report['runtimeAssemblyGraph']:
+        if node['name'] not in assemblies:continue
+        path=folder/node.get('metadataFile','')
+        if not path.resolve().is_relative_to((folder/'runtime-metadata').resolve()) or not path.is_file() or sha256(path)!=node.get('metadataSha256'):raise ValueError('phase3-runtime-il-evidence:'+node['name'])
+    (folder/'runtime-closure.json').write_text(json.dumps(dict(scope='editor-compiled-runtime IL imports and Player compilation graph; no Player built',roots=sorted(n['name'] for n in report['runtimeAssemblyGraph'] if n['assetSource'] or n['name'].startswith('Wulato.UIKit.')),reachable=assemblies,precompiled=sorted({b for n in report['runtimeAssemblyGraph'] if n['name'] in assemblies for b in n.get('precompiledReferences',[]) if b in n['metadataReferences']}),unreferenced_candidates=excluded),indent=2)+'\n')
+    required={'Wulato.UIKit.Core','Wulato.UIKit.UGUI'}|({'Wulato.UIKit.Addressables','Wulato.UIKit.Samples.Addressables'} if scope!='main' else set())
+    if not required.issubset(assemblies):raise ValueError('phase3-missing-runtime-assemblies')
+
+
+def runtime_dependency_closure(report):
+    # GetAssemblies(Player) enumerates compilation candidates, including autoReferenced=false SDK tests.
+    # Follow actual compiler references from consumer sources and selected UIKit runtime assemblies.
+    graph=report.get('runtimeAssemblyGraph',[]);nodes={n['name']:n for n in graph}
+    if not nodes or len(nodes)!=len(graph) or set(nodes)!=set(report.get('runtimeAssemblies',[])):raise ValueError('phase3-missing-runtime-dependency-graph')
+    roots={name for name,node in nodes.items() if node.get('assetSource') is True or name.startswith('Wulato.UIKit.')}
+    if not roots:raise ValueError('phase3-missing-runtime-roots')
+    pending=list(roots);visited=set()
+    while pending:
+        name=pending.pop()
+        if name in visited:continue
+        if name not in nodes:raise ValueError('phase3-unresolved-runtime-reference:'+name)
+        metadata=nodes[name].get('metadataReferences')
+        if metadata is None:raise ValueError('phase3-missing-runtime-il-metadata:'+name)
+        binaries=[binary for binary in nodes[name].get('precompiledReferences',[]) if binary in metadata]
+        if any(is_test_binary(binary) for binary in binaries):raise ValueError('phase3-precompiled-test-runtime-reference:'+name)
+        visited.add(name);pending.extend(nodes[name]['references'])
+    if any(any(word in name.lower() for word in ('test','acceptance','verification','nunit')) for name in visited):raise ValueError('phase3-runtime-assembly-isolation')
+    return sorted(visited)
+
+def is_test_binary(name):
+    # UnityEngine.UnityTestProtocolModule is a built-in engine module in Unity 2022,
+    # not NUnit/TestRunner. Match test/framework assembly naming, not arbitrary 'test' substrings.
+    value=name.lower()
+    return value.startswith(('test','nunit')) or value.endswith(('test','tests')) or any(token in value for token in ('.test','testrunner','nunit','acceptance','verification'))

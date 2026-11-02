@@ -12,6 +12,9 @@ namespace Wulato.UIKit
         [Tooltip("Select one registered prefab per View type; a base prefab can be excluded when registering its variant.")]
         [SerializeField] public bool includeInRegistry = true;
         [SerializeField] public string typeKey;
+        [Tooltip("Optional explicit loader backend. Both external fields must be set together.")]
+        [SerializeField] public string externalProviderId;
+        [SerializeField] public string externalAssetId;
         [SerializeField] public UILayer layer = UILayer.Page;
         [SerializeField] public UIMultiplicity multiplicity = UIMultiplicity.Single;
         [SerializeField] public UIClosePolicy closePolicy = UIClosePolicy.Release;

@@ -19,7 +19,11 @@ namespace Wulato.UIKit.Editor
                 if(provider==null){provider=(UIRegistryProvider)ScriptableObject.CreateInstance(type);AssetDatabase.CreateAsset(provider,path);}
                 if(provider.GetType()!=type)throw new InvalidOperationException(path+": Provider type mismatch.");
                 var so=new SerializedObject(provider);int i=0;
-                foreach(var v in group)so.FindProperty("prefab"+i++).objectReferenceValue=v.Prefab;
+                foreach(var v in group)
+                {
+                    if(string.IsNullOrEmpty(v.Marker.externalProviderId))so.FindProperty("prefab"+i).objectReferenceValue=v.Prefab;
+                    i++;
+                }
                 so.ApplyModifiedPropertiesWithoutUndo();return provider;
             }).ToArray();
             var registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(UICodegenPipeline.RegistryPath);

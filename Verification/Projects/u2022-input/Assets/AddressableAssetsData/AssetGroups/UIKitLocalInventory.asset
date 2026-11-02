@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: UIKitLocalInventory
+  m_EditorClassIdentifier: 
+  m_GroupName: UIKitLocalInventory
+  m_Data:
+    m_SerializedData: []
+  m_GUID: fb6a27b7c72524d48be99a268234fd7d
+  m_SerializeEntries:
+  - m_GUID: ce765114e332140bf92c9ad2c5805727
+    m_Address: uikit/sample-inventory
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 507535b6452f7419290878dd7c0373e3, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5594b8e01f692486cafed81a1b4651d8, type: 2}
+    - {fileID: 11400000, guid: 27a1ef48d88974a139a67d9177222d7a, type: 2}

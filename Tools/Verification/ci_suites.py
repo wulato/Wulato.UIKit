@@ -11,7 +11,9 @@ def select_suites(paths):
         prefix='Packages/com.wulato.uikit.'
         if path.startswith(prefix):
             name=path[len(prefix):].split('/')[0]
-            if name in MODULES:
+            if name=='addressables':
+                add('EditMode','addressables');add('PlayMode','addressables-runtime');add('PlayMode','addressables-integration')
+            elif name in MODULES:
                 add('EditMode',name);add('PlayMode','flow-integration')
                 if '/Samples~/' in path:add('PlayMode','flow-samples')
             elif name=='input-system':add('EditMode','input-package','input');add('PlayMode','input-runtime','input');add('PlayMode','flow-integration','input')
@@ -25,10 +27,14 @@ def select_suites(paths):
                 for suite in ('contracts','integration','sessions',*MODULES):add('EditMode',suite)
                 for suite in ('sessions','cleanup','integration','flow-integration'):add('PlayMode',suite)
                 if '/Runtime/UGUI/' in path:add('PlayMode','loading-layout');add('PlayMode','input-runtime')
+        elif path.startswith('Verification/Packages/com.wulato.uikit.verification.addressables/'):
+            add('EditMode','addressables');add('PlayMode','addressables-runtime');add('PlayMode','addressables-integration')
         elif path.startswith('Verification/Packages/com.wulato.uikit.acceptance.flows/'):
             add('PlayMode','flow-integration');add('PlayMode','flow-samples')
         elif path.startswith('Verification/'):
             add('EditMode','contracts');add('PlayMode','integration')
+        if path.endswith(('/UIRegistry.cs','/UICodegenPipeline.cs','/UIRegistryGenerator.cs','/UIRegistryProviderGenerator.cs','/UIBindingMarker.cs','/UIContextBuilder.cs')) or '/Runtime/Loading/' in path or path=='Tools/Verification/addressables_content.py':
+            add('EditMode','addressables');add('PlayMode','addressables-runtime');add('PlayMode','addressables-integration')
     return sorted(selected)
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--base',default='HEAD~1');parser.add_argument('--github-output');args=parser.parse_args()
@@ -37,6 +43,7 @@ def main():
         with open(args.github_output,'a') as stream:
             stream.write('count='+str(len(selected))+'\n')
             stream.write('tools='+str(any(p.startswith(('Tools/Verification/','.github/workflows/')) for p in paths)).lower()+'\n')
+            stream.write('content='+str(any(s=='addressables-integration' for m,s,b in selected)).lower()+'\n')
             stream.write('probe='+str(any(s in ('navigation','contracts') for m,s,b in selected)).lower()+'\n')
         print(json.dumps(selected));return 0
     out=R/'Artifacts/uikit/ci-selected';out.mkdir(parents=True,exist_ok=True)

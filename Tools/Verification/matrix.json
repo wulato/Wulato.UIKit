@@ -230,6 +230,36 @@
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
+        ],
+        "addressables-preflight": [
+          "Wulato.UIKit.Verification.Addressables.Editor.AddressablesPreflight.PackedBundle_DefersAwakeAndReleasesHandle"
+        ],
+        "addressables-runtime": [
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.Lease_StaysInactiveAndReleasesAfterActualDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExternalDestroy_StillReleasesAssetExactlyOnce",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringQuery_DrainsQueryWithoutStartingAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringAssetLoad_DrainsAndReleasesWithoutInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.DestroyedOrActivatedParent_PreventsLateInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.InvalidPrefab_RollsBackCloneAndReleasesAfterDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.MissingAmbiguousAndFailedLocations_ReleaseQuery",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.FailedAssetLoad_ReleasesBothHandles",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.PreCancelUnknownProviderAndActiveParent_DoNotStartBackend",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CanceledThenFailedLoad_DrainsAndPreservesOriginalFailure",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.SingleLabelLocation_IsRejectedBeforeAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExactAddressWithBrackets_IsNotMistakenForSubAsset"
+        ],
+        "addressables-integration": [
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CacheReopen_RebindsPresenterAndPreservesLifecycleOrder",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.LruEviction_DestroysOldCloneAndReloadsBundleLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.NavigationRollbackAndBack_RestoreTypedDescriptionAfterEviction",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.DialogTokenCancellation_WaitsForClosedAndReleasesBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.PausedQueueShutdown_ReleasesActiveBundleAndWaitingKey",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CanceledIgnoredLoad_AllowsNextCommandAndReleasesLateLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RootDestroyedBeforeLateHandoff_StillReleasesLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
         ]
       },
       "EditMode": {
@@ -249,7 +279,10 @@
           "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
           "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
           "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
-          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -327,7 +360,10 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
-          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -381,6 +417,13 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+        ],
+        "addressables": [
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.MissingEntryOrMismatchedAddress_IsRejectedWithAssetLocation",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
         ]
       }
     },
@@ -617,6 +660,36 @@
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
+        ],
+        "addressables-preflight": [
+          "Wulato.UIKit.Verification.Addressables.Editor.AddressablesPreflight.PackedBundle_DefersAwakeAndReleasesHandle"
+        ],
+        "addressables-runtime": [
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.Lease_StaysInactiveAndReleasesAfterActualDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExternalDestroy_StillReleasesAssetExactlyOnce",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringQuery_DrainsQueryWithoutStartingAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringAssetLoad_DrainsAndReleasesWithoutInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.DestroyedOrActivatedParent_PreventsLateInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.InvalidPrefab_RollsBackCloneAndReleasesAfterDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.MissingAmbiguousAndFailedLocations_ReleaseQuery",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.FailedAssetLoad_ReleasesBothHandles",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.PreCancelUnknownProviderAndActiveParent_DoNotStartBackend",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CanceledThenFailedLoad_DrainsAndPreservesOriginalFailure",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.SingleLabelLocation_IsRejectedBeforeAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExactAddressWithBrackets_IsNotMistakenForSubAsset"
+        ],
+        "addressables-integration": [
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CacheReopen_RebindsPresenterAndPreservesLifecycleOrder",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.LruEviction_DestroysOldCloneAndReloadsBundleLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.NavigationRollbackAndBack_RestoreTypedDescriptionAfterEviction",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.DialogTokenCancellation_WaitsForClosedAndReleasesBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.PausedQueueShutdown_ReleasesActiveBundleAndWaitingKey",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CanceledIgnoredLoad_AllowsNextCommandAndReleasesLateLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RootDestroyedBeforeLateHandoff_StillReleasesLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
         ]
       },
       "EditMode": {
@@ -636,7 +709,10 @@
           "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
           "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
           "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
-          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -719,7 +795,10 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
-          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -773,6 +852,13 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+        ],
+        "addressables": [
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.MissingEntryOrMismatchedAddress_IsRejectedWithAssetLocation",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
         ]
       }
     }
@@ -1008,6 +1094,36 @@
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
+        ],
+        "addressables-preflight": [
+          "Wulato.UIKit.Verification.Addressables.Editor.AddressablesPreflight.PackedBundle_DefersAwakeAndReleasesHandle"
+        ],
+        "addressables-runtime": [
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.Lease_StaysInactiveAndReleasesAfterActualDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExternalDestroy_StillReleasesAssetExactlyOnce",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringQuery_DrainsQueryWithoutStartingAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringAssetLoad_DrainsAndReleasesWithoutInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.DestroyedOrActivatedParent_PreventsLateInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.InvalidPrefab_RollsBackCloneAndReleasesAfterDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.MissingAmbiguousAndFailedLocations_ReleaseQuery",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.FailedAssetLoad_ReleasesBothHandles",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.PreCancelUnknownProviderAndActiveParent_DoNotStartBackend",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CanceledThenFailedLoad_DrainsAndPreservesOriginalFailure",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.SingleLabelLocation_IsRejectedBeforeAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExactAddressWithBrackets_IsNotMistakenForSubAsset"
+        ],
+        "addressables-integration": [
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CacheReopen_RebindsPresenterAndPreservesLifecycleOrder",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.LruEviction_DestroysOldCloneAndReloadsBundleLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.NavigationRollbackAndBack_RestoreTypedDescriptionAfterEviction",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.DialogTokenCancellation_WaitsForClosedAndReleasesBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.PausedQueueShutdown_ReleasesActiveBundleAndWaitingKey",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CanceledIgnoredLoad_AllowsNextCommandAndReleasesLateLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RootDestroyedBeforeLateHandoff_StillReleasesLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
         ]
       },
       "EditMode": {
@@ -1027,7 +1143,10 @@
           "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
           "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
           "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
-          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1105,7 +1224,10 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
-          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -1159,6 +1281,13 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+        ],
+        "addressables": [
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.MissingEntryOrMismatchedAddress_IsRejectedWithAssetLocation",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
         ]
       }
     },
@@ -1395,6 +1524,36 @@
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
+        ],
+        "addressables-preflight": [
+          "Wulato.UIKit.Verification.Addressables.Editor.AddressablesPreflight.PackedBundle_DefersAwakeAndReleasesHandle"
+        ],
+        "addressables-runtime": [
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.Lease_StaysInactiveAndReleasesAfterActualDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExternalDestroy_StillReleasesAssetExactlyOnce",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringQuery_DrainsQueryWithoutStartingAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CancelDuringAssetLoad_DrainsAndReleasesWithoutInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.DestroyedOrActivatedParent_PreventsLateInstantiation",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.InvalidPrefab_RollsBackCloneAndReleasesAfterDestruction",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.MissingAmbiguousAndFailedLocations_ReleaseQuery",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.FailedAssetLoad_ReleasesBothHandles",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.PreCancelUnknownProviderAndActiveParent_DoNotStartBackend",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.CanceledThenFailedLoad_DrainsAndPreservesOriginalFailure",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.SingleLabelLocation_IsRejectedBeforeAssetLoad",
+          "Wulato.UIKit.AddressablesTests.LoaderOwnershipTests.ExactAddressWithBrackets_IsNotMistakenForSubAsset"
+        ],
+        "addressables-integration": [
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CacheReopen_RebindsPresenterAndPreservesLifecycleOrder",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.LruEviction_DestroysOldCloneAndReloadsBundleLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.NavigationRollbackAndBack_RestoreTypedDescriptionAfterEviction",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.DialogTokenCancellation_WaitsForClosedAndReleasesBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.PausedQueueShutdown_ReleasesActiveBundleAndWaitingKey",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.CanceledIgnoredLoad_AllowsNextCommandAndReleasesLateLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RootDestroyedBeforeLateHandoff_StillReleasesLease",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
         ]
       },
       "EditMode": {
@@ -1414,7 +1573,10 @@
           "Wulato.UIKit.Tests.RegistryTests.Snapshot_IsIndependentAndChecksExactArguments",
           "Wulato.UIKit.Tests.RegistryTests.DuplicateTypeOrKeyAndMultiCache_AreRejected",
           "Wulato.UIKit.Tests.RegistryTests.SerializedAssetMutation_DoesNotChangeSnapshot",
-          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected"
+          "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1497,7 +1659,10 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.WrongAssemblyRoute_PreventsBuild",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.BusinessAssignments_AreNotFieldConflicts",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.UnselectedPrefabAndEditorOnlyView_AreNotRuntimeRegistrations",
-          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload"
+          "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -1551,6 +1716,13 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+        ],
+        "addressables": [
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.MissingEntryOrMismatchedAddress_IsRejectedWithAssetLocation",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
+          "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
         ]
       }
     }

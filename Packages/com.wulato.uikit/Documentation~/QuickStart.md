@@ -1,6 +1,6 @@
 # 从空项目接入
 
-当前版本为 0.1.0 开发检查点，T10 提供 Editor 样例与性能基线；移动端/IL2CPP 发布验收留给 T11。
+当前主包版本为 0.3.0，保留核心与第二阶段业务流程契约；新增可选 Addressables 接入见 phase3-migration.md。移动端与完整发布验收需独立满足发布门禁。
 
 ## 安装与输入
 
@@ -11,7 +11,7 @@
 
 ## 导入三个样例
 
-Package Manager 中按 QuickStart、Modals、Inventory 导入三个 Samples，使用默认位置 `Assets/Samples/Wulato UIKit/0.1.0/<名称>` 时，请将三个目录一起移至 **`Assets/Samples/Wulato UIKit/<名称>`**（在 Unity Project 窗口移动以保留 GUID）。工具使用此明确路径，不搜索或改写任意业务目录。
+Package Manager 中按 QuickStart、Modals、Inventory 导入三个 Samples，使用默认位置 `Assets/Samples/Wulato UIKit/0.3.0/<名称>` 时，请将三个目录一起移至 **`Assets/Samples/Wulato UIKit/<名称>`**（在 Unity Project 窗口移动以保留 GUID）。工具使用此明确路径，不搜索或改写任意业务目录。
 
 导入后执行 `Tools > Wulato > UIKit > Samples > 1 Generate imported samples`，等待脚本编译结束，再执行 `2 Complete and wire scenes`，等待 Usage partial 编译，最后执行 `Tools > Wulato > UIKit > Validate`。前一次生成提供字段声明，第二步将 `.Usage.cs.txt` 启用为同程序集业务 partial，演示生成字段的实际使用；业务源代码不会被通用生成器改写。不要同时编译两份 Usage partial。
 

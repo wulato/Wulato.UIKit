@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Add generic External asset descriptors and explicit marker/codegen support without optional backend dependencies.
+
 ## 0.2.0
 
 - Add opt-in business flow composition and Context stop capability; preserve existing View/Session and transaction entry points.

@@ -53,6 +53,39 @@ namespace Wulato.UIKit.Tests.Editor
             so.FindProperty("viewScript").objectReferenceValue=editorScript;so.ApplyModifiedPropertiesWithoutUndo();
             paths=(string[])Tool("UICodegenPipeline").GetMethod("Discover",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);Assert.That(paths,Does.Not.Contain(Prefab));
         }
+        [Test] public void ExternalRegistration_GeneratesDescriptorWithoutPrefabField()
+        {
+            CreatePrefab();var asset=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab);var so=new SerializedObject(asset.GetComponent("UIBindingMarker"));
+            Assert.That(so.FindProperty("externalProviderId"),Is.Not.Null,"External marker fields missing");
+            so.FindProperty("externalProviderId").stringValue="addressables";so.FindProperty("externalAssetId").stringValue="UI/Probe";so.ApplyModifiedPropertiesWithoutUndo();
+            var text=(string)Call("Preview",new object[]{new[]{Prefab}});
+            Assert.That(text,Does.Contain("UIViewAsset.External(\"addressables\",\"UI/Probe\")"));
+            Assert.That(text,Does.Not.Contain("GameObject prefab"));Assert.That(text,Does.Contain("RectTransform"));
+            so.FindProperty("externalAssetId").stringValue="UI/Changed";so.ApplyModifiedPropertiesWithoutUndo();
+            Assert.That(Call("Preview",new object[]{new[]{Prefab}}),Is.Not.EqualTo(text));
+        }
+        [Test] public void ExternalRenameAndVariant_PreserveDescriptorAndBindings()
+        {
+            CreatePrefab();var source=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab);var marker=source.GetComponent<UIBindingMarker>();
+            marker.externalProviderId="addressables";marker.externalAssetId="UI/Variant";EditorUtility.SetDirty(marker);AssetDatabase.SaveAssets();
+            var instance=(GameObject)PrefabUtility.InstantiatePrefab(source);
+            var variant=Folder+"/Variant.prefab";
+            try{instance.transform.GetChild(0).name="RenamedLabel";PrefabUtility.SaveAsPrefabAsset(instance,variant);}
+            finally{UnityEngine.Object.DestroyImmediate(instance);}
+            Assert.That(AssetDatabase.MoveAsset(Prefab,Folder+"/RenamedBase.prefab"),Is.Empty);
+            var text=(string)Call("Preview",new object[]{new[]{variant}});
+            Assert.That(text,Does.Contain("UIViewAsset.External(\"addressables\",\"UI/Variant\")"));
+            Assert.That(text,Does.Contain("RectTransform").And.Contain("label"));Assert.That(text,Does.Not.Contain("GameObject prefab"));
+        }
+        [Test] public void ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset()
+        {
+            CreatePrefab();var asset=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab);var so=new SerializedObject(asset.GetComponent("UIBindingMarker"));
+            Assert.That(so.FindProperty("externalProviderId"),Is.Not.Null);
+            so.FindProperty("externalProviderId").stringValue="addressables";so.ApplyModifiedPropertiesWithoutUndo();
+            Assert.That(Assert.Throws<InvalidOperationException>(()=>Call("Preview",new object[]{new[]{Prefab}})).Message,Does.Contain(Prefab));
+            so.FindProperty("externalAssetId").stringValue=" ";so.ApplyModifiedPropertiesWithoutUndo();
+            Assert.Throws<InvalidOperationException>(()=>Call("Preview",new object[]{new[]{Prefab}}));
+        }
         [Test] public void BusinessAssignments_AreNotFieldConflicts()
         {
             var check=Tool("UICodegenPipeline").GetMethod("ConflictsWithMember",BindingFlags.Static|BindingFlags.NonPublic);
