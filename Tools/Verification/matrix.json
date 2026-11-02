@@ -260,6 +260,9 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+        ],
+        "quickstart-only": [
+          "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
         ]
       },
       "EditMode": {
@@ -424,6 +427,28 @@
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
+        ],
+        "authoring": [
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneApply_IsIdempotentAndUndoable",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneConflict_DoesNotAllocateRoot",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidDriverOrMissingRegistry_DoesNotMutateScene",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.EnabledForeignModule_IsNotReplaced",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ViewSource_ValidatesNamesAndPreservesExistingFile",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedViewSource_UsesCompiledArgumentType",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingPrefab_PreservesGuidAndRejectsVariant",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SampleDirectoryResolution_RequiresExplicitChoiceWhenAmbiguous",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.UsageConflict_DoesNotOverwriteConsumerCode",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerationState_RoundTripsFailureAndPreventsReentry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DuplicateBinding_RejectsBeforeSavingPrefab",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedView_RejectsEditorOnlyArgumentBeforeWriting",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidRootLayers_DoNotAllocateInputObjects",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CancelledRequest_BlocksAutomaticWritebackAcrossReload",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingViewConflict_DoesNotChangeAsset",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerateMenu_RejectsConcurrentWorkbenchRequest",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
         ]
       }
     },
@@ -690,6 +715,9 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+        ],
+        "quickstart-only": [
+          "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
         ]
       },
       "EditMode": {
@@ -859,6 +887,28 @@
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
+        ],
+        "authoring": [
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneApply_IsIdempotentAndUndoable",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneConflict_DoesNotAllocateRoot",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidDriverOrMissingRegistry_DoesNotMutateScene",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.EnabledForeignModule_IsNotReplaced",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ViewSource_ValidatesNamesAndPreservesExistingFile",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedViewSource_UsesCompiledArgumentType",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingPrefab_PreservesGuidAndRejectsVariant",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SampleDirectoryResolution_RequiresExplicitChoiceWhenAmbiguous",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.UsageConflict_DoesNotOverwriteConsumerCode",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerationState_RoundTripsFailureAndPreventsReentry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DuplicateBinding_RejectsBeforeSavingPrefab",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedView_RejectsEditorOnlyArgumentBeforeWriting",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidRootLayers_DoNotAllocateInputObjects",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CancelledRequest_BlocksAutomaticWritebackAcrossReload",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingViewConflict_DoesNotChangeAsset",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerateMenu_RejectsConcurrentWorkbenchRequest",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
         ]
       }
     }
@@ -1124,6 +1174,9 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+        ],
+        "quickstart-only": [
+          "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
         ]
       },
       "EditMode": {
@@ -1288,6 +1341,28 @@
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
+        ],
+        "authoring": [
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneApply_IsIdempotentAndUndoable",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneConflict_DoesNotAllocateRoot",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidDriverOrMissingRegistry_DoesNotMutateScene",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.EnabledForeignModule_IsNotReplaced",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ViewSource_ValidatesNamesAndPreservesExistingFile",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedViewSource_UsesCompiledArgumentType",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingPrefab_PreservesGuidAndRejectsVariant",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SampleDirectoryResolution_RequiresExplicitChoiceWhenAmbiguous",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.UsageConflict_DoesNotOverwriteConsumerCode",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerationState_RoundTripsFailureAndPreventsReentry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DuplicateBinding_RejectsBeforeSavingPrefab",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedView_RejectsEditorOnlyArgumentBeforeWriting",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidRootLayers_DoNotAllocateInputObjects",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CancelledRequest_BlocksAutomaticWritebackAcrossReload",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingViewConflict_DoesNotChangeAsset",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerateMenu_RejectsConcurrentWorkbenchRequest",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
         ]
       }
     },
@@ -1554,6 +1629,9 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+        ],
+        "quickstart-only": [
+          "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
         ]
       },
       "EditMode": {
@@ -1723,6 +1801,28 @@
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.DuplicateAddressAndLabel_AreRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.GuidExcludedOrInvalidRoot_IsRejected",
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.LeaseReleaseFailure_IsNotRetriedAfterImmediateDestruction"
+        ],
+        "authoring": [
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneApply_IsIdempotentAndUndoable",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneConflict_DoesNotAllocateRoot",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidDriverOrMissingRegistry_DoesNotMutateScene",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.EnabledForeignModule_IsNotReplaced",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ViewSource_ValidatesNamesAndPreservesExistingFile",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedViewSource_UsesCompiledArgumentType",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingPrefab_PreservesGuidAndRejectsVariant",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SampleDirectoryResolution_RequiresExplicitChoiceWhenAmbiguous",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.UsageConflict_DoesNotOverwriteConsumerCode",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerationState_RoundTripsFailureAndPreventsReentry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DuplicateBinding_RejectsBeforeSavingPrefab",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TypedView_RejectsEditorOnlyArgumentBeforeWriting",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.InvalidRootLayers_DoNotAllocateInputObjects",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CancelledRequest_BlocksAutomaticWritebackAcrossReload",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.ExistingViewConflict_DoesNotChangeAsset",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.GenerateMenu_RejectsConcurrentWorkbenchRequest",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
         ]
       }
     }

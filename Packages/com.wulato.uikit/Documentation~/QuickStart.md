@@ -1,42 +1,57 @@
 # 从空项目接入
 
-当前主包版本为 0.3.0，保留核心与第二阶段业务流程契约；新增可选 Addressables 接入见 phase3-migration.md。移动端与完整发布验收需独立满足发布门禁。
+主包当前版本 0.3.0。推荐先跑通一个 Settings 页面，再阅读 [生命周期](Lifecycle.md) 和 [取消与错误](CancellationAndErrors.md)。本页不代表移动端或完整发布验收通过。
 
-## 安装与输入
+## 1. 安装主包与输入后端
 
-1. 使用 Unity **2022.3.62f2** 或 **6000.3.22f1** 新建空项目。用 Package Manager 安装 uGUI；2022 锁定 `com.unity.ugui: 1.0.0`，Unity 6 在项目 manifest 显式锁 `2.0.0`。
-2. 在项目 `Packages/manifest.json` 添加 UniTask 的固定 Git 引用：`"com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11"`。不保留旧版 UniTask 声明。
-3. 将本仓库固定提交安装为本地包（Package Manager → Add package from disk → `Packages/com.wulato.uikit/package.json`）。也可以在 Git 发布可用后使用 `https://github.com/wulato/Wulato.UIKit.git?path=Packages/com.wulato.uikit#<固定提交SHA>`。`<固定提交SHA>` 是调用方选择的真实固定提交，不能直接粘贴占位符。提交项目解析后的 packages-lock.json。
-4. 旧输入项目使用一个 EventSystem 和 `LegacyUIInputDriver`，删除普通 StandaloneInputModule。新输入项目额外安装 Input System **1.17.0** 与本仓库 `com.wulato.uikit.input-system` 包，Active Input Handling 设为 Input System；将模块替换为 `InputSystemUIInputDriver`。只启用一个模块。主包不会自动发现或安装可选后端。
+使用 Unity **2022.3.62f2** 或 **6000.3.22f1**。在宿主 manifest 中显式锁定 uGUI：2022 使用 1.0.0，Unity 6 使用 2.0.0。UniTask 固定为：
 
-## 导入三个样例
-
-Package Manager 中按 QuickStart、Modals、Inventory 导入三个 Samples，使用默认位置 `Assets/Samples/Wulato UIKit/0.3.0/<名称>` 时，请将三个目录一起移至 **`Assets/Samples/Wulato UIKit/<名称>`**（在 Unity Project 窗口移动以保留 GUID）。工具使用此明确路径，不搜索或改写任意业务目录。
-
-导入后执行 `Tools > Wulato > UIKit > Samples > 1 Generate imported samples`，等待脚本编译结束，再执行 `2 Complete and wire scenes`，等待 Usage partial 编译，最后执行 `Tools > Wulato > UIKit > Validate`。前一次生成提供字段声明，第二步将 `.Usage.cs.txt` 启用为同程序集业务 partial，演示生成字段的实际使用；业务源代码不会被通用生成器改写。不要同时编译两份 Usage partial。
-
-打开 SettingsScene、ModalsScene 或 InventoryScene，按上节给场景加入对应 EventSystem/驱动后进入 PlayMode。设置页演示 owner close/按钮请求关闭；Modals 的 `ModalsDemo.OpenAsync()` 可再开一层；关闭顶层恢复前层焦点。Inventory 使用固定玩家参数和普通 ScrollRect，关闭后保留一个 CacheOne 实例，下次打开刷新参数。示例不提供弹窗队列或导航历史。关闭全部窗口后可在 Inspector 的 demo 组件 Context Menu 中重新打开。
-
-## 自己注册与生成
-
-创建顶层 `public partial class MyView : UIView`（有参数时继承 `UIView<MyArgs>`）。先以无字段引用的源文件编译，再创建 **activeSelf 的 RectTransform 根 Prefab**，加入一个根 UIBindingMarker，分配业务 MonoScript、唯一 typeKey、层级、Multiplicity、ClosePolicy 和 BackAction。Bindings 中逐项填字段名及 Prefab 内组件引用，名称不依赖 GameObject 名字。
-
-执行 `Tools > Wulato > UIKit > Generate`，等待编译，执行 `Complete writeback`。生成目录为 `Assets/Wulato.UIKit.Generated`，Bindings/provider 按业务 asmdef GUID 路由；将生成的 `UIRegistry.asset` 交给 Builder。生成后才在业务 partial 中直接使用生成字段。Prefab Variant 作为注册项时排除 base 的 includeInRegistry。Validate/构建前校验会拒绝过期、错误路由及缺失的写回结果。
-
-```csharp
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using Wulato.UIKit;
-using Wulato.UIKit.Samples.Inventory;
-
-// root 是场景中的 UIRoot，registry 是生成资产；EventSystem 已安装匹配驱动。
-IUIContext ui = new UIContextBuilder(root, registry).Build();
-IUISession<InventoryView> session = await ui.OpenAsync<InventoryView, InventoryArgs>(
-    new InventoryArgs("player-1", InventoryTab.Equipment), cancellationToken);
-UICompletion closed = await session.CloseAsync();
-// closed.Errors 和 HasPendingCleanup 需要按业务日志/退出策略处理。
-await ui.ClearCacheAsync();
-UIShutdownCompletion stopped = await ui.ShutdownAsync();
+```json
+"com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11"
 ```
 
-所有操作从主线程提交；普通操作的 UniTask 只 await 一次。Session 不公开可复用 View；保存 Session 只控制这一次打开。不要在 View 钩子中等待同一 Context 的下一条普通命令。完整生命周期见 [Lifecycle](Lifecycle.md)，失败处理见 [CancellationAndErrors](CancellationAndErrors.md)。
+在 Package Manager 中通过 Add package from disk 选择主包 package.json；已有固定 Git 发布时可使用仓库 URL 的 `?path=Packages/com.wulato.uikit#<实际固定提交SHA>`，不要直接粘贴占位符。提交宿主解析后的 packages-lock.json。
+
+- **Legacy：** 使用主包 LegacyUIInputDriver；项目输入设置须支持旧输入。
+- **Input System：** 额外安装 Input System 1.17.0 与 com.wulato.uikit.input-system。项目自行将 Active Input Handling 设置为 Input System；工作台中拖入适配包 InputSystemUIInputDriver.cs。
+- **Addressables：** 额外安装 com.wulato.uikit.addressables，使用 WithLoader 显式注入；见 [第三阶段迁移](phase3-migration.md)。主包不会自动发现后端。
+
+场景只能启用一个 UI 输入模块。工作台不删除普通 StandaloneInputModule、不自动安装包或修改 ProjectSettings；发现冲突会列出对象，请明确处理。
+
+## 2. 单独运行 QuickStart
+
+1. Package Manager → 主包 Samples → Import QuickStart。无需导入 Modals、Inventory，也无需移动默认版本目录。
+2. 打开 `Tools > Wulato > UIKit > Workbench` 的“样例”页，选择 QuickStart。多份候选时明确选择目录。
+3. 明确选择输入驱动，点击“预览并配置所选样例”，检查目录与改动摘要后应用。脏场景必须保存或取消。
+4. 工具自动等待编译、写回绑定、安装 Usage partial 并接线样例场景。状态在“生成”页和窗口底部显示；失败后先修复再重试。
+5. 点击“打开样例场景”，进入 PlayMode。按钮请求关闭；Demo 组件 Context Menu 的 Open UI 可再次打开。
+
+Modals、Inventory 也可单独导入并通过主包工作台配置。Inventory 使用普通 ScrollRect，CacheOne 复用实例但重新创建 Session。旧 Samples 两步菜单仍保留，供原有三样例批处理使用；默认使用工作台。
+
+工具按脚本身份和相邻资产确定目录，兼容默认版本目录与旧无版本目录。不会移动 Prefab/Scene，不覆盖已修改的样例源码或 Usage。编译完毕后再次配置应保持幂等。
+
+## 3. 创建自己的界面
+
+在工作台“界面”页选择新建，填写 Assets 下的目标目录、命名空间和类名。无参生成 UIView；带参先编译公开参数类型，再填写完整类型名。工具创建用户拥有的 partial 脚本和普通 RectTransform Prefab，等待编译后绑定并生成注册。
+
+已有 UI 使用“已有 Prefab”模式，选择普通 Prefab 和已编译的 public partial View 脚本。工具保留 GUID、子节点及现有组件；冲突时拒绝覆盖。Variant 首版继续使用原有 Marker/Generate 手工流程。
+
+选中 Prefab 后可编辑 Marker 的 Layer、Multiplicity、ClosePolicy、BackAction 和 Bindings。默认 Page/Single/Release/None。每个绑定明确填写字段名和 Prefab 内组件引用，不依赖节点名称猜测。保存后重新生成全部注册。
+
+生成代码位于 Assets/Wulato.UIKit.Generated，并按业务 asmdef GUID 路由。现有 Generate、Complete writeback、Validate 菜单仍可使用；正常交互流程会在脚本编译后自动续跑。输入在写回前变化时必须重新生成，不能绕过指纹校验。
+
+## 4. 配置场景并打开界面
+
+工作台“场景”页明确选择 Root、生成的 Registry、EventSystem 和输入驱动，点击检查配置。缺少的 Root/EventSystem 会创建；支持 Undo，只标脏，不保存场景。配置只负责编辑器资产，业务仍显式创建并持有 Context：
+
+```csharp
+IUIContext ui = new UIContextBuilder(root, registry).Build();
+IUISession<SettingsView> session = await ui.OpenAsync<SettingsView>();
+UICompletion closed = await session.CloseAsync();
+// 根据业务策略检查 closed.Errors 和 HasPendingCleanup。
+await ui.ShutdownAsync();
+```
+
+SettingsView 为你自己创建的无参 View 类型。带参使用 `OpenAsync<TView, TArgs>(args, cancellationToken)`。业务自行持有 Root/Registry 引用，不需要全局单例。
+
+所有操作从主线程提交；普通 UniTask 只 await 一次。不要在 View 钩子中等待同一 Context 的下一条普通命令。Session 句柄仅控制本次打开，不暴露缓存 View。更多配置见 [扩展接入](Extensions.md)。

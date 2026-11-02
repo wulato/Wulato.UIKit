@@ -9,6 +9,9 @@ COMMON='com.wulato.uikit.verification'
 from runtime import is_extension_package, EXTENSIONS
 def dump(p,v): p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
 def selected(args):
+ if getattr(args,"consumer_hosts",None) is not None:
+  yield from args.consumer_hosts
+  return
  for ver,(short,_,_) in VERSIONS.items():
   if args.editor not in ('all',ver):continue
   for backend in ('legacy','input'):
@@ -22,7 +25,7 @@ def digest(files):
 def package_sources(host):
  manifest=json.loads((host/'Packages/manifest.json').read_text());sources={}
  for name,value in manifest['dependencies'].items():
-  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.quickstart','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
   if not value.startswith('file:'):raise ValueError('verification-package-must-be-local:'+name)
   actual=(host/'Packages'/value[5:]).resolve();expected=((R/'Packages'/name) if name in ('com.wulato.uikit','com.wulato.uikit.input-system') or is_extension_package(name) else (V/'Packages'/name)).resolve()
   if actual!=expected:raise ValueError('noncanonical-package-source:'+name)
@@ -50,7 +53,7 @@ def snapshot(ver,backend,host):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
-  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
+  if not (name.startswith(COMMON) or is_extension_package(name) or name in ('com.wulato.uikit','com.wulato.uikit.acceptance','com.wulato.uikit.acceptance.samples','com.wulato.uikit.acceptance.quickstart','com.wulato.uikit.acceptance.flows','com.wulato.uikit.input-system')):continue
   path=(host/'Packages'/value.removeprefix('file:')).resolve()
   if not (path/'package.json').is_file():errors.append('local-path:'+name);continue
   if json.loads((path/'package.json').read_text())['name']!=name:errors.append('local-name:'+name)
@@ -106,6 +109,7 @@ def applicable_suites(matrix,manifest):
  mapping['addressables-preflight']='com.wulato.uikit.verification.addressables'
  mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
  mapping['flow-samples']='com.wulato.uikit.acceptance.flows'
+ mapping['quickstart-only']='com.wulato.uikit.acceptance.quickstart'
  return {name:cases for name,cases in matrix.items() if (name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']) and (name not in mapping or mapping[name] in manifest['dependencies'])}
 
 def _run_locked(args):
@@ -207,7 +211,7 @@ def main():
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
  for name in ('codegen','check-generated','prepare-samples'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
- q=sub.choices['prepare-samples'];q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
+ q=sub.choices['prepare-samples'];q.add_argument('--quickstart-only',action='store_true',help='fresh isolated consumers, versioned QuickStart only, using the existing Unity runner and evidence verifier');q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
  q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')

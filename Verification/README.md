@@ -229,3 +229,14 @@ P8 明确要求四宿主完整 EditMode/PlayMode、16 个 Reload 组合、四宿
 安装范围的运行时隔离读取 `GetAssemblies(Player)` 的实际引用图，从消费 Assets 源码与所选 UIKit 程序集计算完整闭包，同时检查可达预编译 DLL。候选列表中的未引用 `autoReferenced=false` SDK 测试程序集不等于 Player 依赖；保留候选、根、全部边、可达闭包和未引用项作为原始证据，任何可达 TestRunner/NUnit/验收程序集仍失败。此检查只证明编译依赖，不代替 Player 构建/裁剪验收。
 
 预编译 DLL 的编译器候选（例如 SDK 自动引用的 NUnit）还须与实际 Editor 编译的 Runtime DLL 导入元数据求交；保留原始 DLL、副本哈希及导入清单。缺元数据或实际导入测试框架均失败。该证据明确限于 Editor 安装编译，不代替目标 Player 的条件编译、构建或裁剪验证。
+
+## P0 Editor authoring workbench
+
+`authoring` is an EditMode suite covering scene preflight/Undo/idempotence, Prefab ownership and binding validation, typed View source validation, persistent request cancellation/reload and sample directory/Usage conflicts. Existing `editor` and `generated-integration` suites retain generation fingerprint, routing and runtime regression coverage.
+
+```sh
+python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite authoring
+python3 Tools/Verification/run.py prepare-samples --editor all --backend all --quickstart-only
+```
+
+`--quickstart-only` creates fresh consumers under `Artifacts/uikit`, imports only QuickStart into the Package Manager versioned directory, and uses the workbench's operation service across real compiler/editor restarts. Two complete configuration passes must leave identical input fingerprints. It explicitly selects the host driver, checks absence of Modals/Inventory assemblies, runs `quickstart-only` PlayMode through the existing registered test runner, and revalidates raw XML/traces/inventory/hashes/current snapshots. Preparation logs, command records, source fingerprints and summaries are retained. This is an Editor installation/authoring acceptance path, not a Player build or release gate. Do not combine this mode with `--red` or `--check-only`; standard sample preparation and its canonical paths remain compatible.

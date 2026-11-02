@@ -119,7 +119,14 @@ namespace Wulato.UIKit.Editor
         static CodegenState State(ViewInput[] views,SortedDictionary<string,string> files)=>new CodegenState{prefabs=views.Select(v=>v.Path).ToArray(),fingerprint=Hash(string.Join("|",views.Select(v=>v.Fingerprint))),files=files.Select(f=>new GeneratedFile{path=f.Key,hash=Hash(f.Value)}).ToArray()};
         static void WriteIfChanged(string path,string text){if(File.Exists(path)&&File.ReadAllText(path)==text)return;Directory.CreateDirectory(Path.GetDirectoryName(path));File.WriteAllText(path,text);}
         [MenuItem("Tools/Wulato/UIKit/Generate")]
-        public static void Generate()=>GenerateFor(Discover());
+        public static void Generate()
+        {
+            if(Authoring.UIAuthoringOperation.Busy)throw new InvalidOperationException("已有工作台操作进行中，请等待完成或取消。");
+            Authoring.UIAuthoringOperation.TryBegin("generate");
+            try{GenerateAll();Authoring.UIAuthoringOperation.ObserveGeneration(File.Exists(Pending));}
+            catch(Exception e){Authoring.UIAuthoringOperation.Fail("generate",null,e.ToString());throw;}
+        }
+        internal static void GenerateAll()=>GenerateFor(Discover());
         public static void GenerateFor(string[] prefabs)
         {
             var views=Inputs(prefabs);var files=Sources(views);var state=State(views,files);
@@ -158,12 +165,12 @@ namespace Wulato.UIKit.Editor
                 UIBindingAssemblyRouter.Validate(v.Route.Directory+"/"+ProviderName(v.Route)+".cs",v.Route);
                 UIBindingWriteback.Apply(v);
             }
-            UIRegistryGenerator.Write(views);AssetDatabase.SaveAssets();File.Delete(Pending);
+            UIRegistryGenerator.Write(views);AssetDatabase.SaveAssets();File.Delete(Pending);Authoring.UIAuthoringOperation.ObserveWriteback();
         }
         [DidReloadScripts] static void Resume()
         {
-            if(Application.isBatchMode||!File.Exists(Pending))return;
-            EditorApplication.delayCall+=()=>{try{Complete();}catch(Exception e){Debug.LogException(e);}};
+            if(Application.isBatchMode||!File.Exists(Pending)||Authoring.UIAuthoringOperation.SuspendAutomaticWriteback)return;
+            EditorApplication.delayCall+=()=>{if(Authoring.UIAuthoringOperation.SuspendAutomaticWriteback)return;try{Complete();}catch(Exception e){Debug.LogException(e);}};
         }
         static bool AssetMatches(UIViewAsset asset,ViewInput view)
         {

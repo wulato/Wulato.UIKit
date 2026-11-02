@@ -1,0 +1,1 @@
+{"name":"Wulato.UIKit.Acceptance.QuickStart.Tests","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","UniTask","UnityEngine.UI"],"optionalUnityReferences":["TestAssemblies"]}

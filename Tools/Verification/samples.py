@@ -20,6 +20,10 @@ def install_tests(host):
     if PACKAGE not in data.setdefault('testables',[]):data['testables'].append(PACKAGE)
     p.write_text(json.dumps(data,indent=2)+'\n')
 def prepare(args):
+    if getattr(args,"quickstart_only",False):
+        if getattr(args,"check_only",False) or getattr(args,"red",False):
+            print('FAIL --quickstart-only cannot be combined with --check-only or --red',flush=True);return 1
+        return prepare_quickstart(args)
     import run
     from locking import guard,VerificationBusy
     from evidence import sha256
@@ -72,3 +76,58 @@ def sample_sources(root,host):
     if all(name in dependencies for name in FLOW_EXTENSIONS):sources.append(root/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow')
     if 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
     return sources
+
+def quickstart_manifest(ver,backend):
+    import run
+    from runtime import UNITASK
+    package='com.wulato.uikit.acceptance.quickstart'
+    deps={'com.wulato.uikit':'file:'+str(run.R/'Packages/com.wulato.uikit'),'com.cysharp.unitask':UNITASK,
+          'com.unity.ugui':run.VERSIONS[ver][1],'com.unity.test-framework':run.VERSIONS[ver][2],
+          package:'file:'+str(run.V/'Packages'/package),
+          **{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
+    if backend=='input':deps.update({'com.unity.inputsystem':'1.17.0','com.wulato.uikit.input-system':'file:'+str(run.R/'Packages/com.wulato.uikit.input-system')})
+    return dict(dependencies=deps,testables=['com.wulato.uikit',package]+(['com.wulato.uikit.input-system'] if backend=='input' else []))
+
+def prepare_quickstart(args):
+    """Orchestrate clean imports through the existing Unity executor and registered test runner."""
+    import argparse,run
+    from locking import guard
+    from evidence import sha256,verify
+    try:
+        with guard(run.A):
+            batch=run.A/(datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%f')+'-quickstart-consumers-'+uuid.uuid4().hex[:6]);batch.mkdir()
+            hosts=[];reports=[]
+            for ver,backend,original in run.selected(args):
+                host=batch/original.name;host.mkdir();(host/'Assets').mkdir();(host/'Packages').mkdir()
+                shutil.copytree(original/'ProjectSettings',host/'ProjectSettings')
+                run.dump(host/'Packages/manifest.json',quickstart_manifest(ver,backend))
+                version=json.loads((run.R/'Packages/com.wulato.uikit/package.json').read_text())['version']
+                target=host/'Assets/Samples/Wulato UIKit'/version/'QuickStart';target.parent.mkdir(parents=True)
+                shutil.copytree(run.R/'Packages/com.wulato.uikit/Samples~/QuickStart',target)
+                report={'editor':ver,'backend':backend,'host':str(host),'stages':[]}
+                # Re-launches cross real compilation boundaries; second pass proves idempotence.
+                for index,method in enumerate(('Begin','Continue','Continue','Validate','BeginInOpenScene','ContinueInOpenScene','ContinueInOpenScene','ValidateInOpenScene')):
+                    out=batch/(original.name+'-stage-'+str(index));out.mkdir();args.execute_method='Wulato.UIKit.Acceptance.QuickStart.Editor.QuickStartPreparation.'+method
+                    before=run.fingerprint(host)
+                    rc,to,log,actual=run.unity(args,ver,host,out)
+                    status=rc==0 and not to and actual==ver and (out/'quickstart-preparation.txt').is_file() and not re.search(r'error CS\d+|Scripts have compiler errors',log)
+                    if method.startswith('Validate') and before!=run.fingerprint(host):status=False
+                    report['stages'].append(dict(method=method,status='PASS' if status else 'FAIL',returncode=rc,actual_editor=actual,source_before=before,source_after=run.fingerprint(host)))
+                    run.dump(batch/'preparation.json',reports+[report]);print(original.name,index,method,report['stages'][-1]['status'],flush=True)
+                    if not status:raise ValueError('quickstart-stage-failed:'+str(out))
+                if report['stages'][3]['source_after']!=report['stages'][7]['source_after']:raise ValueError('quickstart-repeat-not-idempotent:'+str(host))
+                hosts.append((ver,backend,host));reports.append(report)
+            test_args=argparse.Namespace(**vars(args));test_args.command='tests';test_args.mode='PlayMode';test_args.suite='quickstart-only';test_args.consumer_hosts=hosts
+            before=set(run.A.glob('*-tests-*'));rc=run._run_locked(test_args)
+            created=set(run.A.glob('*-tests-*'))-before
+            checks=[]
+            for evidence in created:
+                for record in json.loads((evidence/'summary.json').read_text()):
+                    host=next(h for v,b,h in hosts if v==record['editor'] and b==record['backend'])
+                    required=json.loads((run.C/'matrix.json').read_text())[record['editor']][record['backend']]['PlayMode']['quickstart-only']
+                    checked=verify(record,Path(record['evidence']),required,run.snapshot(record['editor'],record['backend'],host),acceptance=True)
+                    checks.append(dict(evidence=record['evidence'],**checked))
+            if len(checks)!=len(hosts) or any(c['status']!='PASS' for c in checks):rc=1
+            run.dump(batch/'acceptance.json',dict(status='PASS' if rc==0 else 'FAIL',preparation=reports,raw_checks=checks))
+            print('QUICKSTART EVIDENCE',batch,flush=True);return rc
+    except (ValueError,OSError) as e:print('FAIL',str(e),flush=True);return 1
