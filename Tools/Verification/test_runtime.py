@@ -47,7 +47,7 @@ class RuntimePreparationTests(unittest.TestCase):
         self.assertEqual(UNITASK,prepared['dependencies']['com.cysharp.unitask'])
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
-        package={'name':'com.wulato.uikit','version':'0.3.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
+        package={'name':'com.wulato.uikit','version':'0.4.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
         assemblies={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
@@ -67,21 +67,22 @@ class ExtensionBoundaryTests(unittest.TestCase):
         self.assertTrue(validate_main_package(package,assemblies))
     def test_extension_identity_does_not_capture_arbitrary_packages(self):
         from runtime import is_extension_package
-        self.assertTrue(is_extension_package('com.wulato.uikit.navigation'))
+        self.assertFalse(is_extension_package('com.wulato.uikit.navigation'))
+        self.assertTrue(is_extension_package('com.wulato.uikit.addressables'))
         self.assertFalse(is_extension_package('com.wulato.uikit.navigation.evil'))
     def test_absent_extension_suite_is_not_required(self):
         from run import applicable_suites
         matrix={'contracts':['core'],'navigation':['nav']}
         self.assertEqual({'contracts':['core']},applicable_suites(matrix,{'dependencies':{}}))
-        self.assertEqual(matrix,applicable_suites(matrix,{'dependencies':{'com.wulato.uikit.navigation':'file:test'}}))
+        self.assertEqual(matrix,applicable_suites(matrix,{'dependencies':{'com.wulato.uikit':'file:test'}}))
 
 class ExtensionMetadataTests(unittest.TestCase):
     def test_extensions_require_new_core_and_no_optional_backends(self):
         from runtime import validate_extension_package
-        package={'name':'com.wulato.uikit.navigation','version':'0.1.1','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.3.0','com.cysharp.unitask':'2.5.11'}}
-        refs=['Wulato.UIKit.Core','Wulato.UIKit.UGUI','UniTask']
+        package={'name':'com.wulato.uikit.addressables','version':'0.2.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.addressables':'1.21.21'}}
+        refs=['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','Unity.Addressables','Unity.ResourceManager']
         self.assertEqual([],validate_extension_package(package,refs))
         package['dependencies']['com.wulato.uikit']='0.1.0'
         self.assertTrue(validate_extension_package(package,refs))
-        package['dependencies']['com.wulato.uikit']='0.3.0'
+        package['dependencies']['com.wulato.uikit']='0.4.0'
         self.assertTrue(validate_extension_package(package,refs+['Unity.InputSystem']))

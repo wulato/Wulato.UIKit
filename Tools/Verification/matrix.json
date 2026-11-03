@@ -263,6 +263,22 @@
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
+        ],
+        "context-host": [
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_IsIdempotent_AndRejectsSecondConfiguration",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Start_AutomaticallyBuilds_AndDisableDoesNotStop",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownBeforeInitialize_IsTerminal",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedBuild_CanRetry_AndDoesNotOwnExternalContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedConfigure_CanRetry_AndFactoryResourcesReleaseOnce",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyingHost_ShutsDownOwnedContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+        ],
+        "preview-runtime": [
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
         ]
       },
       "EditMode": {
@@ -448,7 +464,17 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
-          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+        ],
+        "preview-authoring": [
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.AssetOwnership_RejectsModifiedOrReplacedFiles",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.CorruptRecovery_IsRejectedAndPreserved",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_WithNewUserFile_IsNeverDeleted",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
         ]
       }
     },
@@ -718,6 +744,22 @@
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
+        ],
+        "context-host": [
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_IsIdempotent_AndRejectsSecondConfiguration",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Start_AutomaticallyBuilds_AndDisableDoesNotStop",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownBeforeInitialize_IsTerminal",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedBuild_CanRetry_AndDoesNotOwnExternalContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedConfigure_CanRetry_AndFactoryResourcesReleaseOnce",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyingHost_ShutsDownOwnedContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+        ],
+        "preview-runtime": [
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
         ]
       },
       "EditMode": {
@@ -908,7 +950,17 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
-          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+        ],
+        "preview-authoring": [
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.AssetOwnership_RejectsModifiedOrReplacedFiles",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.CorruptRecovery_IsRejectedAndPreserved",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_WithNewUserFile_IsNeverDeleted",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
         ]
       }
     }
@@ -1177,6 +1229,22 @@
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
+        ],
+        "context-host": [
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_IsIdempotent_AndRejectsSecondConfiguration",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Start_AutomaticallyBuilds_AndDisableDoesNotStop",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownBeforeInitialize_IsTerminal",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedBuild_CanRetry_AndDoesNotOwnExternalContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedConfigure_CanRetry_AndFactoryResourcesReleaseOnce",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyingHost_ShutsDownOwnedContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+        ],
+        "preview-runtime": [
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
         ]
       },
       "EditMode": {
@@ -1362,7 +1430,17 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
-          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+        ],
+        "preview-authoring": [
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.AssetOwnership_RejectsModifiedOrReplacedFiles",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.CorruptRecovery_IsRejectedAndPreserved",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_WithNewUserFile_IsNeverDeleted",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
         ]
       }
     },
@@ -1632,6 +1710,22 @@
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
+        ],
+        "context-host": [
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_IsIdempotent_AndRejectsSecondConfiguration",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Start_AutomaticallyBuilds_AndDisableDoesNotStop",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownBeforeInitialize_IsTerminal",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedBuild_CanRetry_AndDoesNotOwnExternalContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.FailedConfigure_CanRetry_AndFactoryResourcesReleaseOnce",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyingHost_ShutsDownOwnedContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+        ],
+        "preview-runtime": [
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
+          "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
         ]
       },
       "EditMode": {
@@ -1822,7 +1916,17 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.Cancel_DoesNotRestoreOverUserChangedSceneLayout",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
-          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection"
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+        ],
+        "preview-authoring": [
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.AssetOwnership_RejectsModifiedOrReplacedFiles",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.CorruptRecovery_IsRejectedAndPreserved",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_WithNewUserFile_IsNeverDeleted",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
+          "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
         ]
       }
     }

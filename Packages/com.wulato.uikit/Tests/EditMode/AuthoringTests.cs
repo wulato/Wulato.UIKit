@@ -237,3 +237,31 @@ namespace Wulato.UIKit.Tests.Editor
         }
     }
 }
+
+namespace Wulato.UIKit.Tests.Editor
+{
+    [Category("authoring")]
+    public class ContextHostAuthoringTests
+    {
+        [Test] public void HostInstallation_IsUndoable_AndRejectsAnotherOwner()
+        {
+            var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
+            var root=new GameObject("HostAuthoring",typeof(RectTransform),typeof(UIRoot)).GetComponent<UIRoot>();
+            var registry=ScriptableObject.CreateInstance<UIRegistry>();
+            var type=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Wulato.UIKit.Editor.Authoring.UIContextHostAuthoring")).First(t=>t!=null);
+            var apply=type.GetMethod("Apply",BindingFlags.Public|BindingFlags.Static);
+            try
+            {
+                var host=(UIContextHost)apply.Invoke(null,new object[]{root,registry});Assert.That(host,Is.Not.Null);
+                Assert.That(apply.Invoke(null,new object[]{root,registry}),Is.SameAs(host));
+                var another=new GameObject("OtherHost").AddComponent<UIContextHost>();var serialized=new SerializedObject(another);serialized.FindProperty("root").objectReferenceValue=root;serialized.ApplyModifiedPropertiesWithoutUndo();
+                Assert.That(Assert.Throws<TargetInvocationException>(()=>apply.Invoke(null,new object[]{root,registry})).InnerException,Is.TypeOf<InvalidOperationException>());
+                UnityEngine.Object.DestroyImmediate(another.gameObject);Undo.PerformUndo();Undo.PerformUndo();Assert.That(root.GetComponent<UIContextHost>(),Is.Null);Undo.PerformRedo();Assert.That(root.GetComponent<UIContextHost>(),Is.Not.Null);
+            }
+            finally{UnityEngine.Object.DestroyImmediate(root.gameObject);UnityEngine.Object.DestroyImmediate(registry);EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);}
+        }
+        [TestCase(double.NaN)] [TestCase(double.PositiveInfinity)] [TestCase(0d)] [TestCase(-1d)]
+        public void HostSettings_RejectInvalidDuration(double seconds)
+        {var value=new UIContextHostSettings{loadTimeout=seconds};Assert.Throws<ArgumentOutOfRangeException>(()=>value.ToSettings());}
+    }
+}

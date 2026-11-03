@@ -11,8 +11,8 @@ namespace Wulato.UIKit.Acceptance.Tests
         {
             var packages=PackageInfo.GetAllRegisteredPackages();
             Assert.That(packages.Single(p=>p.name=="com.cysharp.unitask").version,Is.EqualTo("2.5.11"));
-            Assert.That(packages.Single(p=>p.name=="com.unity.ugui").version,Is.EqualTo(Application.unityVersion.StartsWith("6000.")?"2.0.0":"1.0.0"));
-            Assert.That(packages.Single(p=>p.name=="com.wulato.uikit").version,Is.EqualTo("0.3.0"));
+            Assert.That(packages.Single(p=>p.name=="com.unity.ugui").version,Is.EqualTo(System.Environment.GetEnvironmentVariable("UIKIT_EXPECTED_UGUI")));
+            Assert.That(packages.Single(p=>p.name=="com.wulato.uikit").version,Is.EqualTo("0.4.0"));
         }
         [Test] public void CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies()
         {

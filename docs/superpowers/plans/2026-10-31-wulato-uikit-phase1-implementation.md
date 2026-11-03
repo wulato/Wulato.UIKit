@@ -1,5 +1,7 @@
 # Wulato.UIKit 第一阶段 Implementation Plan
 
+> **Superseded（实施任务）**：后续工作仅执行 [Master Optimization Plan](2026-11-03-wulato-uikit-master-optimization.md)。已完成成果、历史记录及其行为契约保留。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 先验证初始化顺序与双输入驱动，再交付可跨项目安装、经过竞态和移动端验收的 uGUI 核心闭环。

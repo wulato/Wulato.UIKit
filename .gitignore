@@ -118,3 +118,7 @@ beamable-export-*
 # UPM source folders must survive a machine-wide *~ ignore rule
 !/Packages/com.wulato.uikit.addressables/Samples~/
 !/Packages/com.wulato.uikit.addressables/Documentation~/
+
+# Integrated main-package samples and documentation are source, not editor backups
+!/Packages/com.wulato.uikit/Samples~/
+!/Packages/com.wulato.uikit/Documentation~/

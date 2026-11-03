@@ -78,7 +78,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0"
+        "com.wulato.uikit": "0.4.0"
       }
     },
     "com.wulato.uikit.acceptance.flows": {
@@ -86,11 +86,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.wulato.uikit.navigation": "0.1.0",
-        "com.wulato.uikit.dialogs": "0.1.0",
-        "com.wulato.uikit.presentation": "0.1.0",
-        "com.wulato.uikit.popup-queue": "0.1.0"
+        "com.wulato.uikit": "0.4.0"
       }
     },
     "com.wulato.uikit.acceptance.samples": {
@@ -98,7 +94,7 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0",
+        "com.wulato.uikit": "0.4.0",
         "com.unity.ugui": "1.0.0"
       }
     },
@@ -107,18 +103,9 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0",
+        "com.wulato.uikit": "0.4.0",
         "com.cysharp.unitask": "2.5.11",
         "com.unity.addressables": "1.21.21"
-      }
-    },
-    "com.wulato.uikit.dialogs": {
-      "version": "file:../../../../Packages/com.wulato.uikit.dialogs",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.cysharp.unitask": "2.5.11"
       }
     },
     "com.wulato.uikit.input-system": {
@@ -126,35 +113,8 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0",
+        "com.wulato.uikit": "0.4.0",
         "com.unity.inputsystem": "1.17.0"
-      }
-    },
-    "com.wulato.uikit.navigation": {
-      "version": "file:../../../../Packages/com.wulato.uikit.navigation",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.cysharp.unitask": "2.5.11"
-      }
-    },
-    "com.wulato.uikit.popup-queue": {
-      "version": "file:../../../../Packages/com.wulato.uikit.popup-queue",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.cysharp.unitask": "2.5.11"
-      }
-    },
-    "com.wulato.uikit.presentation": {
-      "version": "file:../../../../Packages/com.wulato.uikit.presentation",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.cysharp.unitask": "2.5.11"
       }
     },
     "com.wulato.uikit.verification": {
@@ -170,14 +130,10 @@
       "depth": 0,
       "source": "local",
       "dependencies": {
-        "com.wulato.uikit": "0.3.0",
+        "com.wulato.uikit": "0.4.0",
         "com.unity.addressables": "1.21.21",
         "com.cysharp.unitask": "2.5.11",
-        "com.wulato.uikit.navigation": "0.1.1",
-        "com.wulato.uikit.presentation": "0.1.1",
-        "com.wulato.uikit.dialogs": "0.1.1",
-        "com.wulato.uikit.popup-queue": "0.1.1",
-        "com.wulato.uikit.addressables": "0.1.0"
+        "com.wulato.uikit.addressables": "0.2.0"
       }
     },
     "com.wulato.uikit.verification.input-system": {

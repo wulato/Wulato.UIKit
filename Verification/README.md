@@ -1,5 +1,7 @@
 # UIKit verification
 
+当前任务入口：[Master Optimization Plan](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md)。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。下文旧阶段命令及报告为历史资料，不自动构成本轮门禁。
+
 The preflight packages are verification prototypes, independent of production UIKit. The separate acceptance package verifies T2 contracts and actual resolved dependencies. Run commands from the repository root on macOS with the two specified Unity editors installed.
 
 ```sh
@@ -27,6 +29,29 @@ Each batch writes an independent batch.json inventory before creating/launching 
 Limits: these are Editor preflight tests, not mobile/IL2CPP release acceptance or production UIKit tests. Input System Submit/Cancel uses keyboard keys; navigation uses the gamepad stick. Physical gamepad Submit/Cancel buttons are not claimed as verified. T2 has separate contract acceptance below; T3 logical session execution is verified below; T4 actual hosting/loading/layout is verified below; T5 cache/bounded cleanup is verified below; T6 stoppable transitions and the transaction boundary are verified below; T7 production input arbitration and both drivers are verified below; T8 composition is covered by the integration and independent play-reset checks below; T9 generation and T10 imported samples/performance are covered below; T11 orchestration is described below; complete mobile/IL2CPP acceptance remains pending until its release gate passes.
 
 Verification prepare/tests batches use a nonblocking process-wide filesystem lock for the artifact root. Overlapping CLI batches fail explicitly instead of interleaving host execution; G0 uses a shared guard and returns FAIL while a batch is active. G0 schema 3 requires the serialized-batch inventory/evidence binding. Historical schema-2 records remain readable but cannot satisfy the current evidence verifier. Unknown inventories require restoring valid provenance, not silently skipping them.
+
+## 当前开发入口
+
+开发默认 2022.3.62f2 / legacy；额外编辑器显式选择。Tools/Verification/editors.json 的 default 指定开发默认，targets 指定 all 的目标集合，profiles 保存准确宿主名及 uGUI/Test Framework/Input System/Addressables/SBP 约束。新增 profile 还须准备匹配版本的宿主、对应 matrix 必需用例和验证夹具；缺配置或版本不符失败，不从版本号推断依赖。
+
+```sh
+python3 Tools/Verification/ci_suites.py --base HEAD --plan
+python3 Tools/Verification/ci_suites.py --base HEAD --prepare
+python3 Tools/Verification/ci_suites.py --base HEAD
+python3 Tools/Verification/run.py tests --mode PlayMode --suite context-host
+python3 Tools/Verification/run.py tests --backend all --mode EditMode --suite preview-authoring
+python3 Tools/Verification/run.py tests --backend all --mode PlayMode --suite preview-runtime
+python3 Tools/Verification/run.py play-reset --backend all --scope context-host
+python3 Tools/Verification/run.py play-reset --backend all --scope preview
+```
+
+变更选择包含基线至 HEAD、暂存/未暂存及未跟踪相关文件；建议包含原因、精确宿主与准备步骤。普通模块不默认扩大宿主，元数据和公共边界的跨后端影响通过 --backend all 显式覆盖。准备与测试耗时记录在 Artifacts/uikit/ci-selected；原 runner 的命令、XML、trace、指纹、锁和必需用例规则继续有效。
+
+context-host/preview 的独立 Editor Reload 验证使用现有 play-reset 执行器，Legacy 四组合、input 默认及双禁用，各连续两次；这些证据不能代替完整 integration Reload 或移动发布矩阵。preview 需要先 codegen/prepare-samples，恢复记录及临时场景来自真实生产预览路径。
+
+主包内含四业务模块，安装 main 不安装 Addressables/Input System；addressables 仅增适配和 SDK，all 按显式输入后端组合。旧单业务包安装参数返回迁移错误。SDK 与编辑器依赖以 profile 为准。
+
+以下为历史阶段说明及证据索引；旧包数量、版本和固定四宿主命令不作为当前任务要求。
 
 ## T2 contracts
 

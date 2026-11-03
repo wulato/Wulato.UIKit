@@ -31,7 +31,7 @@ def main():
     # Prepare-only deliberately returns nonzero. Require all four actual install records instead of ignoring the result.
     cli('build','--phase',phase,'--editor','all','--backend','all','--target','Android','--profile','smoke','--prepare-only')
     from build import latest_attempt,source_fingerprint,verify_files
-    for ver in run.VERSIONS:
+    for ver in __import__("editor_targets").editors("all"):
         for backend in ('legacy','input'):
             folder=latest_attempt(run.A/'install-checks',ver,backend,'Android','smoke',phase)
             try:

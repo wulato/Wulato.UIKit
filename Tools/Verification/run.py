@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Staged Unity verification runner: preflight and T2 runtime contracts."""
+import time
 import argparse, datetime, hashlib, json, os, plistlib, re, subprocess, sys, uuid
 from pathlib import Path
 from results import evaluate
 R=Path(__file__).resolve().parents[2]; V=R/'Verification'; A=R/'Artifacts/uikit'; C=Path(__file__).parent
-VERSIONS={'2022.3.62f2':('u2022','1.0.0','1.1.33'),'6000.3.22f1':('u6000','2.0.0','1.6.0')}
+from editor_targets import PROFILES, DEFAULT, editors
+VERSIONS={v:(p['host'],p['ugui'],p['testFramework']) for v,p in PROFILES.items()}
 COMMON='com.wulato.uikit.verification'
 from runtime import is_extension_package, EXTENSIONS
 def dump(p,v): p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2,ensure_ascii=False)+'\n')
@@ -12,8 +14,8 @@ def selected(args):
  if getattr(args,"consumer_hosts",None) is not None:
   yield from args.consumer_hosts
   return
- for ver,(short,_,_) in VERSIONS.items():
-  if args.editor not in ('all',ver):continue
+ for ver in editors(args.editor):
+  short,_,_=VERSIONS[ver]
   for backend in ('legacy','input'):
    if args.backend in ('all',backend):yield ver,backend,V/'Projects'/f'{short}-{backend}'
 def digest(files):
@@ -42,6 +44,7 @@ def fingerprint(host):
   files.extend(p for p in (host/folder).rglob('*') if p.is_file() and p.name!='.DS_Store')
  if (host/'AddressablesContent.json').is_file():files.append(host/'AddressablesContent.json')
  files+=list(C.glob('*.py'))+[C/'matrix.json']
+ if (C/'editors.json').exists():files.append(C/'editors.json')
  return digest(files)
 def snapshot(ver,backend,host):
  m=json.loads((host/'Packages/manifest.json').read_text());lock=json.loads((host/'Packages/packages-lock.json').read_text())
@@ -49,7 +52,7 @@ def snapshot(ver,backend,host):
  actual=(host/'ProjectSettings/ProjectVersion.txt').read_text().splitlines()[0].split(': ')[1]
  if actual!=ver:errors.append('editor-version:'+actual)
  if not re.search(r'activeInputHandler: '+str(0 if backend=='legacy' else 1)+r'\b',setting):errors.append('active-input-handler')
- for name,wanted in [('com.unity.ugui',VERSIONS[ver][1]),('com.unity.test-framework',VERSIONS[ver][2])]+([('com.unity.inputsystem','1.17.0')] if backend=='input' else []):
+ for name,wanted in [('com.unity.ugui',VERSIONS[ver][1]),('com.unity.test-framework',VERSIONS[ver][2])]+([('com.unity.inputsystem',PROFILES[ver]['inputSystem'])] if backend=='input' else []):
   if lock['dependencies'].get(name,{}).get('version')!=wanted:errors.append('resolved-version:'+name)
  if backend=='legacy' and 'com.unity.inputsystem' in lock['dependencies']: errors.append('legacy-installed-input-system')
  for name,value in m['dependencies'].items():
@@ -83,13 +86,16 @@ def verify_editor(exe,expected):
  if actual!=expected:raise ValueError('editor-override-mismatch: expected '+expected+', actual '+str(actual))
  return actual
 
+def timing_report(seconds,log,command):
+ return dict(command=command,editor_wall_seconds=seconds,reported_compile_ms=[float(v) for v in re.findall(r'compile time[=:]\s*([0-9.]+)\s*ms',log)],scope='editor wall time includes startup, compilation and requested work; compile samples are reported log observations, not isolated test duration')
+
 def unity(args,ver,host,out,test=False):
  exe=Path(args.editor_path) if args.editor_path else Path('/Applications/Unity/Hub/Editor')/ver/'Unity.app/Contents/MacOS/Unity'
  verify_editor(exe,ver)
  cmd=[str(exe),'-batchmode','-projectPath',str(host),'-logFile',str(out/'editor.log')]
  if test:cmd+=['-runTests','-testPlatform',args.mode,'-testResults',str(out/'results.xml')]+([] if args.suite=='all' else ['-testCategory',args.suite.replace('-','_')])
  else:cmd+=['-quit','-executeMethod',getattr(args,'execute_method','Wulato.UIKit.Verification.Editor.FixtureBuilder.Create')]
- dump(out/'command.json',cmd);env=os.environ.copy();env['UIKIT_EVIDENCE_DIR']=str(out)
+ dump(out/'command.json',cmd);env=os.environ.copy();env['UIKIT_EVIDENCE_DIR']=str(out);env['UIKIT_EXPECTED_UGUI']=PROFILES[ver]['ugui'];started=time.perf_counter()
  try:
   result=subprocess.run(cmd,env=env,timeout=args.timeout,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);rc=result.returncode;timeout=False
  except subprocess.TimeoutExpired as e:rc=-1;timeout=True
@@ -97,12 +103,14 @@ def unity(args,ver,host,out,test=False):
  # Unity emits license serials even during tests. Retain technical evidence without license material.
  log=re.sub(r'(Serial number assigned to: ).*',r'\1[REDACTED]',log)
  if (out/'editor.log').exists():(out/'editor.log').write_text(log)
+ dump(out/'timing.json',timing_report(time.perf_counter()-started,log,getattr(args,'command','tests' if test else 'prepare')))
  actual=re.search(r'(?:Unity Editor version:|Initialize engine version:)\s*(\d+\.\d+\.\w+)',log)
  return rc,timeout,log,actual.group(1) if actual else None
 
 def applicable_suites(matrix,manifest):
  optional={'samples','performance','performance-markers','flow-samples'}
  mapping={suite:package for package,suite in EXTENSIONS.items()}
+ mapping.update({suite:'com.wulato.uikit' for suite in ('navigation','presentation','dialogs','popup-queue')})
  mapping['addressables']='com.wulato.uikit.addressables'
  mapping['addressables-integration']='com.wulato.uikit.verification.addressables'
  mapping['addressables-runtime']='com.wulato.uikit.addressables'
@@ -140,7 +148,7 @@ def _run_locked(args):
     deps={'com.unity.ugui':ugui,'com.unity.test-framework':utf,COMMON:'file:../../../Packages/'+COMMON,
           **{'com.unity.modules.'+x:'1.0.0' for x in ['ui','imgui','physics','physics2d','jsonserialize']}}
     testables=[COMMON]
-    if backend=='input':deps['com.unity.inputsystem']='1.17.0'
+    if backend=='input':deps['com.unity.inputsystem']=PROFILES[ver]['inputSystem']
     if args.phase in ('p1','runtime','addressables'):
      package=COMMON+('.legacy' if backend=='legacy' else '.input-system')
      deps[package]='file:../../../Packages/'+package;testables.append(package)
@@ -206,14 +214,18 @@ def run(args):
 def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
  for name in ('prepare','tests'):
-  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
+  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
   if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime','addressables'],required=True)
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
  for name in ('codegen','check-generated','prepare-samples'):
-  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
+  q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.choices['prepare-samples'];q.add_argument('--quickstart-only',action='store_true',help='fresh isolated consumers, versioned QuickStart only, using the existing Unity runner and evidence verifier');q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
- q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='all');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
- q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default='all');q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
+ q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
+ sub.choices['play-reset'].add_argument('--scope',choices=['integration','context-host','preview'],default='integration')
+ sub.choices['play-reset'].add_argument('--reload-option',type=int,choices=range(4))
+ sub.choices['play-reset'].add_argument('--interactive',action='store_true')
+ sub.choices['play-reset'].add_argument('--preview-action',choices=['window','compile','cancel'],default='window')
+ q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')
  for name in ('build',):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2','phase3'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue','addressables'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')

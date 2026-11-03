@@ -1,7 +1,8 @@
 """Real Addressables bundle evidence, bound to the source and exact editor dependency matrix."""
 import hashlib,json
 from pathlib import Path
-VERSIONS={'2022.3.62f2':('1.21.21','1.21.25'),'6000.3.22f1':('2.9.1','2.6.1')}
+from editor_targets import PROFILES
+VERSIONS={v:(p['addressables'],p['sbp']) for v,p in PROFILES.items()}
 def source_fingerprint(host):
     import run
     files={}

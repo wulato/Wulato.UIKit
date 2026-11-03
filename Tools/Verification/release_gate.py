@@ -6,7 +6,7 @@ PHASE2_CASES=('NavigationPushBack','NavigationRollback','DialogTokenCancel','Pop
 PHASE2_ASSEMBLIES={'Wulato.UIKit.'+name+'.dll' for name in ('Navigation','Dialogs','Presentation','PopupQueue')}
 def combinations():
     from run import VERSIONS
-    return [(v,b,t) for v in VERSIONS for b in ('legacy','input') for t in ('Android','iOS')]
+    return [(v,b,t) for v in __import__("editor_targets").editors("all") for b in ('legacy','input') for t in ('Android','iOS')]
 def assess_mobile(report,build_id,fingerprint,phase="phase1"):
     errors=[]
     for key,wanted,label in [('status','PASS','status'),('build_id',build_id,'build-id'),('fingerprint',fingerprint,'fingerprint'),('profile','smoke','profile'),('architecture','ARM64','architecture'),('scripting_backend','IL2CPP','scripting-backend'),('physical_device',True,'physical-device')]:
@@ -56,7 +56,8 @@ def release(root,phase="phase1"):
         with guard(run.A,shared=True):
             records,registration_errors=registered(run.A)
             matrix=json.loads((run.C/'matrix.json').read_text())
-            for ver,(short,_,_) in run.VERSIONS.items():
+            for ver in __import__("editor_targets").editors("all"):
+                short,_,_=run.VERSIONS[ver]
                 for backend in ('legacy','input'):
                     snap=run.snapshot(ver,backend,run.V/'Projects'/f'{short}-{backend}')
                     for mode in ('EditMode','PlayMode'):
@@ -64,7 +65,7 @@ def release(root,phase="phase1"):
                         errors=list(registration_errors)+snap['errors'];folder=None
                         if phase=='phase2':
                             from runtime import FLOW_EXTENSIONS as EXTENSIONS
-                            if not set(EXTENSIONS).issubset(snap['manifest']['dependencies']):errors.append('missing-phase2-packages')
+                            if "com.wulato.uikit" not in snap['manifest']['dependencies']:errors.append('missing-phase2-packages')
                             expected=set(EXTENSIONS.values()) if mode=='EditMode' else {'flow-integration','flow-samples'}
                             if any(not matrix[ver][backend][mode].get(suite) for suite in expected):errors.append('missing-phase2-suites')
                         if not found:errors.append('missing-full-suite')
@@ -109,8 +110,8 @@ def release(root,phase="phase1"):
             else:
                 try:
                     rows=json.loads(paths[-1].read_text())
-                    expected={(v,b,o) for v in run.VERSIONS for b in ('legacy','input') for o in range(4)}
-                    if len(rows)!=16 or {(r['editor'],r['backend'],r['option']) for r in rows}!=expected:reload_errors.append('incomplete-reload-matrix')
+                    expected={(v,b,o) for v in __import__('editor_targets').editors('all') for b in ('legacy','input') for o in range(4)}
+                    if len(rows)!=len(expected) or {(r['editor'],r['backend'],r['option']) for r in rows}!=expected:reload_errors.append('incomplete-reload-matrix')
                     for row in rows:
                         folder=Path(row['evidence']);ver=row['editor'];backend=row['backend'];snap=run.snapshot(ver,backend,run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}')
                         if row['status']!='PASS' or row['fingerprint']!=snap['fingerprint']:reload_errors.append('stale-or-failed-reload')
@@ -120,7 +121,7 @@ def release(root,phase="phase1"):
                         reload_errors+=validate_report(json.loads((folder/'play-reset.json').read_text()),row['option'])+validate_automatic_reports(folder)
                 except (OSError,ValueError,KeyError,TypeError) as e:reload_errors.append('invalid-reload:'+str(e))
             items.append(dict(kind='Reload',status='FAIL' if reload_errors else 'PASS',errors=reload_errors,evidence=str(paths[-1]) if paths else None))
-            for ver in run.VERSIONS:
+            for ver in __import__("editor_targets").editors("all"):
                 for backend in ('legacy','input'):
                     folder=latest_attempt(run.A/'install-checks',ver,backend,'Android','smoke',phase);errors=[]
                     if folder is None:errors=['missing-clean-git-install']
@@ -129,7 +130,7 @@ def release(root,phase="phase1"):
                             r=json.loads((folder/'summary.json').read_text());errors+=verify_files(folder,r)
                             if r.get('install_status')!='PASS' or not r.get('generation_compiled') or r.get('fingerprint')!=fingerprint or r.get('source_after')!=fingerprint:errors.append('stale-or-uncompiled-git-install')
                             dependencies=json.loads((folder/'packages-lock.json').read_text())['dependencies']
-                            names=['com.wulato.uikit']+(['com.wulato.uikit.input-system'] if backend=='input' else [])+(list(__import__('runtime').FLOW_EXTENSIONS) if phase=='phase2' else [])
+                            names=['com.wulato.uikit']+(['com.wulato.uikit.input-system'] if backend=='input' else [])
                             for name in names:
                                 if dependencies[name].get('source')!='git' or r['git_revision'] not in dependencies[name].get('version',''):errors.append('unpinned-install:'+name)
                         except (OSError,ValueError,KeyError,TypeError) as e:errors.append('invalid-install:'+str(e))

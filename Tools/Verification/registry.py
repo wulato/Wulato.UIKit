@@ -1,5 +1,6 @@
 """Independent batch inventory keeps an attempt discoverable when its directory/run.json disappears."""
 import datetime
+import re
 import json
 from pathlib import Path
 from evidence import sha256
@@ -32,7 +33,7 @@ def validate_inventory(path):
         if folder in seen:raise ValueError('duplicate-attempt-folder')
         seen.add(folder)
         if item['run_id']!=inventory['batch_id']+'/'+folder:raise ValueError('inventory-run-id')
-        if item.get('editor') not in ('2022.3.62f2','6000.3.22f1') or item.get('backend') not in ('legacy','input'):raise ValueError('inventory-host')
+        if not re.fullmatch(r'\d+\.\d+\.\d+[abfp]\d+(?:c\d+)?',str(item.get('editor',''))) or item.get('backend') not in ('legacy','input'):raise ValueError('inventory-host')
         if inventory['command']=='tests' and (item.get('mode') not in ('PlayMode','EditMode') or not isinstance(item.get('suite'),str)):raise ValueError('inventory-test-selector')
     return inventory
 

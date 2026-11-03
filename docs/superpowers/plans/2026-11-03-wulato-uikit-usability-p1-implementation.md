@@ -1,5 +1,7 @@
 # Wulato.UIKit P1 易用性改进实施计划
 
+> **Superseded（实施任务）**：后续工作仅执行 [Master Optimization Plan](2026-11-03-wulato-uikit-master-optimization.md)。已完成成果、历史记录及其行为契约保留。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: 使用 superpowers:executing-plans，由当前 Agent 连续实施；不启动子代理，最后集中自审一次。用复选框记录实际进度，不自动提交、推送或发布。
 
 **Goal:** 先用 Context 宿主降低装配成本，再通过工作台隔离运行单个已注册界面，并保留现有运行时契约。

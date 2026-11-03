@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+Integrated business modules; optional adapters remain separate. Context Host and Editor preview are tracked by the master optimization plan.
+
 ## 0.3.0
 
 - Require core 0.3.0; retain Input System 1.17.0 and existing input behavior.

@@ -1,6 +1,6 @@
 # Addressables 接入与所有权
 
-独立可选包 `com.wulato.uikit.addressables` 0.1.0，最低核心 0.3.0、UniTask 2.5.11、Addressables 1.21.21。宿主显式固定相同 Git commit 的主包与扩展；包内数字依赖不代替宿主 Git URL。验证矩阵：2022.3.62f2 使用 Addressables 1.21.21 / SBP 1.21.25；6000.3.22f1 使用 Addressables 2.9.1 / SBP 2.6.1。主包、Input System 和其他业务扩展不强制安装本包。
+独立可选包 `com.wulato.uikit.addressables` 0.2.0，最低核心 0.4.0、UniTask 2.5.11、Addressables 1.21.21。宿主显式固定相同 Git commit 的主包与扩展；包内数字依赖不代替宿主 Git URL。已知兼容配置（非固定验收矩阵）：2022.3.62f2 使用 Addressables 1.21.21 / SBP 1.21.25；6000.3.22f1 使用 Addressables 2.9.1 / SBP 2.6.1。开发默认使用 2022.3.62f2；其他编辑器按明确兼容目标验证。主包内含的业务模块和 Input System 不强制安装本包。
 
 ```csharp
 builder.Add<InventoryView,int>(new UIViewTypeKey("inventory"),

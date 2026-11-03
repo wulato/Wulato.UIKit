@@ -1,3 +1,4 @@
+from editor_targets import PROFILES
 """Import consumer samples before mounting their optional acceptance assembly."""
 import datetime,json,re,shutil,uuid
 from pathlib import Path
@@ -73,7 +74,7 @@ def sample_sources(root,host):
     from runtime import FLOW_EXTENSIONS
     sources=[root/"Packages/com.wulato.uikit/Samples~"/name for name in NAMES]
     dependencies=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
-    if all(name in dependencies for name in FLOW_EXTENSIONS):sources.append(root/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow')
+    if 'com.wulato.uikit' in dependencies:sources.append(root/'Packages/com.wulato.uikit/Samples~/BusinessFlow')
     if 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
     return sources
 
@@ -85,7 +86,7 @@ def quickstart_manifest(ver,backend):
           'com.unity.ugui':run.VERSIONS[ver][1],'com.unity.test-framework':run.VERSIONS[ver][2],
           package:'file:'+str(run.V/'Packages'/package),
           **{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
-    if backend=='input':deps.update({'com.unity.inputsystem':'1.17.0','com.wulato.uikit.input-system':'file:'+str(run.R/'Packages/com.wulato.uikit.input-system')})
+    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem'],'com.wulato.uikit.input-system':'file:'+str(run.R/'Packages/com.wulato.uikit.input-system')})
     return dict(dependencies=deps,testables=['com.wulato.uikit',package]+(['com.wulato.uikit.input-system'] if backend=='input' else []))
 
 def prepare_quickstart(args):

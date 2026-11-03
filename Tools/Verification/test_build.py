@@ -87,17 +87,17 @@ class PhaseTwoConsumerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             host=Path(folder)/'consumer';prepare_consumer(host,'2022.3.62f2','legacy',run.R,'b'*40,'clean',phase='phase2')
             manifest=json.loads((host/'Packages/manifest.json').read_text())
-            for name in EXTENSIONS:self.assertIn('#'+'b'*40,manifest['dependencies'][name])
+            self.assertIn('#'+'b'*40,manifest['dependencies']['com.wulato.uikit'])
+            self.assertFalse(set(EXTENSIONS)&set(manifest['dependencies']))
             self.assertTrue((host/'Assets/Samples/Wulato UIKit/BusinessFlow/BusinessFlowDemo.cs').exists())
             self.assertNotIn('testables',manifest)
-    def test_single_extension_install_does_not_pull_other_extensions_or_combination_sample(self):
+    def test_removed_extension_install_requires_explicit_migration(self):
         import run
-        from runtime import EXTENSIONS
         with tempfile.TemporaryDirectory() as folder:
-            host=Path(folder)/'consumer';prepare_consumer(host,'2022.3.62f2','legacy',run.R,'c'*40,'clean',phase='phase2',package_set='navigation')
-            manifest=json.loads((host/'Packages/manifest.json').read_text())
-            self.assertEqual({'com.wulato.uikit.navigation'},set(EXTENSIONS)&set(manifest['dependencies']))
-            self.assertFalse((host/'Assets/Samples/Wulato UIKit/BusinessFlow').exists())
+            host=Path(folder)/'consumer'
+            with self.assertRaisesRegex(ValueError,'migration'):
+                prepare_consumer(host,'2022.3.62f2','legacy',run.R,'c'*40,'clean',phase='phase2',package_set='navigation')
+            self.assertFalse(host.exists())
 
 class PhaseThreeConsumerTests(unittest.TestCase):
     def test_main_install_does_not_pull_addressables(self):

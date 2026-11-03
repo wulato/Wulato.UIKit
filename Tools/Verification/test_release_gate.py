@@ -7,7 +7,12 @@ class ReleaseGateTests(unittest.TestCase):
         return dict(status='PASS',build_id='build',fingerprint='current',editor='2022.3.62f2',backend='legacy',target='Android',profile='smoke',architecture='ARM64',scripting_backend='IL2CPP',compiled=True,installed=True,launched=True,device='physical',physical_device=True,cases=[dict(name=n,status='PASS') for n in MOBILE_CASES])
     def check(self,r):return assess_mobile(r,'build','current')
     def test_valid_physical_report(self):self.assertEqual([],self.check(self.report()))
-    def test_full_eight_combinations(self):self.assertEqual(8,len(combinations()))
+    def test_combinations_follow_explicit_targets(self):
+        from unittest.mock import patch
+        import editor_targets
+        self.assertEqual(4*len(editor_targets.TARGETS),len(combinations()))
+        with patch.object(editor_targets,'TARGETS',['2022.3.62f2','6000.3.22f1']):
+            self.assertEqual(8,len(combinations()))
     def test_wrong_build_id(self):
         r=self.report();r['build_id']='old';self.assertIn('build-id',self.check(r))
     def test_old_fingerprint(self):

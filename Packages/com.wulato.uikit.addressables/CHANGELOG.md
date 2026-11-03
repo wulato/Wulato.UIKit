@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+Integrated business modules; optional adapters remain separate. Context Host and Editor preview are tracked by the master optimization plan.
+
 ## 0.1.0
 
 - Explicit External descriptors, inactive Addressables loading and lease-owned handles.

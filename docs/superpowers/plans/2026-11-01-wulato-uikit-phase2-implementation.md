@@ -1,5 +1,7 @@
 # Wulato.UIKit 第二阶段执行计划
 
+> **Superseded（实施任务）**：后续工作仅执行 [Master Optimization Plan](2026-11-03-wulato-uikit-master-optimization.md)。已完成成果、历史记录及其行为契约保留。
+
 > 使用 `superpowers:executing-plans`，当前 Agent 连续执行；最新版 AGENTS.md 优先。不启用子代理，不逐任务多轮审查，不自动创建 worktree。
 
 **授权：** 用户于 2026-11-01 明确授权执行审查修订计划 P0–P8，包括契约/版本变更和最终发布验收；不授权推送、合并、tag、发布或启用远端 CI。

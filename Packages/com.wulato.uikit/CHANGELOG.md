@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+Integrated Navigation, Presentation, Dialogs and PopupQueue without renaming assemblies or types. Added optional UIContextHost composition, Workbench host installation and isolated PlayMode preview with explicit adapters and scene recovery. Optional SDK adapters remain separate; see Documentation~/Migration-0.4.md.
+
 ## 0.3.0
 
 - Add generic External asset descriptors and explicit marker/codegen support without optional backend dependencies.

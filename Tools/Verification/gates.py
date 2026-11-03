@@ -21,7 +21,9 @@ def _preflight_locked(root):
     from run import VERSIONS,V,A,C,snapshot,dump
     matrix=json.loads((C/'matrix.json').read_text());items=[]
     records,registration_errors=registered(A)
-    for ver,(short,_,_) in VERSIONS.items():
+    from editor_targets import editors
+    for ver in editors("all"):
+        short,_,_=VERSIONS[ver]
         for backend in ('legacy','input'):
             host=V/'Projects'/f'{short}-{backend}'
             try:

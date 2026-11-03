@@ -1,6 +1,6 @@
 {
   "name": "com.wulato.uikit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "displayName": "Wulato UIKit",
   "unity": "2022.3",
   "unityRelease": "62f2",
@@ -23,6 +23,11 @@
       "displayName": "Inventory",
       "description": "Typed arguments, ordinary ScrollRect and CacheOne",
       "path": "Samples~/Inventory"
+    },
+    {
+      "displayName": "BusinessFlow",
+      "description": "Navigation, dialogs, popup queue and per-session presenters",
+      "path": "Samples~/BusinessFlow"
     }
   ]
 }

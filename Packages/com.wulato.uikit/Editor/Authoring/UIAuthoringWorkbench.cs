@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Cysharp.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +10,7 @@ namespace Wulato.UIKit.Editor.Authoring
     internal sealed class UIAuthoringWorkbench : EditorWindow
     {
         [SerializeField] int tab;
+        [SerializeField] UIPreviewProfile previewProfile;
         [SerializeField] UIRoot root;
         [SerializeField] UIRegistry registry;
         [SerializeField] EventSystem events;
@@ -24,7 +26,8 @@ namespace Wulato.UIKit.Editor.Authoring
         public static void Open()=>GetWindow<UIAuthoringWorkbench>("UIKit Workbench");
         void OnEnable(){minSize=new Vector2(720,440);EditorApplication.update+=Refresh;if(registry==null)registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(UICodegenPipeline.RegistryPath);}
         void OnDisable(){EditorApplication.update-=Refresh;}
-        void Refresh(){if(UIAuthoringOperation.Busy)Repaint();}
+        void OnDestroy(){if(UIPreviewController.Active&&EditorApplication.isPlayingOrWillChangePlaymode)UIPreviewController.StopAsync().Forget(UIPreviewController.Report);}
+        void Refresh(){if(UIAuthoringOperation.Busy||UIPreviewController.Active)Repaint();}
         Type Driver=>driverScript==null?typeof(LegacyUIInputDriver):driverScript.GetClass();
         void Run(Action action)
         {
@@ -33,9 +36,10 @@ namespace Wulato.UIKit.Editor.Authoring
         }
         void OnGUI()
         {
-            tab=GUILayout.Toolbar(tab,new[]{"场景","界面","生成","样例"});scroll=EditorGUILayout.BeginScrollView(scroll);
+            tab=GUILayout.Toolbar(tab,new[]{"场景","界面","生成","样例","预览"});scroll=EditorGUILayout.BeginScrollView(scroll);
             EditorGUILayout.Space();
-            using(new EditorGUI.DisabledScope(UIAuthoringOperation.Busy||EditorApplication.isCompiling||EditorApplication.isPlayingOrWillChangePlaymode))
+            if(tab==4){try{UIPreviewPage.Draw(ref previewProfile);}catch(Exception e){UIPreviewController.Report(e);}}
+            else using(new EditorGUI.DisabledScope(UIPreviewController.Active||UIAuthoringOperation.Busy||EditorApplication.isCompiling||EditorApplication.isPlayingOrWillChangePlaymode))
             {switch(tab){case 0:DrawScene();break;case 1:DrawView();break;case 2:DrawGeneration();break;case 3:DrawSamples();break;}}
             EditorGUILayout.Space();EditorGUILayout.HelpBox(UIAuthoringOperation.Describe(),UIAuthoringOperation.Current.status=="失败"?MessageType.Error:MessageType.Info);
             if(!string.IsNullOrEmpty(UIAuthoringOperation.Current.asset)&&GUILayout.Button("定位关联资产"))
@@ -60,7 +64,8 @@ namespace Wulato.UIKit.Editor.Authoring
                 root=UISceneAuthoring.Apply(SceneManager.GetActiveScene(),root,registry,events,Driver);
                 EditorGUIUtility.PingObject(root);
             });
-            EditorGUILayout.HelpBox("本页不创建运行时 Context。在业务初始化中持有返回的 IUIContext，Root 销毁仍按既有清理路径处理。",MessageType.Info);
+            EditorGUILayout.HelpBox("配置场景后可显式安装宿主；已有业务启动脚本时勿重复装配。每个 Root 只能有一个装配者。",MessageType.Info);
+            if(GUILayout.Button("安装/更新 Context 宿主（支持 Undo）"))Run(()=>EditorGUIUtility.PingObject(UIContextHostAuthoring.Apply(root,registry)));
             EditorGUILayout.SelectableLabel("IUIContext ui = new UIContextBuilder(root, registry).Build();\nIUISession<SettingsView> session = await ui.OpenAsync<SettingsView>();",GUILayout.Height(42));
         }
         internal void SelectPrefab(GameObject selected)

@@ -1,5 +1,7 @@
 # Wulato.UIKit 第三阶段实施计划：Addressables 首批适配
 
+> **Superseded（实施任务）**：后续工作仅执行 [Master Optimization Plan](2026-11-03-wulato-uikit-master-optimization.md)。已完成成果、历史记录及其行为契约保留。
+
 > 使用 superpowers:executing-plans；当前 Agent 连续执行，集中自审一次，不启动子代理，不自动创建 worktree。2026-11-02 用户已明确授权执行 P0–P7，包括以下公共契约及版本变更；不授权推送、合并、tag、发布或远端 CI。
 
 **Spec：** ../specs/2026-10-31-wulato-uikit-design.md §3、7.1、9、11、12。

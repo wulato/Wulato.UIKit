@@ -34,19 +34,20 @@ jobs:
       - name: Python verifier regression
         if: inputs.full || steps.scope.outputs.tools == 'true'
         run: python3 -m unittest discover -s Tools/Verification -p 'test_*.py'
-      - name: Prepare clean generated consumers
-        if: inputs.full || steps.scope.outputs.count != '0'
+      - name: Prepare only selected consumers
+        if: ${{ !inputs.full && steps.scope.outputs.count != '0' }}
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --prepare
+      - name: Prepare explicit full targets
+        if: inputs.full
         run: |
           python3 Tools/Verification/run.py prepare --phase runtime --editor all --backend all
           python3 Tools/Verification/run.py codegen --editor all --backend all
           python3 Tools/Verification/run.py prepare-samples --editor all --backend all
           python3 Tools/Verification/run.py check-generated --editor all --backend all
-      - name: Prepare real Addressables bundles
-        if: inputs.full || steps.scope.outputs.content == 'true'
-        run: python3 Tools/Verification/run.py prepare --phase addressables --editor all --backend all
-      - name: Compile API probes
-        if: inputs.full || steps.scope.outputs.probe == 'true'
-        run: python3 Tools/Verification/run.py compile-probe --editor all
+          python3 Tools/Verification/run.py prepare --phase addressables --editor all --backend all
+          python3 Tools/Verification/run.py compile-probe --editor all
       - name: Affected module suites
         if: ${{ !inputs.full && steps.scope.outputs.count != '0' }}
         env:

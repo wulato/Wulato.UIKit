@@ -17,6 +17,8 @@ namespace Wulato.UIKit.Verification.Editor
         }
         public static void Run()
         {
+            if(Environment.GetEnvironmentVariable("UIKIT_RESET_SCOPE")=="preview")
+            {Type.GetType("Wulato.UIKit.Tests.Preview.PreviewEditorCheck, Wulato.UIKit.Tests.Preview",true).GetMethod("Run").Invoke(null,null);return;}
             SessionState.SetBool(Key+"active",true);SessionState.SetInt(Key+"step",0);
             SessionState.SetString(Key+"out",Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR"));
             SessionState.SetString(Key+"option",Environment.GetEnvironmentVariable("UIKIT_RESET_OPTIONS"));
@@ -24,12 +26,21 @@ namespace Wulato.UIKit.Verification.Editor
             SessionState.SetInt(Key+"originalOptions",(int)EditorSettings.enterPlayModeOptions);
             var option=int.Parse(SessionState.GetString(Key+"option","0"));
             EditorSettings.enterPlayModeOptionsEnabled=true;EditorSettings.enterPlayModeOptions=(EnterPlayModeOptions)option;
+            SessionState.SetString(Key+"scope",Environment.GetEnvironmentVariable("UIKIT_RESET_SCOPE")??"integration");
+            if(SessionState.GetString(Key+"scope","")=="context-host")HostFixture("Prepare");
             EditorApplication.EnterPlaymode();
         }
         static void Invoke(string method)
         {
-            var type=Type.GetType("Wulato.UIKit.Tests.PlayMode.IntegrationResetProbe, Wulato.UIKit.Tests.PlayMode",true);
+            var name=SessionState.GetString(Key+"scope","integration")=="context-host"?"ContextHostResetProbe":"IntegrationResetProbe";
+            var type=Type.GetType("Wulato.UIKit.Tests.PlayMode."+name+", Wulato.UIKit.Tests.PlayMode",true);
             type.GetMethod(method,BindingFlags.Public|BindingFlags.Static).Invoke(null,null);
+        }
+        static void HostFixture(string method)=>Type.GetType("Wulato.UIKit.Tests.Preview.ContextHostResetFixture, Wulato.UIKit.Tests.Preview",true).GetMethod(method).Invoke(null,null);
+        static bool Ready()
+        {
+            if(SessionState.GetString(Key+"scope","")!="context-host")return true;
+            return (bool)Type.GetType("Wulato.UIKit.Tests.PlayMode.ContextHostResetProbe, Wulato.UIKit.Tests.PlayMode",true).GetMethod("Ready").Invoke(null,null);
         }
         static void Tick()
         {
@@ -37,7 +48,7 @@ namespace Wulato.UIKit.Verification.Editor
             var step=SessionState.GetInt(Key+"step",0);
             try {
                 if(EditorApplication.isPlaying&&!EditorApplication.isPlayingOrWillChangePlaymode)return;
-                if(EditorApplication.isPlaying && step%2==0){Environment.SetEnvironmentVariable("UIKIT_RESET_CYCLE",(step/2).ToString());Invoke("Enter");Invoke("ArmExit");SessionState.SetInt(Key+"step",step+1);EditorApplication.ExitPlaymode();}
+                if(EditorApplication.isPlaying && step%2==0&&Ready()){Environment.SetEnvironmentVariable("UIKIT_RESET_CYCLE",(step/2).ToString());Invoke("Enter");Invoke("ArmExit");SessionState.SetInt(Key+"step",step+1);EditorApplication.ExitPlaymode();}
             }catch(Exception e){Fail(e);}
         }
         static void Changed(PlayModeStateChange state)
@@ -56,6 +67,7 @@ namespace Wulato.UIKit.Verification.Editor
         static void Restore()
         {
             SessionState.SetBool(Key+"active",false);
+            if(SessionState.GetString(Key+"scope","")=="context-host")HostFixture("Restore");
             EditorSettings.enterPlayModeOptionsEnabled=SessionState.GetBool(Key+"originalEnabled",false);
             EditorSettings.enterPlayModeOptions=(EnterPlayModeOptions)SessionState.GetInt(Key+"originalOptions",0);
         }

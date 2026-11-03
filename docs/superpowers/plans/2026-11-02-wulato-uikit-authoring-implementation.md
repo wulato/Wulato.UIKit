@@ -1,5 +1,7 @@
 # Wulato.UIKit P0 易用性改进实施计划
 
+> **Superseded（实施任务）**：后续工作仅执行 [Master Optimization Plan](2026-11-03-wulato-uikit-master-optimization.md)。已完成成果、历史记录及其行为契约保留。
+
 > 使用 superpowers:executing-plans，由当前 Agent 连续执行、集中自审，不启动子代理、不创建 worktree、不提交或发布。授权依据：本次用户完整批准的 P0 计划。
 
 **目标：** 统一 Editor 工作台完成场景、界面、生成、样例配置；不改变运行时契约。

@@ -44,3 +44,9 @@ class PlayResetTests(unittest.TestCase):
             for name in names:self.assertEqual(files[name],sha256(out/name))
             (out/names[0]).write_text('{"tampered":true}')
             self.assertNotEqual(files[names[0]],sha256(out/names[0]))
+
+    def test_host_reload_scope_uses_only_requested_options(self):
+        from play_reset import reload_options
+        self.assertEqual([0,1,2,3],reload_options('context-host','legacy'))
+        self.assertEqual([0,3],reload_options('context-host','input'))
+        self.assertEqual([0,1,2,3],reload_options('integration','input'))

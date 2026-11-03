@@ -1,10 +1,10 @@
 # 从空项目接入
 
-主包当前版本 0.3.0。推荐先跑通一个 Settings 页面，再阅读 [生命周期](Lifecycle.md) 和 [取消与错误](CancellationAndErrors.md)。本页不代表移动端或完整发布验收通过。
+主包当前版本 0.4.0。推荐先跑通一个 Settings 页面，再阅读 [生命周期](Lifecycle.md) 和 [取消与错误](CancellationAndErrors.md)。本页不代表移动端或完整发布验收通过。
 
 ## 1. 安装主包与输入后端
 
-使用 Unity **2022.3.62f2** 或 **6000.3.22f1**。在宿主 manifest 中显式锁定 uGUI：2022 使用 1.0.0，Unity 6 使用 2.0.0。UniTask 固定为：
+开发默认使用 Unity **2022.3.62f2**，不固定额外验证版本。其他编辑器按兼容目标显式配置依赖和验证，不自动切换项目版本。默认宿主显式锁定 uGUI 1.0.0；已有 Unity 6 兼容 profile 使用 2.0.0，但不是本轮默认验收要求。UniTask 固定为：
 
 ```json
 "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11"
@@ -55,3 +55,18 @@ await ui.ShutdownAsync();
 SettingsView 为你自己创建的无参 View 类型。带参使用 `OpenAsync<TView, TArgs>(args, cancellationToken)`。业务自行持有 Root/Registry 引用，不需要全局单例。
 
 所有操作从主线程提交；普通 UniTask 只 await 一次。不要在 View 钩子中等待同一 Context 的下一条普通命令。Session 句柄仅控制本次打开，不暴露缓存 View。更多配置见 [扩展接入](Extensions.md)。
+
+## Inspector 宿主接入
+
+工作台“场景”页配置 Root、Registry 和明确输入驱动后，使用“安装/更新 Context 宿主”。也可手工添加 UIContextHost 并在 Inspector 指定引用，默认在 Start 装配。不要同时保留同 Root 的旧业务启动器。
+
+```csharp
+IUIContext ui = host.Initialize();
+var session = await ui.OpenAsync<SettingsView>();
+await session.CloseAsync();
+await host.ShutdownAsync();
+```
+
+需要 configure 注入时，在自动 Start 前（例如业务 Awake）调用 Initialize，或关闭 Initialize On Start。成功后再次无参调用返回同一 Context；再次传 configure 会拒绝。Build 失败可修复后显式重试，Shutdown 后不可重启同一宿主。禁用组件不关闭，销毁/退出 PlayMode 请求有界关闭；不接管外部共享依赖。原手动 Builder 路径继续有效。
+
+[0.4 迁移](Migration-0.4.md) · [独立预览](Preview.md)

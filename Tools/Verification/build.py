@@ -1,3 +1,4 @@
+from editor_targets import PROFILES
 """Pinned Git consumer installation and staged ARM64/IL2CPP builds."""
 import datetime,hashlib,json,os,re,shutil,subprocess,uuid
 from pathlib import Path
@@ -37,7 +38,7 @@ def source_fingerprint():
     files=[p for base in (run.R/'Packages/com.wulato.uikit',run.R/'Packages/com.wulato.uikit.input-system',run.V/'Packages') for p in base.rglob('*') if p.is_file() and p.name!='.DS_Store']
     from runtime import EXTENSIONS
     files += [p for name in EXTENSIONS for p in (run.R/'Packages'/name).rglob('*') if p.is_file() and p.name!='.DS_Store']
-    files+=list((run.R/'.github/workflows').glob('uikit-*.yml'))+list(run.C.glob('*.py'))+[run.C/'matrix.json',run.R/'docs/superpowers/specs/2026-10-31-wulato-uikit-design.md']
+    files+=list((run.R/'.github/workflows').glob('uikit-*.yml'))+list(run.C.glob('*.py'))+[run.C/'matrix.json',run.C/'editors.json',run.R/'docs/superpowers/specs/2026-10-31-wulato-uikit-design.md']
     return run.digest(files)
 
 def file_index(folder,exclude=()):
@@ -75,11 +76,12 @@ def git_source(folder):
 def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",package_set="all"):
     import run
     from runtime import UNITASK
+    if package_set in ('navigation','dialogs','presentation','popup-queue'):raise ValueError('Package migration: use main, addressables or all.')
     host.mkdir();(host/'Packages').mkdir();(host/'Assets').mkdir()
     original=run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}'
     shutil.copytree(original/'ProjectSettings',host/'ProjectSettings')
     deps={'com.wulato.uikit':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit#'+revision,'com.cysharp.unitask':UNITASK,'com.unity.ugui':run.VERSIONS[ver][1],**{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
-    if backend=='input':deps.update({'com.unity.inputsystem':'1.17.0','com.wulato.uikit.input-system':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit.input-system#'+revision})
+    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem'],'com.wulato.uikit.input-system':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit.input-system#'+revision})
     from runtime import EXTENSIONS
     selected=selected_packages(phase,package_set)
     for name in selected:deps[name]='git+'+source.as_uri()+'?path=Packages/'+name+'#'+revision
@@ -96,19 +98,14 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         data=json.loads(definition.read_text());data.pop('defineConstraints',None)
         if phase=='phase2':
             data['references']+=['Wulato.UIKit.Navigation','Wulato.UIKit.Dialogs','Wulato.UIKit.Presentation','Wulato.UIKit.PopupQueue','Wulato.UIKit.Samples.BusinessFlow']
-            data['versionDefines']=[dict(name='com.wulato.uikit.navigation',expression='0.1.0',define='UIKIT_PHASE2_SMOKE')]
+            data['versionDefines']=[dict(name='com.wulato.uikit',expression='0.4.0',define='UIKIT_PHASE2_SMOKE')]
         run.dump(definition,data)
         editor=host/'Assets/UIKitMobileSmoke/Editor';editor.mkdir()
         body=(run.V/'Packages/com.wulato.uikit.acceptance/Editor/MobileSmokeSceneBuilder.cs').read_text().replace('#if UIKIT_MOBILE_SMOKE','').replace('#endif','')
         (editor/'MobileSmokeSceneBuilder.cs').write_text(body)
         run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
-    if phase in ('phase2','phase3') and package_set=='all':shutil.copytree(source/'Packages/com.wulato.uikit.navigation/Samples~/BusinessFlow',host/'Assets/Samples/Wulato UIKit/BusinessFlow')
-    if phase=='phase2' and package_set not in ('all','main'):
-        assembly={'navigation':'Navigation','dialogs':'Dialogs','presentation':'Presentation','popup-queue':'PopupQueue'}[package_set]
-        probe=host/'Assets/ExtensionCompileProbe';probe.mkdir()
-        run.dump(probe/'ExtensionCompileProbe.asmdef',dict(name='UIKit.ExtensionConsumer',references=['Wulato.UIKit.Core','Wulato.UIKit.'+assembly]))
-        (probe/'Probe.cs').write_text('public static class ExtensionCompileProbe { public static System.Type Contract => typeof(Wulato.UIKit.'+assembly+'.'+{'navigation':'IUINavigator','dialogs':'IUIDialogs','presentation':'IPresenterFactory','popup-queue':'IUIPopupQueue'}[package_set]+'); }\n')
+    if phase in ('phase2','phase3') and package_set=='all':shutil.copytree(source/'Packages/com.wulato.uikit/Samples~/BusinessFlow',host/'Assets/Samples/Wulato UIKit/BusinessFlow')
     if 'com.wulato.uikit.addressables' in selected:
         shutil.copytree(source/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory',host/'Assets/Samples/Wulato UIKit/LocalInventory')
         probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
@@ -196,6 +193,7 @@ def run_build(args):
 
 def validate_build_scope(args):
     phase=getattr(args,'phase','phase1');scope=getattr(args,'package_set','all')
+    if scope in ('navigation','dialogs','presentation','popup-queue'):return ['Package migration: business modules are included in main; remove old package references.']
     if phase=='phase3':
         return [] if args.profile=='clean' and args.prepare_only and scope in ('main','addressables','all') else ['phase3 requires clean prepare-only and main/addressables/all']
     if scope=='addressables' or (scope!='all' and (phase!='phase2' or not args.prepare_only or args.profile!='clean')):return ['single-package scope requires phase2 clean prepare-only']
@@ -203,7 +201,7 @@ def validate_build_scope(args):
 
 def selected_packages(phase,scope):
     from runtime import EXTENSIONS,FLOW_EXTENSIONS
-    choices=EXTENSIONS if phase=='phase3' else FLOW_EXTENSIONS if phase=='phase2' else {}
+    choices=EXTENSIONS if phase=='phase3' else {}
     return [name for name,suite in choices.items() if scope=='all' or scope==suite]
 
 def validate_phase3_install(folder,editor,backend,scope,revision):
@@ -213,7 +211,7 @@ def validate_phase3_install(folder,editor,backend,scope,revision):
     packages={p['name']:p for p in report['packages']}
     expected=set(selected_packages('phase3',scope))
     if set(EXTENSIONS)&set(packages)!=expected:raise ValueError('phase3-package-isolation')
-    if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.3.0':raise ValueError('phase3-installed-baseline')
+    if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.4.0':raise ValueError('phase3-installed-baseline')
     for name in expected:
         if packages[name].get('source')!='Git':raise ValueError('phase3-non-git-package:'+name)
     if scope=='main':
