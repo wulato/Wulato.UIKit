@@ -103,6 +103,20 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.addressables": {
+      "version": "1.22.3",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.scriptablebuildpipeline": "1.21.25",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.burst": {
       "version": "1.8.21",
       "depth": 3,
@@ -170,8 +184,24 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.unity.inputsystem": {
+      "version": "1.17.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.mathematics": {
       "version": "1.2.6",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "1.21.25",
       "depth": 2,
       "source": "registry",
       "dependencies": {},
@@ -234,6 +264,61 @@
       "source": "embedded",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.addressables": {
+      "version": "file:com.wulato.uikit.addressables",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11",
+        "com.unity.addressables": "1.21.21"
+      }
+    },
+    "com.wulato.uikit.dialogs": {
+      "version": "file:com.wulato.uikit.dialogs",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.input-system": {
+      "version": "file:com.wulato.uikit.input-system",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.unity.inputsystem": "1.17.0"
+      }
+    },
+    "com.wulato.uikit.navigation": {
+      "version": "file:com.wulato.uikit.navigation",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.popup-queue": {
+      "version": "file:com.wulato.uikit.popup-queue",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.presentation": {
+      "version": "file:com.wulato.uikit.presentation",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
         "com.cysharp.unitask": "2.5.11"
       }
     },
