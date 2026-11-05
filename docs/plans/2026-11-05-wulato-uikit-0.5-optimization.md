@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3/#4/#5/#6 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，Phase 1 已合并，2.1 已合并，任务 2.2 实现与必要专项验证完成，正在收尾创建 PR。**
+**状态：2026-11-05 PR #1/#2/#3/#4/#5/#6 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，Phase 1 已合并，2.1 已合并，任务 2.2 实现与必要专项验证完成，PR #7 等待用户审核合并；2.3 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -682,7 +682,8 @@ Ruling：原 Engine 单元夹具继续直接验证 Engine；业务模块公共�
 - [x] SDK 实际 StandaloneOSX 构建 2 个 Bundle；内容源指纹与 5 文件哈希通过，不是 Player 构建。
 - [x] 当前指纹、XML/trace/原始索引/文件哈希、依赖程序集开关、codegen 各 37 文件及样例 25/34 文件复核通过，汇总 [verification.json](../../Artifacts/uikit/phase2-2/verification.json)。不接受的补充命令单独保留，不改变其他专项精确集合断言。
 - [x] 集中作者自审：目标/历史读取均在同一 FIFO，沿用 Publication/CommitReplacement，未改 Engine PageSteps/取消/资源清理算法；Facade 与默认 IUINavigator 共用历史，Modal 仍走普通 Engine 打开。新增测试附 .meta，既有 .meta 不变，331 GUID 唯一；当前文档路径、迁移说明与 diff 空白检查通过，未启子代理。
-- [ ] 提交并创建 PR，等待用户确认合并；不开始 2.3。
+- [x] 实现提交 `c2e034bba7663c03e876bec72bd91534eeb2d91a` 已推送，创建 [任务 2.2 PR #7](https://github.com/wulato/Wulato.UIKit/pull/7)（main ← refactor/uikit-0.5-page-navigation）；本次仅补执行记录，不自动合并。
+- [ ] 等待用户确认合并 PR #7 后，从更新 main 开始 2.3。
 
 Ruling：保留现有 PageSteps/提交/取消/回滚实现，未另造事务或生命周期；只更换 Navigator 的目标描述和拟议历史。单次 UniTask 仍只消费一次。PopTo 无匹配包括未注册类型/key，查询也排在 FIFO 内，不按调用时的旧历史提前返回。BackAsync 本阶段仅暴露既有页面返回；Modal 优先、CanClose 和输入 Cancel 路由属于 2.3。
 
