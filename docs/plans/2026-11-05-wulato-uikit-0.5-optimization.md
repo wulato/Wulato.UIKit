@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3/#4/#5 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，Phase 1 已合并，任务 2.1 实现与专项验证完成，正在收尾创建 PR。**
+**状态：2026-11-05 PR #1/#2/#3/#4/#5 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，Phase 1 已合并，任务 2.1 实现与专项验证完成，PR #6 等待用户审核合并；2.2 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -654,7 +654,8 @@ Ruling：复用现有 UIRegistry.CopyValidated/不可变 UIRegistration，不为
 - [x] Host Reload：Legacy 0/1/2/3、Input 0/3，共 6 组，各两次真实 Play/退出，共 12 次；旧 Context/锁/订阅归零报告 PASS。
 - [x] 当前指纹、XML/trace/原始索引/文件哈希、实际依赖程序集开关、codegen 各 37 文件、样例 25/34 文件及 Reload 证据复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase2-1/verification.json)。汇总首次通过，无修改原始证据。
 - [x] 集中作者自审：生产仅 Facade 实现 IUIContext；外来/伪造关闭先验所属 Engine 实例，不调用不可信句柄方法；默认服务预装、逆序释放和失败回滚有新旧专项证据；无第二生命周期。保留 Presenter/注入依赖调用方所有权。删除旧静态 NavigationBuilderExtensions 及对应 .meta，不留兼容空壳；其余既有 .meta 不变，新增测试附 .meta，主包 330 GUID 唯一。文档路径、现行入口和 diff 空白检查 PASS；未启子代理。
-- [ ] 提交并创建 PR；等待用户合并，不开始 2.2。
+- [x] 实现提交 `dbc640821b56c99ea8064bfe6b43c46a1f30d3d7` 已推送，创建 [任务 2.1 PR #6](https://github.com/wulato/Wulato.UIKit/pull/6)（main ← refactor/uikit-0.5-default-composition）；本次仅补执行记录，不自动合并。
+- [ ] 等待用户确认合并 PR #6 后，从更新 main 开始 2.2。
 
 Ruling：UIRegistry/默认服务/Host 及 Context.CloseAsync 属于 2.1；不提前实现 2.2 页面新根/Replace/PopTo、2.3 Back 路由或 2.4 DialogAsync/泛型 PopupAsync。普通 Open/Close 无需 GetService；当前模块高级入口保留 GetService，不临时添加随后废弃的服务属性。
 
