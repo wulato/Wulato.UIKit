@@ -1,6 +1,6 @@
 # Wulato.UIKit 全新优化实施计划
 
-**状态：M0–M6 工程交付完成（2026-11-03）；正式移动发布门禁未执行。**
+**状态：M0–M6 工程交付完成；M6 快照完整性已修复并完成干净安装补验（2026-11-05）。正式移动发布门禁未执行。**
 
 > 当前唯一有效的优化实施计划。使用 superpowers:executing-plans，由当前 Agent 连续实施，不启动子代理，不自动提交、推送或发布。
 
@@ -53,7 +53,7 @@
 
 ## M6 工程交付
 - [x] 统一 README/QuickStart/迁移/预览/扩展/生命周期、API 弃用/版本/Changelog 政策。
-- [x] 固定源码快照验证默认编辑器 main/addressables/all 干净安装、生成、样例、实际程序集依赖隔离；区分开发默认/已验证/支持范围。
+- [x] 固定源码快照验证默认编辑器 main/addressables/all 干净安装、生成、样例、实际程序集依赖隔离；区分开发默认/已验证/支持范围。2026-11-03 安装记录的快照漏收样例/文档，完整交付结论由下方 2026-11-05 M6 补验取代。
 - [x] CI 专项和显式门禁统一证据规则；集中自审、记录已验收/未验证/环境阻塞。
 验收：新项目按文档接入，日常最小验证可解释；不声称移动发布通过。
 
@@ -116,3 +116,14 @@
 最终集中作者自审完成（按项目约束未启动子代理）：确认主包外部依赖仍仅 uGUI/UniTask、Core 不反向引用业务模块/SDK、程序集/资产 GUID、共享任务消费、失败/迟到清理、Undo/用户文件保护、迁移和版本约束。差异空白检查通过；未修改根 ProjectSettings，默认宿主锁文件由 Unity 实际解析更新。原有 .vscode/ 与未暂存状态保留，AGENTS 仅按授权更新计划/版本政策；没有提交、推送、打 tag 或发布。
 
 未执行：其他 Unity 编辑器、本项目 suite all/完整发布 Gate、Player/IL2CPP 构建、实体移动设备及远端 CI。恢复记录损坏/用户改动有测试，未进行破坏性的强制杀进程崩溃试验。失败及中断记录保留，已确认属于本轮夹具的现场先校验并归档；没有所有权证明的旧空临时目录保留在验证宿主中，不冒充已清除。
+
+## M6 快照完整性补验（2026-11-05）
+
+- 已核对四份历史安装快照：每份有 128 个包文件未进入快照提交，Samples~/Documentation~ 均缺席。原因是隔离快照的 `git add Packages` 受用户全局 `*~` 忽略规则影响；消费端又从快照工作目录复制样例，掩盖遗漏。历史编译/运行时隔离证据保留，但不再作为完整 Git 分发验收通过的依据。
+- 修复范围：仅在隔离快照强制收录授权包输入，逐文件核对固定提交的清单与 SHA-256，保存 package-snapshot.json；消费端样例及其 .meta 从固定提交读取，禁止工作目录脏文件或未跟踪文件补齐缺失样例。不修改用户全局 Git 配置、运行时契约及包依赖。
+- 针对性 Python：test_build.py 29/29 PASS，包含全局忽略规则、样例/文档/元数据完整收录、缺失/多出/内容变化拒绝、脏工作目录隔离和提交缺失样例拒绝。日志 Artifacts/uikit/m6-snapshot/python-build.log。
+- 补验完成：默认 2022.3.62f2 的 main/legacy、addressables/legacy、all/legacy、all/input，均使用现有 phase3 clean prepare-only。三个调用退出码均为预期 1，四项 install_status=PASS、generation_compiled=true、status=BLOCKED，唯一阻塞均为 `prepare-only; no mobile Player built`。现有 assess_install_record 独立复核原始文件哈希、当前源码指纹、状态及阻塞原因，全部无错误。
+- 四份快照均完整收录 605 个文件（样例目录内 97、文档目录内 31），逐文件验证固定提交与 package-snapshot.json 一致；快照清单纳入原始证据索引。实际已安装的主包/适配包全部文件再与该提交清单核对 SHA-256：四组合分别 533、585、585、605 个文件一致。每份仍具有自己的固定 Git revision，不将其冒充工作分支提交。
+- 新补验索引：[delivery-evidence.json](../../../Artifacts/uikit/m6-snapshot/delivery-evidence.json)。main/legacy 原始目录 Artifacts/uikit/install-checks/20261105T024645915198-2e18b8；addressables/legacy 为 20261105T024847680022-6bce12；all 两后端为 20261105T025131128031-c50505。调用日志为 Artifacts/uikit/m6-snapshot/install-main-legacy.log、install-addressables-legacy.log、install-all-backends.log。安装证据检查的针对性 Python 另有 4/4 PASS，日志 python-install-evidence.log；本次合计运行 33 项针对性 Python 检查，没有重跑全部 Python/Unity suite。
+- 2026-11-03 优化已按后续用户授权提交并推送为 87b938e；本次补验不自动提交推送。验证现场已归档并清理，记录 Artifacts/uikit/cleanup/20261105T103659 与 preview-20261105T103903；四个预览目录/元数据 GUID 由原始 Editor 导入日志及历史请求确认。.vscode 文件保留，仅加入本地 .git/info/exclude。以上为后续状态，不改写先前执行记录。
+- 未启动全量 Editor、移动发布门禁、额外编辑器及远端 CI；无 Player 构建或实体设备通过声明。修复轮次：快照遗漏原因第一轮修复及专项复验通过，无第二轮修复。本次改动未提交或推送。

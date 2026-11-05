@@ -1,6 +1,6 @@
 from editor_targets import PROFILES
 """Pinned Git consumer installation and staged ARM64/IL2CPP builds."""
-import datetime,hashlib,json,os,re,shutil,subprocess,uuid
+import datetime,hashlib,io,json,os,re,shutil,subprocess,tarfile,uuid
 from pathlib import Path
 
 def merge_player_report(result,report):
@@ -61,22 +61,56 @@ def command(cmd,out,timeout=600,env=None):
         with out.open('w') as f:return subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT,timeout=timeout,env=env).returncode
     except subprocess.TimeoutExpired:return -1
 
+def git_package_files(source,revision):
+    """Read package bytes from the pinned commit, never its working tree."""
+    archive=subprocess.check_output(['git','-C',str(source),'archive',revision,'Packages'])
+    files={}
+    with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
+        for member in tar:
+            path=Path(member.name)
+            if path.is_absolute() or '..' in path.parts or path.parts[0]!='Packages':
+                raise ValueError('git-snapshot-unsafe-path:'+member.name)
+            if member.isdir():continue
+            if not member.isfile():raise ValueError('git-snapshot-non-file:'+member.name)
+            files[member.name]=tar.extractfile(member).read()
+    return files
+
+def validate_git_snapshot(source,revision,expected):
+    actual={name:hashlib.sha256(body).hexdigest() for name,body in git_package_files(source,revision).items()}
+    if actual!=expected:
+        missing=sorted(set(expected)-set(actual));extra=sorted(set(actual)-set(expected))
+        changed=sorted(name for name in set(actual)&set(expected) if actual[name]!=expected[name])
+        raise ValueError('git-snapshot-content-mismatch:'+json.dumps(dict(missing=missing,extra=extra,changed=changed)))
+    return actual
+
 def git_source(folder):
     """Snapshot current authorized package inputs, independent of the user's index."""
     import run
     source=folder/'git-source';source.mkdir()
     from runtime import EXTENSIONS
     for name in ('com.wulato.uikit','com.wulato.uikit.input-system',*[n for n in EXTENSIONS if (run.R/'Packages'/n).exists()]):
-        shutil.copytree(run.R/'Packages'/name,source/'Packages'/name)
-    for cmd in (['git','init',str(source)],['git','-C',str(source),'add','Packages'],['git','-C',str(source),'-c','user.name=UIKit Verification','-c','user.email=verification@localhost','commit','-m','Pinned T11 package snapshot']):
+        shutil.copytree(run.R/'Packages'/name,source/'Packages'/name,ignore=shutil.ignore_patterns('.DS_Store'))
+    expected={p.relative_to(source).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (source/'Packages').rglob('*') if p.is_file()}
+    # Force only this isolated package snapshot; user/global ignore rules must not omit UPM ~ folders.
+    for cmd in (['git','init',str(source)],['git','-C',str(source),'add','--force','--','Packages'],['git','-C',str(source),'-c','user.name=UIKit Verification','-c','user.email=verification@localhost','commit','-m','Pinned T11 package snapshot']):
         if command(cmd,folder/('git-'+str(uuid.uuid4())+'.log')):raise ValueError('git-snapshot-failed')
     revision=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip()
+    validate_git_snapshot(source,revision,expected)
+    run.dump(folder/'package-snapshot.json',dict(schema=1,git_revision=revision,files=expected))
     return source,revision
 
 def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",package_set="all"):
     import run
     from runtime import UNITASK
     if package_set in ('navigation','dialogs','presentation','popup-queue'):raise ValueError('Package migration: use main, addressables or all.')
+    sample_files=git_package_files(source,revision)
+    def copy_sample(package,name):
+        prefix=f'Packages/{package}/Samples~/{name}/'
+        selected={path[len(prefix):]:body for path,body in sample_files.items() if path.startswith(prefix)}
+        if not selected:raise ValueError('git-snapshot-missing-sample:'+prefix)
+        destination=host/'Assets/Samples/Wulato UIKit'/name
+        for path,body in selected.items():
+            target=destination/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(body)
     host.mkdir();(host/'Packages').mkdir();(host/'Assets').mkdir()
     original=run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}'
     shutil.copytree(original/'ProjectSettings',host/'ProjectSettings')
@@ -105,14 +139,14 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         (editor/'MobileSmokeSceneBuilder.cs').write_text(body)
         run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
-    if phase in ('phase2','phase3') and package_set=='all':shutil.copytree(source/'Packages/com.wulato.uikit/Samples~/BusinessFlow',host/'Assets/Samples/Wulato UIKit/BusinessFlow')
+    if phase in ('phase2','phase3') and package_set=='all':copy_sample('com.wulato.uikit','BusinessFlow')
     if 'com.wulato.uikit.addressables' in selected:
-        shutil.copytree(source/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory',host/'Assets/Samples/Wulato UIKit/LocalInventory')
+        copy_sample('com.wulato.uikit.addressables','LocalInventory')
         probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
         run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Addressables']))
         (probe/'Probe.cs').write_text('public static class AddressablesCompileProbe { public static Wulato.UIKit.UIContextBuilder Compose(Wulato.UIKit.UIContextBuilder b) => b.WithLoader(new Wulato.UIKit.AddressablesUIViewLoader()); }\n')
     for name in ('QuickStart','Modals','Inventory'):
-        shutil.copytree(source/'Packages/com.wulato.uikit/Samples~'/name,host/'Assets/Samples/Wulato UIKit'/name)
+        copy_sample('com.wulato.uikit',name)
 
 def run_build(args):
     import run

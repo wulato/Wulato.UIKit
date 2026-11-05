@@ -1,7 +1,16 @@
-import json,tempfile,unittest
+import hashlib,json,os,subprocess,tempfile,unittest
 from pathlib import Path
+from unittest.mock import patch
 from build import prepare_consumer,verify_files,file_index
-class BuildTests(unittest.TestCase):
+
+class ConsumerFixtureTests(unittest.TestCase):
+    def setUp(self):
+        # These tests isolate manifest/assembly composition; snapshot provenance has real Git tests below.
+        import run
+        files={p.relative_to(run.R).as_posix():p.read_bytes() for p in (run.R/'Packages').rglob('*') if p.is_file()}
+        mock=patch('build.git_package_files',return_value=files);mock.start();self.addCleanup(mock.stop)
+
+class BuildTests(ConsumerFixtureTests):
     def test_changed_or_missing_artifact_rejected(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);p=root/'player.json';p.write_text('{}');record={'files':file_index(root)}
@@ -80,7 +89,7 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(0,result['build_error_count'])
         self.assertEqual(['late-validation-failure'],result['errors'])
 
-class PhaseTwoConsumerTests(unittest.TestCase):
+class PhaseTwoConsumerTests(ConsumerFixtureTests):
     def test_phase_two_consumes_all_extensions_from_same_git_revision(self):
         import run
         from runtime import FLOW_EXTENSIONS as EXTENSIONS
@@ -99,7 +108,7 @@ class PhaseTwoConsumerTests(unittest.TestCase):
                 prepare_consumer(host,'2022.3.62f2','legacy',run.R,'c'*40,'clean',phase='phase2',package_set='navigation')
             self.assertFalse(host.exists())
 
-class PhaseThreeConsumerTests(unittest.TestCase):
+class PhaseThreeConsumerTests(ConsumerFixtureTests):
     def test_main_install_does_not_pull_addressables(self):
         import run
         with tempfile.TemporaryDirectory() as folder:
@@ -172,3 +181,64 @@ class CompilerOnlyReferenceTests(unittest.TestCase):
         report['runtimeAssemblyGraph'][0]['precompiledReferences']=['nunit.framework']
         report['runtimeAssemblyGraph'][0]['metadataReferences']=[]
         self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(report))
+
+class GitSnapshotTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.inputs=self.root/'inputs'
+        for package in ('com.wulato.uikit','com.wulato.uikit.input-system','com.wulato.uikit.addressables'):
+            folder=self.inputs/'Packages'/package;folder.mkdir(parents=True)
+            (folder/'package.json').write_text('{}\n')
+            docs=folder/'Documentation~';docs.mkdir();(docs/'index.md').write_text('documentation\n')
+            for name in ('QuickStart','Modals','Inventory','BusinessFlow','LocalInventory'):
+                sample=folder/'Samples~'/name;sample.mkdir(parents=True)
+                (sample/'View.cs').write_text('committed sample\n');(sample/'View.cs.meta').write_text('committed guid\n')
+        ignore=self.root/'global-ignore';ignore.write_text('*~\n')
+        config=self.root/'gitconfig';config.write_text('[core]\n\texcludesFile = '+str(ignore)+'\n')
+        env=patch.dict(os.environ,{'GIT_CONFIG_GLOBAL':str(config),'GIT_CONFIG_NOSYSTEM':'1'});env.start();self.addCleanup(env.stop)
+        import run
+        inputs=patch.object(run,'R',self.inputs);inputs.start();self.addCleanup(inputs.stop)
+        self.out=self.root/'attempt';self.out.mkdir()
+    def snapshot(self):
+        from build import git_source
+        return git_source(self.out)
+    def test_snapshot_contains_globally_ignored_samples_docs_and_meta(self):
+        from build import git_package_files
+        source,revision=self.snapshot();files=git_package_files(source,revision)
+        expected={p.relative_to(self.inputs).as_posix():p.read_bytes() for p in (self.inputs/'Packages').rglob('*') if p.is_file()}
+        self.assertEqual(expected,files)
+        report=json.loads((self.out/'package-snapshot.json').read_text())
+        self.assertEqual(revision,report['git_revision'])
+        self.assertEqual({name:hashlib.sha256(body).hexdigest() for name,body in expected.items()},report['files'])
+    def test_snapshot_validator_rejects_missing_extra_and_changed_files(self):
+        from build import validate_git_snapshot
+        source,revision=self.snapshot();expected=json.loads((self.out/'package-snapshot.json').read_text())['files']
+        for change in ('missing','extra','changed'):
+            wrong=dict(expected)
+            if change=='missing':wrong['Packages/missing.txt']='0'*64
+            elif change=='extra':wrong.pop(next(iter(wrong)))
+            else:wrong[next(iter(wrong))]='0'*64
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'git-snapshot-content-mismatch'):
+                validate_git_snapshot(source,revision,wrong)
+    def test_consumer_imports_pinned_sample_bytes_despite_dirty_snapshot_worktree(self):
+        source,revision=self.snapshot()
+        sample=source/'Packages/com.wulato.uikit/Samples~/QuickStart'
+        (sample/'View.cs').write_text('uncommitted edit\n');(sample/'Untracked.cs').write_text('untracked\n')
+        (sample/'View.cs.meta').unlink()
+        host=self.root/'consumer'
+        # Restore the real repository location for host ProjectSettings, without changing the snapshot source.
+        import run
+        with patch.object(run,'R',Path(__file__).resolve().parents[2]):
+            prepare_consumer(host,'2022.3.62f2','legacy',source,revision,'clean',phase='phase3',package_set='main')
+        imported=host/'Assets/Samples/Wulato UIKit/QuickStart'
+        self.assertEqual('committed sample\n',(imported/'View.cs').read_text())
+        self.assertEqual('committed guid\n',(imported/'View.cs.meta').read_text())
+        self.assertFalse((imported/'Untracked.cs').exists())
+    def test_missing_committed_sample_fails_even_if_worktree_has_it(self):
+        source,revision=self.snapshot()
+        subprocess.run(['git','-C',str(source),'rm','-r','--cached','Packages/com.wulato.uikit/Samples~/QuickStart'],check=True,stdout=subprocess.DEVNULL)
+        subprocess.run(['git','-C',str(source),'-c','user.name=Test','-c','user.email=test@localhost','commit','-m','Remove committed sample'],check=True,stdout=subprocess.DEVNULL)
+        revision=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD']).decode().strip()
+        import run
+        with patch.object(run,'R',Path(__file__).resolve().parents[2]),self.assertRaisesRegex(ValueError,'git-snapshot-missing-sample'):
+            prepare_consumer(self.root/'consumer','2022.3.62f2','legacy',source,revision,'clean',phase='phase3',package_set='main')
