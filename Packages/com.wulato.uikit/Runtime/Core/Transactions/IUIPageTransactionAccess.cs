@@ -4,14 +4,14 @@ using Cysharp.Threading.Tasks;
 namespace Wulato.UIKit
 {
     /// <summary>Opt-in page transactions. Caller cancellation applies only before replacement commit.</summary>
-    public interface IUIPageTransactionAccess
+    internal interface IUIPageTransactionAccess
     {
         /// <summary>Own the Context FIFO until commit/rollback and bounded cleanup; caller cancellation ends at commit.</summary>
         UniTask ExecuteAsync(Func<IUIPageTransactionSteps,CancellationToken,UniTask> transaction,
             TimeSpan pairTimeout, CancellationToken cancellationToken = default);
     }
     /// <summary>Page steps are valid only during their owning transaction.</summary>
-    public interface IUIPageTransactionSteps : IUITransactionSteps
+    internal interface IUIPageTransactionSteps : IUITransactionSteps
     {
         /// <summary>Show the prepared page under the input lock and observe one paired animation.</summary>
         UniTask AnimatePairAsync(IUISession from,IUISession to,INavigationTransition transition,CancellationToken cancellationToken=default);
@@ -19,7 +19,7 @@ namespace Wulato.UIKit
         void CommitReplacement(IUISession from,IUISession to,IUITransactionParticipant participant);
     }
     /// <summary>First-party state publication: Commit must only swap prepared state, Rollback must be idempotent.</summary>
-    public interface IUITransactionParticipant
+    internal interface IUITransactionParticipant
     {
         /// <summary>Validate prepared state without modifying the published state.</summary>
         void Prepare();

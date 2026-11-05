@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 namespace Wulato.UIKit
 {
-    public sealed class UIModalMask : MonoBehaviour, IPointerClickHandler
+    internal sealed class UIModalMask : MonoBehaviour, IPointerClickHandler
     {
         internal Action Click;
         public void OnPointerClick(PointerEventData e) {if(e.button==PointerEventData.InputButton.Left)Click?.Invoke();}

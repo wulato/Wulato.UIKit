@@ -1,8 +1,7 @@
 {
   "name": "Wulato.UIKit.Samples.Modals",
   "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "UniTask",
     "UnityEngine.UI"
   ]

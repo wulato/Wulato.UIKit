@@ -3,7 +3,7 @@
   "references": [
     "Wulato.UIKit.Verification.Addressables",
     "Wulato.UIKit.Acceptance.Editor",
-    "Wulato.UIKit.Core",
+    "Wulato.UIKit",
     "Unity.Addressables",
     "Unity.Addressables.Editor",
     "Unity.ResourceManager",

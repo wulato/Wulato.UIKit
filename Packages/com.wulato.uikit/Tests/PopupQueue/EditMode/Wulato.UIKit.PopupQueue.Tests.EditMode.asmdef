@@ -1,9 +1,7 @@
 {
   "name": "Wulato.UIKit.PopupQueue.Tests.EditMode",
   "references": [
-    "Wulato.UIKit.PopupQueue",
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "Wulato.UIKit.Tests.Support",
     "UniTask"
   ],

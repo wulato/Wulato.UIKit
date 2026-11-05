@@ -1,8 +1,7 @@
 {
   "name": "Wulato.UIKit.Verification.Addressables",
   "references": [
-    "Wulato.UIKit.Core",
-    "UniTask",
-    "Wulato.UIKit.Dialogs"
+    "Wulato.UIKit",
+    "UniTask"
   ]
 }

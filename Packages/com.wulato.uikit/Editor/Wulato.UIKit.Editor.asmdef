@@ -1,9 +1,7 @@
 {
   "name": "Wulato.UIKit.Editor",
   "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
-    "Wulato.UIKit.Loading",
+    "Wulato.UIKit",
     "UniTask",
     "UnityEngine.UI"
   ],

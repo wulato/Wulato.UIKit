@@ -1,1 +1,14 @@
-{"name":"Wulato.UIKit.Acceptance.Samples","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","Wulato.UIKit.Loading","UniTask","UnityEngine.UI","Wulato.UIKit.Samples.QuickStart","Wulato.UIKit.Samples.Modals","Wulato.UIKit.Samples.Inventory"],"optionalUnityReferences":["TestAssemblies"]}
+{
+  "name": "Wulato.UIKit.Acceptance.Samples",
+  "references": [
+    "Wulato.UIKit",
+    "UniTask",
+    "UnityEngine.UI",
+    "Wulato.UIKit.Samples.QuickStart",
+    "Wulato.UIKit.Samples.Modals",
+    "Wulato.UIKit.Samples.Inventory"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

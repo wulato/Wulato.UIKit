@@ -301,7 +301,8 @@
           "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
-          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -782,7 +783,8 @@
           "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
-          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1267,7 +1269,8 @@
           "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
-          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1748,7 +1751,8 @@
           "Wulato.UIKit.Tests.RegistryTests.SerializedInvalidAsset_IsRejected",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
-          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance"
+          "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",

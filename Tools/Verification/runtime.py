@@ -74,9 +74,8 @@ def validate_main_package(package,assemblies):
     if package.get('name')!=MAIN or package.get('version')!='0.4.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
         errors.append('main-package-identity-or-unity-baseline')
     if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
-    graph={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
-    for name,refs in graph.items():
-        if set(assemblies.get(name,[]))!=set(refs):errors.append('runtime-assembly-boundary:'+name)
+    if set(assemblies)!={'Wulato.UIKit'} or set(assemblies.get('Wulato.UIKit',[]))!={'UniTask','UnityEngine.UI'}:
+        errors.append('runtime-assembly-boundary:Wulato.UIKit')
     return errors
 
 def validate_installed_report(ver,folder):
@@ -105,9 +104,9 @@ def validate_extension_package(package,references):
         expected={'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.addressables':'1.21.21'}
         if package.get('version')!='0.2.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':errors.append('addressables-identity')
         if package.get('dependencies')!=expected:errors.append('addressables-dependencies')
-        if set(references)!={'Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','Unity.Addressables','Unity.ResourceManager'}:errors.append('addressables-assembly-boundary')
+        if set(references)!={'Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'}:errors.append('addressables-assembly-boundary')
         return errors
     if not is_extension_package(package.get('name')) or package.get('version')!='0.1.1' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':errors.append('extension-identity-or-unity-baseline')
     if package.get('dependencies')!={'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11'}:errors.append('extension-core-or-optional-dependency')
-    if set(references)!={'Wulato.UIKit.Core','Wulato.UIKit.UGUI','UniTask'}:errors.append('extension-runtime-assembly-boundary')
+    if set(references)!={'Wulato.UIKit','UniTask'}:errors.append('extension-runtime-assembly-boundary')
     return errors

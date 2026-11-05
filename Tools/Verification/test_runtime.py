@@ -68,11 +68,11 @@ class RuntimePreparationTests(unittest.TestCase):
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
         package={'name':'com.wulato.uikit','version':'0.4.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
-        assemblies={'Core':['UniTask'],'Loading':['Wulato.UIKit.Core','UniTask'],'UGUI':['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','UnityEngine.UI']}
+        assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
         self.assertTrue(validate_main_package(package,assemblies))
-        del package['dependencies']['com.unity.inputsystem'];assemblies['Core'].append('UnityEngine.UI')
+        del package['dependencies']['com.unity.inputsystem'];assemblies['Wulato.UIKit'].append('Unity.InputSystem')
         self.assertTrue(validate_main_package(package,assemblies))
 
 class ExtensionBoundaryTests(unittest.TestCase):
@@ -82,7 +82,7 @@ class ExtensionBoundaryTests(unittest.TestCase):
         import json
         root=Path(__file__).resolve().parents[2]
         package=json.loads((root/'Packages/com.wulato.uikit/package.json').read_text())
-        assemblies={n:json.loads((root/'Packages/com.wulato.uikit/Runtime'/n/('Wulato.UIKit.'+n+'.asmdef')).read_text())['references'] for n in ('Core','Loading','UGUI')}
+        assemblies={'Wulato.UIKit':json.loads((root/'Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef').read_text())['references']}
         package['version']='0.1.0'
         self.assertTrue(validate_main_package(package,assemblies))
     def test_extension_identity_does_not_capture_arbitrary_packages(self):
@@ -100,7 +100,7 @@ class ExtensionMetadataTests(unittest.TestCase):
     def test_extensions_require_new_core_and_no_optional_backends(self):
         from runtime import validate_extension_package
         package={'name':'com.wulato.uikit.addressables','version':'0.2.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.addressables':'1.21.21'}}
-        refs=['Wulato.UIKit.Core','Wulato.UIKit.Loading','UniTask','Unity.Addressables','Unity.ResourceManager']
+        refs=['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager']
         self.assertEqual([],validate_extension_package(package,refs))
         package['dependencies']['com.wulato.uikit']='0.1.0'
         self.assertTrue(validate_extension_package(package,refs))

@@ -1,8 +1,0 @@
-{
-  "name": "Wulato.UIKit.Presentation",
-  "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
-    "UniTask"
-  ]
-}

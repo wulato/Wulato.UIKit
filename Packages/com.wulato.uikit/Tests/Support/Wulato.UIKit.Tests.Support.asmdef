@@ -1,7 +1,7 @@
 {
   "name": "Wulato.UIKit.Tests.Support",
   "references": [
-    "Wulato.UIKit.Core",
+    "Wulato.UIKit",
     "UniTask"
   ],
   "includePlatforms": [],

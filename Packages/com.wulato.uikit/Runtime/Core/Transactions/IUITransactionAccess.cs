@@ -4,12 +4,12 @@ using Cysharp.Threading.Tasks;
 namespace Wulato.UIKit
 {
     /// <summary>Explicitly registered first-party extension capability. One callback owns the Context FIFO until completion.</summary>
-    public interface IUITransactionAccess
+    internal interface IUITransactionAccess
     {
         UniTask ExecuteAsync(Func<IUITransactionSteps, CancellationToken, UniTask> transaction, CancellationToken cancellationToken = default);
     }
     /// <summary>Valid only inside ExecuteAsync. Steps execute directly and never enqueue behind their transaction.</summary>
-    public interface IUITransactionSteps
+    internal interface IUITransactionSteps
     {
         UniTask<IUISession> PrepareAsync(UIViewTypeKey type, UIArguments arguments, UITransitionOwner owner, CancellationToken cancellationToken = default);
         void Commit(IUISession session);

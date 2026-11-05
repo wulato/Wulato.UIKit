@@ -22,6 +22,10 @@ def select_suites(paths):
     selected=set()
     def add(mode,suite,backend='all'):selected.add((mode,suite,backend))
     for path in paths:
+        if path.removesuffix('.meta')=='Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef':
+            for suite in ('contracts','integration','editor','package-install',*MODULES):add('EditMode',suite)
+            for suite in ('loading-layout','generated-integration','context-host','transitions','flow-integration','input-runtime'):add('PlayMode',suite)
+            continue
         for folder,name in (('Navigation','navigation'),('Presentation','presentation'),('Dialogs','dialogs'),('PopupQueue','popup-queue')):
             for section in ('Runtime','Tests','Documentation~'):
                 path=path.replace(f'Packages/com.wulato.uikit/{section}/{folder}/',f'Packages/com.wulato.uikit.{name}/{section}/')

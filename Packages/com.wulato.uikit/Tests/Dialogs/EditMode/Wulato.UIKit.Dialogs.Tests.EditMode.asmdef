@@ -1,9 +1,7 @@
 {
   "name": "Wulato.UIKit.Dialogs.Tests.EditMode",
   "references": [
-    "Wulato.UIKit.Dialogs",
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "Wulato.UIKit.Tests.Support",
     "UniTask"
   ],

@@ -1,8 +1,7 @@
 {
   "name": "Wulato.UIKit.InputSystem.Tests.PlayMode",
   "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "Wulato.UIKit.InputSystem",
     "Wulato.UIKit.Tests.PlayMode",
     "UnityEngine.UI",

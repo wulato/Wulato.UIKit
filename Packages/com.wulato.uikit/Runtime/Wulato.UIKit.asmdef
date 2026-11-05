@@ -1,0 +1,7 @@
+{
+  "name": "Wulato.UIKit",
+  "references": [
+    "UniTask",
+    "UnityEngine.UI"
+  ]
+}
