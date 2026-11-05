@@ -4,7 +4,7 @@
 
 - 在保持正确性与验收质量的前提下，减少重复探索、重复设计、无效修复及全量验证；常规实现由 Agent 自主完成。
 - 使用中文沟通，保留代码和公共 API 的既有命名风格。
-- 架构与 API 契约以 `docs/superpowers/specs/2026-10-31-wulato-uikit-design.md` 为准；当前任务仅以 `docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md` 为准；旧计划任务已废弃，历史运行时契约保留。
+- 当前任务以已批准的 `docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md` 为准；其中明确替代的架构/API 决策优先，`docs/superpowers/specs/2026-10-31-wulato-uikit-design.md` 未被替代的运行时正确性契约继续有效。2026-11-03 优化计划及历史测试证据保留，不覆盖、不作为 0.5 已验收证明。
 - 验证入口及证据要求见 `Verification/README.md`、`Tools/Verification/run.py` 和 `Tools/Verification/matrix.json`。按任务读取相关章节，不反复加载整份文档。
 - 文档中的历史状态可能滞后；结合现有代码、任务记录和验证报告判断进度，不重新执行已有可靠证据覆盖且输入未变化的工作。
 
@@ -33,14 +33,22 @@
 - 新增依赖、改变架构/公共 API/生命周期语义或修改 ProjectSettings，若不在当前明确授权范围内，先说明具体影响并取得确认；可独立完成的工作继续推进。
 - 根本性需求歧义先查现有设计，仍无法解决时询问；普通实现选择自行处理。
 
+## GitHub Flow 与阶段门禁
+
+- `main` 为稳定基线；0.5 Phase 0 的历史导入 PR 合并前，远端默认分支仍为 `master`。不直接提交 main/master，不强制推送，不自动删除分支或清理用户修改。
+- 每项任务从最新 main 创建短生命周期分支：`feat/*`、`fix/*`、`refactor/*`、`chore/*`。Phase 0 的 `chore/uikit-0.5-baseline` 例外地导入现有已提交历史，不夹带原工作区未提交内容。
+- 明确任务分支内允许自主修改、最小验证、逐项暂存、提交和创建 PR；main 合并必须由用户确认。合并后更新 main，再开始下一项依赖任务。
+- 原工作区有无关未提交修改时可复用一个经批准的干净 worktree；不默认创建多个工作区或并行会话。远端状态变化先比较，不覆盖。
+- 0.5 任务进度、决策、验收证据和失败修复次数集中更新上述计划。当前只推进 Phase 0；后续阶段受前置 PR 合并门禁约束。
+
 ## 架构约束
 
 - 保持独立 UPM 包、小核心和可选扩展；业务不强制 MVC、MVP 或 MVVM。
 - 接口驱动，便捷基类按现有契约提供；不要仅凭参考库重新命名或重建本项目的 View/Session API。
 - 生命周期与状态由框架统一协调，View 接收钩子；遵守现有 FIFO、取消、关闭、租约释放和迟到清理契约。
 - 核心异步采用已锁定的 UniTask，单次消费操作不得重复 await；共享完成结果按设计实现。
-- Core 不反向依赖可选后端；主包不增加 TMP、Input System 或其他可选适配依赖。借鉴 QFramework 易用性，不引入整套框架。
-- Navigation、Presentation、Dialogs、PopupQueue 按新计划整合主包；Addressables/Input System 保持可选独立适配，不提前扩展数据绑定等未授权功能。
+- 基础 Runtime 不引用可选 SDK，package.json 不增加 TMP、Input System、Addressables、DOTween、R3 等必需依赖。借鉴 QFramework 易用性，不引入整套框架。
+- 0.5 按批准任务收敛为一个 UIKit Package、一个基础 Runtime 程序集；Addressables/Input System/DOTween 适配以主包内可选程序集隔离。Phase 0 不提前实施这些迁移或后续绑定/控件功能。
 
 ## 验证策略
 

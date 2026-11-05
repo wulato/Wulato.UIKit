@@ -1,6 +1,6 @@
 # UIKit verification
 
-当前任务入口：[Master Optimization Plan](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md)。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。下文旧阶段命令及报告为历史资料，不自动构成本轮门禁。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。当前仅 Phase 0，使用计划规定的最小安装/QuickStart 检查；下文旧阶段命令及报告不自动构成本轮门禁，远端 CI 与完整移动发布留到 Phase 6。
 
 M6 干净安装使用现有 `build --phase phase3 --profile clean --prepare-only`，显式选择默认编辑器；组合为 main/legacy、addressables/legacy、all/legacy、all/input。`--target Android` 在此仅保留安装记录身份，不构建 Player。隔离 Git 快照强制收录授权包目录（不受用户忽略规则影响），逐文件核对提交清单及 SHA-256，并保存 `package-snapshot.json`；样例和 `.meta` 必须从该固定提交读取，不能用快照工作目录的脏文件或未跟踪文件补齐。原始证据索引包含快照清单。安装通过仍要求生成/编译和实际依赖隔离通过；预期退出 1/BLOCKED 的唯一允许原因是 `prepare-only; no mobile Player built`，不等于移动构建通过。2026-11-03 的旧安装证据漏收样例/文档，完整交付结论由 M6 补验替代。
 
