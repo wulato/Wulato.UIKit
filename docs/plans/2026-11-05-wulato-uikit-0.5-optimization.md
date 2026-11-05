@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3/#4 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，任务 1.3 实现与专项验证完成，正在收尾创建 PR。**
+**状态：2026-11-05 PR #1/#2/#3/#4 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，任务 1.3 实现与专项验证完成，PR #5 等待用户审核合并；2.1 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -619,7 +619,8 @@ Ruling：运行时加载/租约/输入 C# 算法不变；不提前实现 1.3 的
 - [x] 两宿主 Reload option 0/3 各两轮实际 Play/退出，共 4 组/8 次，PASS；每轮记录 SDK 有/无时后端注册状态，并保留自动退出 Context/锁/订阅归零证据。
 - [x] 当前最终指纹、XML/trace/原始索引/哈希、实际 SDK 程序集开关、codegen 各 37 个原始文件及样例 34 文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-3/verification.json)。
 - [x] 集中作者自审与 L0：四个新增脚本均含 .meta，主包 330 GUID 无重复，既有 .meta 不变；当前文档入口路径与 diff 空白检查通过。未改 Engine/FIFO/Session/Lease/取消与迟到清理算法，无基础 Runtime→SDK 反向引用；未启子代理。
-- [ ] 提交并创建 PR，等待用户确认合并；不开始 2.1。
+- [x] 实现提交 `c69e77ace12cd71bb5918247d39ebcd4bc95281d` 已推送，创建 [任务 1.3 PR #5](https://github.com/wulato/Wulato.UIKit/pull/5)（main ← refactor/uikit-0.5-resource-routing）；本次仅补执行记录，不自动合并。
+- [ ] 等待用户确认合并 PR #5 后，从更新 main 开始 2.1。
 
 Ruling：每 Context 构建时复制第一方 provider 工厂表，先验证整个 Registry，再为用到的后端各创建一个 Loader；只共享工厂，不共享 Loader/View/Lease。Engine/FIFO/取消/迟到清理不改动；Resolver 直接传递原始 UniTask，不额外消费。显式 WithLoader 覆盖整个路由，依赖仍调用方所有，保留自定义 backend 高级入口。
 
