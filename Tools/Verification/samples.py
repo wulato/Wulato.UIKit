@@ -17,7 +17,9 @@ def import_sample(source,host):
 def install_tests(host):
     assemblies={json.loads(p.read_text())['name'] for p in (host/'Assets/Samples/Wulato UIKit').rglob('*.asmdef')}
     if not {'Wulato.UIKit.Samples.'+n for n in NAMES}.issubset(assemblies):raise ValueError('missing-sample-assemblies')
-    p=host/'Packages/manifest.json';data=json.loads(p.read_text());data['dependencies'][PACKAGE]='file:../../../Packages/'+PACKAGE
+    p=host/'Packages/manifest.json';data=json.loads(p.read_text())
+    from run import V
+    data['dependencies'][PACKAGE]='file:'+str(V/'Packages'/PACKAGE) if host.resolve().is_relative_to((V.parent/'Artifacts/uikit/ci-selected/hosts').resolve()) else 'file:../../../Packages/'+PACKAGE
     if PACKAGE not in data.setdefault('testables',[]):data['testables'].append(PACKAGE)
     p.write_text(json.dumps(data,indent=2)+'\n')
 def prepare(args):
@@ -52,7 +54,7 @@ def prepare(args):
                     steps.append(dict(stage=name,status='PASS' if passed else 'FAIL',source_before=before,source_after=run.fingerprint(host)))
                     if not passed:raise ValueError('addressables-sample-stage:'+str(folder))
                 try:
-                    for source in sample_sources(run.R,host):import_sample(source,host)
+                    for source in sample_sources(run.R,host,getattr(args,'sample_set','all')):import_sample(source,host)
                     step('01-import-compile','CheckAssemblies')
                     install_tests(host)
                     step('02-validate' if args.check_only else '02-acceptance-red' if args.red else '02-author','Validate' if args.check_only else 'CheckAssemblies' if args.red else 'Author')
@@ -70,12 +72,14 @@ def prepare(args):
             return int(not reports or any(r['status']!='PASS' for r in reports))
     except (VerificationBusy,ValueError,OSError) as e:print('FAIL',str(e),flush=True);return 1
 
-def sample_sources(root,host):
+def sample_sources(root,host,sample_set='all'):
+    if sample_set not in ('base','business','addressables','all'):raise ValueError('unknown-sample-set:'+sample_set)
     from runtime import FLOW_EXTENSIONS
     sources=[root/"Packages/com.wulato.uikit/Samples~"/name for name in NAMES]
     dependencies=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
-    if 'com.wulato.uikit' in dependencies:sources.append(root/'Packages/com.wulato.uikit/Samples~/BusinessFlow')
-    if 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
+    if sample_set in ('business','all') and 'com.wulato.uikit' in dependencies:sources.append(root/'Packages/com.wulato.uikit/Samples~/BusinessFlow')
+    if sample_set=='addressables' and 'com.wulato.uikit.addressables' not in dependencies:raise ValueError('addressables-samples-require-adapter')
+    if sample_set in ('addressables','all') and 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
     return sources
 
 def quickstart_manifest(ver,backend):

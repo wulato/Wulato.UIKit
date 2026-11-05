@@ -2,6 +2,8 @@
 
 **状态：M0–M6 工程交付完成；M6 快照完整性已修复并完成干净安装补验（2026-11-05）。正式移动发布门禁未执行。**
 
+2026-11-05 后续 CI 配置补强已完成 Python/静态检查；新独立宿主的实际 Unity 编译、专项/Reload 与远端上传链路尚未运行，不能沿用旧宿主结果宣布新 CI 已验收。
+
 > 当前唯一有效的优化实施计划。使用 superpowers:executing-plans，由当前 Agent 连续实施，不启动子代理，不自动提交、推送或发布。
 
 ## 目标与生效规则
@@ -127,3 +129,16 @@
 - 新补验索引：[delivery-evidence.json](../../../Artifacts/uikit/m6-snapshot/delivery-evidence.json)。main/legacy 原始目录 Artifacts/uikit/install-checks/20261105T024645915198-2e18b8；addressables/legacy 为 20261105T024847680022-6bce12；all 两后端为 20261105T025131128031-c50505。调用日志为 Artifacts/uikit/m6-snapshot/install-main-legacy.log、install-addressables-legacy.log、install-all-backends.log。安装证据检查的针对性 Python 另有 4/4 PASS，日志 python-install-evidence.log；本次合计运行 33 项针对性 Python 检查，没有重跑全部 Python/Unity suite。
 - 2026-11-03 优化已按后续用户授权提交并推送为 87b938e；本次补验不自动提交推送。验证现场已归档并清理，记录 Artifacts/uikit/cleanup/20261105T103659 与 preview-20261105T103903；四个预览目录/元数据 GUID 由原始 Editor 导入日志及历史请求确认。.vscode 文件保留，仅加入本地 .git/info/exclude。以上为后续状态，不改写先前执行记录。
 - 未启动全量 Editor、移动发布门禁、额外编辑器及远端 CI；无 Player 构建或实体设备通过声明。修复轮次：快照遗漏原因第一轮修复及专项复验通过，无第二轮修复。本次改动未提交或推送。
+
+## CI 专项链路补强（2026-11-05）
+
+- [x] 修复准备和测试重新扫描工作区导致范围漂移：ci_suites 只生成一次 selection.json，记录基线、HEAD、源码/配置指纹与计划摘要；准备、测试、上传检查均读取同一计划。生成宿主文件不重新纳入选择；计划损坏、源码或配置变化则失败。
+- [x] 补齐现有带 Category 的主包测试源文件及 .meta 映射；测试程序集元数据映射其拥有的 Suite。Input、Transition、GeneratedRegistryIntegration 等测试修改不再遗漏自身专项。
+- [x] Host/preview/Workbench 相关修改默认两输入后端，加入既有 play-reset 的 context-host/preview scope；Legacy 四种、Input 默认/双禁用，每种连续两次。显式 full 复用同一选择/执行链路，追加 integration/Host/preview Reload 与原 G0；不隐含固定双编辑器集合。
+- [x] 专项通过现有 runner 的 host-root 选择入口，从空 Assets 和对应版本 ProjectSettings 准备独立宿主，保留原宿主及源码包的所有权与校验。主包相关专项不安装 Addressables SDK；仅相关范围安装适配/SDK。普通 flow-integration 不生成或导入样例；生成器运行时专项和预览 Reload 仅准备必要生成夹具。样例范围 base/business/addressables/all 保留现有验收程序集必需的三个基础样例，按需增加业务/Addressables 样例。
+- [x] 选择计划、Python 日志/退出码、命令日志、准备/测试耗时及失败部分记录保存到 Artifacts。上传前检查执行清单完整性，复用原始证据索引/文件哈希、tests 必需用例/trace/源码快照及 Reload 报告验证。失败仍上传，缺文件报错；排除独立宿主及其 Library，不排除原始验证报告。
+- [x] 针对性 Python 共 99 项通过：选择/冻结/执行/上传检查 29，运行时依赖与独立宿主 19，样例 8，runner 6，Addressables 8，QuickStart 3，Reload 5，原始证据 21。Unity 调用仅在 Python 测试中模拟；没有启动编辑器。YAML、5 个 Bash 步骤语法及相关 Python 语法检查通过。记录 Artifacts/uikit/ci-hardening/python-evidence.json、config-static.json；实际 CLI 冻结/只读加载记录 freeze-cli.log、read-cli.log，均未执行计划命令。
+- [ ] 后续显式授权后，用新宿主补最小真实 Unity 专项与 Host/preview Reload；重点确认主包无可选 SDK 时编译、生成夹具、样例分组及原始证据上传前复核。当前仅证明配置和 Python 行为，不以模拟进程证明 Unity 通过。
+- [ ] 后续显式授权后运行远端专项 CI，下载 artifact 复核完整性和失败材料；本次未触发远端 CI、全量 Unity、移动发布门禁，不自动提交推送。M6 补验已按后续用户授权提交为 dab3a9e，本节为之后的新修改，历史验收继续绑定当时指纹。
+
+本次未遇到需自动修复重试的测试失败；源码未改运行时契约、包版本、第三方依赖或根 ProjectSettings。所有输出仍位于忽略的 Artifacts；不将本次工具源码指纹变化解释为旧模块已重新验收。

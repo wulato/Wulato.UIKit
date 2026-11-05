@@ -4,6 +4,12 @@
 
 M6 干净安装使用现有 `build --phase phase3 --profile clean --prepare-only`，显式选择默认编辑器；组合为 main/legacy、addressables/legacy、all/legacy、all/input。`--target Android` 在此仅保留安装记录身份，不构建 Player。隔离 Git 快照强制收录授权包目录（不受用户忽略规则影响），逐文件核对提交清单及 SHA-256，并保存 `package-snapshot.json`；样例和 `.meta` 必须从该固定提交读取，不能用快照工作目录的脏文件或未跟踪文件补齐。原始证据索引包含快照清单。安装通过仍要求生成/编译和实际依赖隔离通过；预期退出 1/BLOCKED 的唯一允许原因是 `prepare-only; no mobile Player built`，不等于移动构建通过。2026-11-03 的旧安装证据漏收样例/文档，完整交付结论由 M6 补验替代。
 
+CI 专项先用 `ci_suites.py --base <SHA> --write-plan <file> --github-output <file>` 冻结一次选择；后续准备和执行均使用 `--read-plan <file>`（准备另加 `--prepare`），不重新扫描生成后的工作区。计划保存基线、HEAD、源码/配置指纹、选择理由、准备项、Suite 和 Reload；内容损坏或输入变化会拒绝执行。`--plan` 仍只输出建议。显式 `--full` 才选择配置目标集合的完整 Editor、integration/Host/preview Reload 和 G0；日常任务不隐含全量或移动门禁。
+
+专项宿主位于忽略的 `Artifacts/uikit/ci-selected/hosts/<计划身份>/`，通过现有 runner 的 `--host-root` 入口复制对应编辑器的 ProjectSettings，空 Assets 起步并使用规范的绝对本地包路径，不删改原宿主。CI 默认 `prepare --phase runtime --package-set main`，仅 Addressables 相关专项加入适配及 SDK。`prepare-samples --sample-set base/business/addressables/all` 都保留现有样例验收程序集必需的 QuickStart/Modals/Inventory，按选择额外加入 BusinessFlow、LocalInventory；仅生成器运行时回归和预览 Reload 不导入业务样例。普通 flow-integration 无需生成或样例准备。独立调用 runner 未指定范围时保留原 all 行为。
+
+Host／预览变更默认选择两输入后端，并调用现有 `play-reset --scope context-host/preview`；Legacy 四种 Reload、Input 默认及双禁用，每种由原 runner 连续执行两次。测试源文件按所属 Category 映射，测试程序集元数据覆盖该程序集拥有的 Suite。选择计划、Python 日志/退出码、每条命令日志、耗时及失败的部分记录均留在 ci-selected；上传前 `--read-plan <file> --check-evidence` 检查计划执行完整性，并复用原始索引/文件哈希、必需用例/trace 与 Reload 报告检查。上传始终执行，缺文件报错，排除独立宿主及其 Library，保留原始验证证据。配置/Python 通过不等于远端 CI、真实新宿主编译或 artifact 下载复核已通过。
+
 The preflight packages are verification prototypes, independent of production UIKit. The separate acceptance package verifies T2 contracts and actual resolved dependencies. Run commands from the repository root on macOS with the two specified Unity editors installed.
 
 ```sh

@@ -30,38 +30,32 @@ jobs:
         id: scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
-        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --github-output "$GITHUB_OUTPUT"
+          UIKIT_CI_FULL: ${{ inputs.full || false }}
+        run: |
+          mkdir -p Artifacts/uikit/ci-selected
+          python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --write-plan Artifacts/uikit/ci-selected/selection.json --github-output "$GITHUB_OUTPUT" > Artifacts/uikit/ci-selected/selection.log 2>&1
       - name: Python verifier regression
         if: inputs.full || steps.scope.outputs.tools == 'true'
-        run: python3 -m unittest discover -s Tools/Verification -p 'test_*.py'
-      - name: Prepare only selected consumers
-        if: ${{ !inputs.full && steps.scope.outputs.count != '0' }}
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
-        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --prepare
-      - name: Prepare explicit full targets
-        if: inputs.full
         run: |
-          python3 Tools/Verification/run.py prepare --phase runtime --editor all --backend all
-          python3 Tools/Verification/run.py codegen --editor all --backend all
-          python3 Tools/Verification/run.py prepare-samples --editor all --backend all
-          python3 Tools/Verification/run.py check-generated --editor all --backend all
-          python3 Tools/Verification/run.py prepare --phase addressables --editor all --backend all
-          python3 Tools/Verification/run.py compile-probe --editor all
-      - name: Affected module suites
-        if: ${{ !inputs.full && steps.scope.outputs.count != '0' }}
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
-        run: python3 Tools/Verification/ci_suites.py --base "$BASE_SHA"
-      - name: Explicit full Editor and Reload gate
-        if: inputs.full
-        run: |
-          python3 Tools/Verification/run.py tests --editor all --backend all --mode EditMode --suite all
-          python3 Tools/Verification/run.py tests --editor all --backend all --mode PlayMode --suite all
-          python3 Tools/Verification/run.py play-reset --editor all --backend all
-          python3 Tools/Verification/run.py gate --name preflight
+          set +e
+          python3 -m unittest discover -s Tools/Verification -p 'test_*.py' > Artifacts/uikit/ci-selected/python.log 2>&1
+          uikit_python_exit=$?
+          printf '{"exit_code":%s}\n' "$uikit_python_exit" > Artifacts/uikit/ci-selected/python-status.json
+          exit "$uikit_python_exit"
+      - name: Prepare frozen consumers
+        if: steps.scope.outputs.count != '0'
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --prepare
+      - name: Run frozen suites and Reload checks
+        if: steps.scope.outputs.count != '0'
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json
+      - name: Check expected command evidence before upload
+        if: ${{ always() && steps.scope.outcome == 'success' }}
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --check-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: uikit-editor-evidence
-          path: Artifacts/uikit
+          if-no-files-found: error
+          path: |
+            Artifacts/uikit
+            !Artifacts/uikit/ci-selected/hosts/**

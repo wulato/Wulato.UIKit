@@ -4,7 +4,8 @@ UNITASK='https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/
 MAIN='com.wulato.uikit'
 ACCEPTANCE=MAIN+'.acceptance'
 
-def runtime_manifest(ver,backend):
+def runtime_manifest(ver,backend,package_set='all'):
+    if package_set not in ('main','addressables','all'):raise ValueError('unknown-runtime-package-set:'+package_set)
     from run import VERSIONS,COMMON
     _,ugui,utf=VERSIONS[ver]
     deps={'com.unity.ugui':ugui,'com.unity.test-framework':utf,COMMON:'file:../../../Packages/'+COMMON,
@@ -18,13 +19,13 @@ def runtime_manifest(ver,backend):
     deps.update({MAIN:'file:../../../../Packages/'+MAIN,ACCEPTANCE:'file:../../../Packages/'+ACCEPTANCE,'com.cysharp.unitask':UNITASK})
     from pathlib import Path
     root=Path(__file__).resolve().parents[2]
-    for name in EXTENSIONS:
+    for name in (EXTENSIONS if package_set!='main' else ()):
         if (root/'Packages'/name/'package.json').is_file():
             deps[name]='file:../../../../Packages/'+name;tests.append(name)
     if MAIN in deps and (root/'Verification/Packages/com.wulato.uikit.acceptance.flows/package.json').is_file():
         name='com.wulato.uikit.acceptance.flows';deps[name]='file:../../../Packages/'+name;tests.append(name)
     probe=MAIN+'.verification.addressables'
-    if (root/'Verification/Packages'/probe/'package.json').is_file():
+    if package_set!='main' and (root/'Verification/Packages'/probe/'package.json').is_file():
         deps[probe]='file:../../../Packages/'+probe;tests.append(probe)
         deps['com.unity.addressables']=PROFILES[ver]['addressables']
         deps['com.unity.scriptablebuildpipeline']=PROFILES[ver]['sbp']
@@ -45,7 +46,7 @@ def validate_dependencies(ver,manifest,lock):
             if deps.get(name)!=wanted or resolved.get(name,{}).get('version')!=wanted:errors.append('addressables-resolved-version:'+name)
     return errors
 
-def prepare_runtime_manifest(ver,backend,manifest,lock):
+def prepare_runtime_manifest(ver,backend,manifest,lock,package_set='all'):
     """Reject incompatible existing input before preparing; never silently repair it."""
     from run import VERSIONS
     deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
@@ -56,12 +57,14 @@ def prepare_runtime_manifest(ver,backend,manifest,lock):
     if name in deps or name in resolved:
         if deps.get(name)!=UNITASK or (name in resolved and (resolved[name].get('version')!=UNITASK or resolved[name].get('source')!='git')):
             raise ValueError('Existing dependency incompatible: install and lock UniTask 2.5.11 using '+UNITASK)
-    result=runtime_manifest(ver,backend)
+    result=runtime_manifest(ver,backend,package_set)
     samples=MAIN+'.acceptance.samples'
     if samples in deps:
         canonical='file:../../../Packages/'+samples
-        if deps[samples]!=canonical:raise ValueError('noncanonical-sample-acceptance-source')
-        result['dependencies'][samples]=canonical
+        from pathlib import Path
+        absolute='file:'+str(Path(__file__).resolve().parents[2]/'Verification/Packages'/samples)
+        if deps[samples] not in (canonical,absolute):raise ValueError('noncanonical-sample-acceptance-source')
+        result['dependencies'][samples]=deps[samples]
         if samples not in result['testables']:result['testables'].append(samples)
     return result
 

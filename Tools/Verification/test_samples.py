@@ -3,6 +3,17 @@ from pathlib import Path
 import samples
 
 class SamplesTests(unittest.TestCase):
+    def test_scoped_samples_exclude_unselected_business_and_addressables(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);host=root/'host';(host/'Packages').mkdir(parents=True)
+            (host/'Packages/manifest.json').write_text(json.dumps({'dependencies':{'com.wulato.uikit':'file:main','com.wulato.uikit.addressables':'file:addressables'}}))
+            for selection,wanted in [('base',set(samples.NAMES)),('business',set(samples.NAMES)|{'BusinessFlow'}),('addressables',set(samples.NAMES)|{'LocalInventory'})]:
+                self.assertEqual(wanted,{p.name for p in samples.sample_sources(root,host,selection)})
+    def test_requested_addressables_sample_requires_adapter(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);host=root/'host';(host/'Packages').mkdir(parents=True)
+            (host/'Packages/manifest.json').write_text('{"dependencies":{"com.wulato.uikit":"file:main"}}')
+            with self.assertRaisesRegex(ValueError,'require-adapter'):samples.sample_sources(root,host,'addressables')
     def test_missing_assembly_does_not_install_test_package(self):
         with tempfile.TemporaryDirectory() as d:
             host=Path(d);(host/'Packages').mkdir();p=host/'Packages/manifest.json'

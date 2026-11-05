@@ -17,7 +17,24 @@ def selected(args):
  for ver in editors(args.editor):
   short,_,_=VERSIONS[ver]
   for backend in ('legacy','input'):
-   if args.backend in ('all',backend):yield ver,backend,V/'Projects'/f'{short}-{backend}'
+    if args.backend in ('all',backend):
+     original=V/'Projects'/f'{short}-{backend}'
+     host_root=getattr(args,'host_root',None)
+     host=isolated_host(args,ver,backend,original,host_root) if host_root else original
+     yield ver,backend,host
+
+def isolated_host(args,ver,backend,original,host_root):
+ import shutil
+ base=Path(host_root).resolve()
+ if not base.is_relative_to((A/'ci-selected/hosts').resolve()):raise ValueError('CI host root must be under Artifacts/uikit/ci-selected/hosts')
+ host=base/original.name
+ if not host.exists():
+  if args.command!='prepare' or args.phase!='runtime':raise ValueError('CI host requires runtime preparation:'+str(host))
+  host.mkdir(parents=True);(host/'Assets').mkdir();(host/'Packages').mkdir()
+  shutil.copytree(original/'ProjectSettings',host/'ProjectSettings')
+  dump(host/'Packages/manifest.json',dict(dependencies={'com.unity.ugui':PROFILES[ver]['ugui']}))
+  dump(host/'Packages/packages-lock.json',dict(dependencies={}))
+ return host
 def digest(files):
  h=hashlib.sha256()
  for p in sorted(set(files)):
@@ -157,7 +174,10 @@ def _run_locked(args):
      from runtime import prepare_runtime_manifest
      current=json.loads((host/'Packages/manifest.json').read_text())
      current_lock=json.loads((host/'Packages/packages-lock.json').read_text())
-     manifest=prepare_runtime_manifest(ver,backend,current,current_lock)
+     manifest=prepare_runtime_manifest(ver,backend,current,current_lock,getattr(args,'package_set','all'))
+     if getattr(args,'host_root',None):
+      canonical=V/'Projects'/f'{VERSIONS[ver][0]}-{backend}'/'Packages'
+      manifest['dependencies']={name:('file:'+str((canonical/value[5:]).resolve()) if value.startswith('file:') and not Path(value[5:]).is_absolute() else value) for name,value in manifest['dependencies'].items()}
     else:manifest=dict(dependencies=deps,testables=testables)
     dump(host/'Packages/manifest.json',manifest)
    else:
@@ -215,11 +235,14 @@ def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
  for name in ('prepare','tests'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
-  if name=='prepare':q.add_argument('--phase',choices=['p0','p1','runtime','addressables'],required=True)
+  if name=='prepare':
+   q.add_argument('--phase',choices=['p0','p1','runtime','addressables'],required=True)
+   q.add_argument('--package-set',choices=['main','addressables','all'],default='all')
   else:q.add_argument('--suite',required=True);q.add_argument('--mode',choices=['PlayMode','EditMode'],default='PlayMode')
  for name in ('codegen','check-generated','prepare-samples'):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  q=sub.choices['prepare-samples'];q.add_argument('--quickstart-only',action='store_true',help='fresh isolated consumers, versioned QuickStart only, using the existing Unity runner and evidence verifier');q.add_argument('--red',action='store_true',help='import/compile only, before sample asset implementation');q.add_argument('--check-only',action='store_true',help='compile and validate existing imported sample assets without regeneration')
+ q.add_argument('--sample-set',choices=['base','business','addressables','all'],default='all')
  q=sub.add_parser('play-reset');q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
  sub.choices['play-reset'].add_argument('--scope',choices=['integration','context-host','preview'],default='integration')
  sub.choices['play-reset'].add_argument('--reload-option',type=int,choices=range(4))
@@ -230,6 +253,8 @@ def main():
  for name in ('build',):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2','phase3'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue','addressables'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
  q=sub.add_parser('smoke');q.add_argument('--build',required=True);q.add_argument('--device',required=True);q.add_argument('--timeout',type=int,default=180)
+ for name in ('prepare','tests','codegen','check-generated','prepare-samples','play-reset','compile-probe'):
+  sub.choices[name].add_argument('--host-root')
  a=p.parse_args()
  if a.command=='build':
   from build import run_build

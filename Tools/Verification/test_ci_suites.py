@@ -1,4 +1,7 @@
 import unittest
+import contextlib,io,json,tempfile
+from pathlib import Path
+from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
     def test_navigation_change_does_not_run_unrelated_modules_or_all(self):
@@ -63,3 +66,131 @@ class NewBoundarySelectionTests(unittest.TestCase):
         rows=ci_suites.plan(['Packages/com.wulato.uikit/package.json'])['tests']
         self.assertEqual({'legacy','input'},{r['backend'] for r in rows})
         self.assertEqual({'2022.3.62f2'},{r['editor'] for r in rows})
+
+class FrozenSelectionTests(unittest.TestCase):
+    def setUp(self):
+        import ci_suites
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name)
+        for target,value in [('R',self.root),('binding',lambda:{'head':'fixed','source_fingerprint':'inputs','configuration':{'selector':'hash'}})]:
+            mock=patch.object(ci_suites,target,value);mock.start();self.addCleanup(mock.stop)
+    def freeze(self,chosen):
+        import ci_suites
+        path=self.root/'selection.json'
+        with patch.object(ci_suites.subprocess,'check_output',return_value='base\n'):ci_suites.freeze(chosen,path,'BASE')
+        return path
+    def test_read_plan_ignores_generated_diffs_and_keeps_original_scope(self):
+        import ci_suites
+        chosen=ci_suites.plan(['Packages/com.wulato.uikit/Runtime/Navigation/UINavigator.cs'])
+        path=self.freeze(chosen)
+        with patch.object(ci_suites,'changed_paths',side_effect=AssertionError('must not rescan')),patch('sys.argv',['ci_suites','--read-plan',str(path),'--plan']),contextlib.redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(0,ci_suites.main())
+        self.assertEqual(chosen,json.loads(output.getvalue()))
+        self.assertEqual({'navigation','flow-integration'},{r['suite'] for r in chosen['tests']})
+    def test_tampered_or_stale_plan_is_rejected(self):
+        import ci_suites
+        chosen=ci_suites.plan([]);path=self.freeze(chosen)
+        with patch.object(ci_suites,'binding',return_value={'head':'different'}),self.assertRaisesRegex(ValueError,'stale'):
+            ci_suites.load_plan(path)
+        inputs=ci_suites.binding();inputs['source_fingerprint']='changed-without-commit'
+        with patch.object(ci_suites,'binding',return_value=inputs),self.assertRaisesRegex(ValueError,'stale'):
+            ci_suites.load_plan(path)
+        data=json.loads(path.read_text());data['selection']['tests']=[{}];path.write_text(json.dumps(data))
+        with self.assertRaisesRegex(ValueError,'hash-mismatch'):ci_suites.load_plan(path)
+    def test_execute_passes_identical_host_and_scope_to_existing_runner(self):
+        import ci_suites
+        chosen=ci_suites.plan(['Packages/com.wulato.uikit/Runtime/UGUI/UIContextHost.cs'])
+        with patch.object(ci_suites.subprocess,'call',return_value=0) as call,contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0,ci_suites.execute(chosen,True));self.assertEqual(0,ci_suites.execute(chosen))
+        calls=[c.args[0] for c in call.call_args_list]
+        self.assertTrue(all(str(Path('Tools/Verification/run.py')) in cmd[1] for cmd in calls))
+        self.assertTrue(all(cmd[cmd.index('--host-root')+1]==chosen['host_root'] for cmd in calls))
+        with patch.object(ci_suites,'command_evidence',return_value=[]):self.assertEqual(0,ci_suites.check_evidence(chosen))
+        (self.root/ci_suites.CI_DIR/'test-timings.json').unlink()
+        self.assertEqual(1,ci_suites.check_evidence(chosen))
+    def test_failure_stops_execution_and_preserves_logs_and_partial_timings(self):
+        import ci_suites
+        chosen=ci_suites.plan(['Packages/com.wulato.uikit/Runtime/Navigation/UINavigator.cs'])
+        with patch.object(ci_suites.subprocess,'call',side_effect=[0,1]) as call,contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(1,ci_suites.execute(chosen,True))
+        report=json.loads((self.root/ci_suites.CI_DIR/'prepare-timings.json').read_text())
+        self.assertEqual('failed',report['state']);self.assertEqual(2,call.call_count)
+        self.assertEqual([0,1],[r['exit_code'] for r in report['runs']])
+        self.assertTrue(all((self.root/r['log']).is_file() for r in report['runs']))
+        self.assertEqual(1,ci_suites.check_evidence(chosen))
+    def test_python_only_evidence_must_include_success_status_and_log(self):
+        import ci_suites
+        chosen=ci_suites.plan(['Tools/Verification/ci_suites.py']);out=self.root/ci_suites.CI_DIR;out.mkdir(parents=True)
+        self.assertEqual(1,ci_suites.check_evidence(chosen))
+        (out/'python.log').write_text('tests passed');(out/'python-status.json').write_text('{"exit_code":0}')
+        self.assertEqual(0,ci_suites.check_evidence(chosen))
+        (out/'python-status.json').write_text('{"exit_code":1}');self.assertEqual(1,ci_suites.check_evidence(chosen))
+
+class CoverageAndPreparationTests(unittest.TestCase):
+    def test_upload_rejects_missing_or_tampered_raw_command_evidence(self):
+        import ci_suites,run,hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);batch=root/'attempt';host=batch/'u2022-legacy';host.mkdir(parents=True)
+            raw=host/'raw.log';raw.write_text('original')
+            record=dict(status='PASS',editor='2022.3.62f2',backend='legacy',files={'raw.log':hashlib.sha256(raw.read_bytes()).hexdigest()})
+            (host/'summary.json').write_text(json.dumps(record));(batch/'summary.json').write_text(json.dumps([record]))
+            log=root/'command.log';log.write_text('EVIDENCE '+str(batch)+'\n')
+            chosen=ci_suites.plan([]);row=dict(command='codegen',editor='2022.3.62f2',backend='legacy')
+            with patch.object(run,'A',root):
+                self.assertEqual([],ci_suites.command_evidence(row,log,chosen))
+                raw.write_text('changed');self.assertTrue(ci_suites.command_evidence(row,log,chosen))
+                raw.unlink();self.assertTrue(ci_suites.command_evidence(row,log,chosen))
+                log.write_text('no evidence');self.assertTrue(ci_suites.command_evidence(row,log,chosen))
+    def test_changed_test_files_select_their_own_suite(self):
+        import ci_suites
+        for file,suite in [('InputArbitrationTests','input-runtime'),('TransitionTests','transitions'),('GeneratedRegistryIntegrationTests','generated-integration'),('LoadingTests','loading-layout')]:
+            with self.subTest(file=file):
+                rows=ci_suites.plan([f'Packages/com.wulato.uikit/Tests/PlayMode/{file}.cs.meta'])['tests']
+                self.assertEqual({suite},{r['suite'] for r in rows})
+    def test_playmode_test_assembly_metadata_selects_its_owned_suites(self):
+        import ci_suites
+        p=ci_suites.plan(['Packages/com.wulato.uikit/Tests/PlayMode/Wulato.UIKit.Tests.PlayMode.asmdef.meta'])
+        self.assertTrue({'input-runtime','transitions','loading-layout','generated-integration','context-host','preview-runtime'}.issubset({r['suite'] for r in p['tests']}))
+        self.assertEqual({'legacy','input'},{r['backend'] for r in p['tests']})
+    def test_all_categorized_main_package_tests_select_their_category(self):
+        import ci_suites,re
+        root=Path(__file__).resolve().parents[2]
+        for file in (root/'Packages/com.wulato.uikit/Tests').rglob('*.cs'):
+            categories=set(re.findall(r'Category\("([a-z_]+)"\)',file.read_text()))
+            if not categories:continue
+            suites={r['suite'].replace('-','_') for r in ci_suites.plan([file.relative_to(root).as_posix()])['tests']}
+            with self.subTest(file=file.name):self.assertTrue(categories.issubset(suites),(categories,suites))
+    def test_host_preview_and_workbench_cover_two_backends_and_reload_scopes(self):
+        import ci_suites
+        for path,scope in [('Runtime/UGUI/UIContextHost.cs','context-host'),('Editor/Authoring/UIPreviewController.cs','preview'),('Editor/Authoring/UIAuthoringWorkbench.cs','preview')]:
+            with self.subTest(path=path):
+                p=ci_suites.plan(['Packages/com.wulato.uikit/'+path])
+                self.assertEqual({'legacy','input'},{r['backend'] for r in p['tests']})
+                self.assertEqual({('legacy',scope),('input',scope)},{(r['backend'],r['scope']) for r in p['reload']})
+    def test_navigation_avoids_unrelated_sdk_samples_and_codegen(self):
+        import ci_suites
+        p=ci_suites.plan(['Packages/com.wulato.uikit/Runtime/Navigation/UINavigator.cs'])
+        self.assertEqual(['prepare','compile-probe'],[r['command'] for r in p['prepare']])
+        self.assertEqual('main',p['prepare'][0]['package_set'])
+    def test_generated_integration_needs_codegen_but_no_sample_import(self):
+        import ci_suites
+        p=ci_suites.plan(['Packages/com.wulato.uikit/Tests/PlayMode/GeneratedRegistryIntegrationTests.cs'])
+        self.assertEqual(['prepare','codegen','check-generated'],[r['command'] for r in p['prepare']])
+    def test_business_and_addressables_choose_distinct_sample_sets(self):
+        import ci_suites
+        for path,sample_set,package_set in [('Packages/com.wulato.uikit/Samples~/BusinessFlow/BusinessFlowDemo.cs','business','main'),('Packages/com.wulato.uikit.addressables/Runtime/AddressablesUIViewLoader.cs','addressables','all')]:
+            p=ci_suites.plan([path]);self.assertEqual(sample_set,next(r for r in p['prepare'] if r['command']=='prepare-samples')['sample_set'])
+            self.assertEqual(package_set,p['prepare'][0]['package_set'])
+    def test_explicit_full_uses_configured_targets_and_all_reload_scopes(self):
+        import ci_suites
+        from editor_targets import TARGETS
+        p=ci_suites.plan([],full=True)
+        self.assertEqual(set(TARGETS),{r['editor'] for r in p['tests']});self.assertIsNone(p['host_root'])
+        self.assertEqual({'integration','context-host','preview'},{r['scope'] for r in p['reload']})
+        self.assertEqual('gate',ci_suites.commands(p,False)[-1]['command'])
+    def test_workflow_freezes_once_and_uploads_failure_evidence_without_host_libraries(self):
+        text=(Path(__file__).resolve().parents[2]/'.github/workflows/uikit-checks.yml').read_text()
+        self.assertEqual(1,text.count('--write-plan'))
+        self.assertEqual(3,text.count('--read-plan'))
+        for required in ('--check-evidence','python.log','python-status.json','if-no-files-found: error','!Artifacts/uikit/ci-selected/hosts/**','if: always()'):
+            self.assertIn(required,text)

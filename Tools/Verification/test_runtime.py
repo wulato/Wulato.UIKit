@@ -28,6 +28,26 @@ class RuntimeDependencyTests(unittest.TestCase):
             self.assertEqual(backend=='input','com.unity.inputsystem' in m['dependencies'])
 
 class RuntimePreparationTests(unittest.TestCase):
+    def test_scoped_main_runtime_excludes_optional_sdk_and_probe(self):
+        for backend in ('legacy','input'):
+            m=runtime_manifest('2022.3.62f2',backend,'main')
+            self.assertNotIn('com.wulato.uikit.addressables',m['dependencies'])
+            self.assertNotIn('com.wulato.uikit.verification.addressables',m['dependencies'])
+            self.assertNotIn('com.unity.addressables',m['dependencies'])
+            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['dependencies'])
+            self.assertIn('com.wulato.uikit.acceptance.flows',m['dependencies'])
+    def test_explicit_addressables_runtime_retains_profile_constraints(self):
+        m=runtime_manifest('2022.3.62f2','legacy','addressables')
+        self.assertEqual('1.21.21',m['dependencies']['com.unity.addressables'])
+        self.assertEqual('1.21.25',m['dependencies']['com.unity.scriptablebuildpipeline'])
+        self.assertIn('com.wulato.uikit.addressables',m['testables'])
+    def test_scoped_preparation_keeps_existing_dependency_rejection(self):
+        from runtime import prepare_runtime_manifest
+        original=runtime_manifest('2022.3.62f2','legacy');original['dependencies']['com.cysharp.unitask']='incompatible'
+        before=copy.deepcopy(original)
+        with self.assertRaisesRegex(ValueError,'UniTask'):
+            prepare_runtime_manifest('2022.3.62f2','legacy',original,{'dependencies':{}},'main')
+        self.assertEqual(before,original)
     def test_prepare_refuses_existing_old_unitask_without_rewriting(self):
         from runtime import prepare_runtime_manifest
         manifest=runtime_manifest('6000.3.22f1','legacy');manifest['dependencies']['com.cysharp.unitask']=UNITASK.replace('2.5.11','2.3.3')
@@ -86,3 +106,53 @@ class ExtensionMetadataTests(unittest.TestCase):
         self.assertTrue(validate_extension_package(package,refs))
         package['dependencies']['com.wulato.uikit']='0.4.0'
         self.assertTrue(validate_extension_package(package,refs+['Unity.InputSystem']))
+
+class IsolatedCIHostTests(unittest.TestCase):
+    def test_runtime_preparation_resolves_canonical_sources_for_both_isolated_hosts(self):
+        import argparse,json,tempfile,run
+        from pathlib import Path
+        from unittest.mock import patch
+        # Exercise the existing runner orchestration, substituting only the actual Unity process.
+        base=run.A/'ci-hardening';base.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=base) as folder:
+            artifacts=Path(folder)
+            args=argparse.Namespace(command='prepare',phase='runtime',editor='2022.3.62f2',backend='all',editor_path=None,package_set='main',host_root=str(artifacts/'ci-selected/hosts'))
+            def unity(args,ver,host,out,test=False):
+                m=json.loads((host/'Packages/manifest.json').read_text())
+                self.assertNotIn('com.unity.addressables',m['dependencies'])
+                self.assertTrue(all(Path(value[5:]).is_absolute() for value in m['dependencies'].values() if value.startswith('file:')))
+                sources=run.package_sources(host)
+                self.assertEqual(run.R/'Packages/com.wulato.uikit',sources['com.wulato.uikit'])
+                run.dump(host/'Packages/packages-lock.json',dict(dependencies={name:dict(version=value,source='local' if value.startswith('file:') else 'git' if name=='com.cysharp.unitask' else 'registry') for name,value in m['dependencies'].items()}))
+                run.dump(out/'dependency-snapshot.json',dict(editor=ver,packages=[dict(name=name,version=version) for name,version in [('com.wulato.uikit','0.4.0'),('com.cysharp.unitask','2.5.11'),('com.unity.ugui','1.0.0')]]))
+                log='Unity Editor version: '+ver+'\n';(out/'editor.log').write_text(log)
+                return 0,False,log,ver
+            with patch.object(run,'A',artifacts),patch.object(run,'verify_editor',return_value='2022.3.62f2'),patch.object(run,'unity',side_effect=unity) as process:
+                self.assertEqual(0,run.run(args));self.assertEqual(2,process.call_count)
+    def test_isolated_host_copies_settings_without_existing_assets_or_dependencies(self):
+        import argparse,json,tempfile,run
+        from pathlib import Path
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);original=root/'Verification/Projects/u2022-legacy'
+            (original/'Assets').mkdir(parents=True);(original/'Assets/User.prefab').write_text('preserve')
+            (original/'ProjectSettings').mkdir();(original/'ProjectSettings/ProjectVersion.txt').write_text('m_EditorVersion: 2022.3.62f2\n')
+            (original/'Packages').mkdir();(original/'Packages/manifest.json').write_text('{"dependencies":{"old":"local"}}')
+            args=argparse.Namespace(command='prepare',phase='runtime',editor='2022.3.62f2',backend='legacy',host_root=str(root/'Artifacts/uikit/ci-selected/hosts'))
+            with patch.object(run,'A',root/'Artifacts/uikit'),patch.object(run,'V',root/'Verification'):
+                ver,backend,host=next(run.selected(args))
+                self.assertEqual(original.name,host.name);self.assertEqual([],list((host/'Assets').iterdir()))
+                self.assertEqual((original/'ProjectSettings/ProjectVersion.txt').read_bytes(),(host/'ProjectSettings/ProjectVersion.txt').read_bytes())
+                self.assertEqual({'com.unity.ugui':'1.0.0'},json.loads((host/'Packages/manifest.json').read_text())['dependencies'])
+                args.command='tests';self.assertEqual(host,next(run.selected(args))[2])
+                args.host_root=str(root/'outside')
+                with self.assertRaisesRegex(ValueError,'CI host root'):next(run.selected(args))
+            self.assertEqual('preserve',(original/'Assets/User.prefab').read_text())
+    def test_missing_isolated_host_cannot_be_created_by_test_execution(self):
+        import argparse,tempfile,run
+        from pathlib import Path
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            with patch.object(run,'A',root/'Artifacts/uikit'),self.assertRaisesRegex(ValueError,'requires runtime preparation'):
+                run.isolated_host(argparse.Namespace(command='tests'),'2022.3.62f2','legacy',root/'u2022-legacy',root/'Artifacts/uikit/ci-selected/hosts')
