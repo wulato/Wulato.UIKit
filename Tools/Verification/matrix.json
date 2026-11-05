@@ -387,7 +387,9 @@
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
-          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.OptionalIntegrations_CompileOnlyWithInstalledSdks",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.LegacyAdapterPackages_AreRejectedWithMigrationMessage"
         ],
         "navigation": [
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
@@ -874,7 +876,9 @@
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
-          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.OptionalIntegrations_CompileOnlyWithInstalledSdks",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.LegacyAdapterPackages_AreRejectedWithMigrationMessage"
         ],
         "navigation": [
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
@@ -1355,7 +1359,9 @@
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
-          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.OptionalIntegrations_CompileOnlyWithInstalledSdks",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.LegacyAdapterPackages_AreRejectedWithMigrationMessage"
         ],
         "navigation": [
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",
@@ -1842,7 +1848,9 @@
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
-          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies"
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.OptionalIntegrations_CompileOnlyWithInstalledSdks",
+          "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.LegacyAdapterPackages_AreRejectedWithMigrationMessage"
         ],
         "navigation": [
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.PushBack_RebuildsDescriptorsAndClosesOldSessions",

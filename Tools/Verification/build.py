@@ -35,7 +35,7 @@ def validate_build_report(raw,summary):
 
 def source_fingerprint():
     import run
-    files=[p for base in (run.R/'Packages/com.wulato.uikit',run.R/'Packages/com.wulato.uikit.input-system',run.V/'Packages') for p in base.rglob('*') if p.is_file() and p.name!='.DS_Store']
+    files=[p for base in (run.R/'Packages/com.wulato.uikit',run.V/'Packages') for p in base.rglob('*') if p.is_file() and p.name!='.DS_Store']
     from runtime import EXTENSIONS
     files += [p for name in EXTENSIONS for p in (run.R/'Packages'/name).rglob('*') if p.is_file() and p.name!='.DS_Store']
     files+=list((run.R/'.github/workflows').glob('uikit-*.yml'))+list(run.C.glob('*.py'))+[run.C/'matrix.json',run.C/'editors.json',run.R/'docs/superpowers/specs/2026-10-31-wulato-uikit-design.md']
@@ -88,7 +88,7 @@ def git_source(folder):
     import run
     source=folder/'git-source';source.mkdir()
     from runtime import EXTENSIONS
-    for name in ('com.wulato.uikit','com.wulato.uikit.input-system',*[n for n in EXTENSIONS if (run.R/'Packages'/n).exists()]):
+    for name in ('com.wulato.uikit',):
         shutil.copytree(run.R/'Packages'/name,source/'Packages'/name,ignore=shutil.ignore_patterns('.DS_Store'))
     expected={p.relative_to(source).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (source/'Packages').rglob('*') if p.is_file()}
     # Force only this isolated package snapshot; user/global ignore rules must not omit UPM ~ folders.
@@ -115,11 +115,11 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
     original=run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}'
     shutil.copytree(original/'ProjectSettings',host/'ProjectSettings')
     deps={'com.wulato.uikit':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit#'+revision,'com.cysharp.unitask':UNITASK,'com.unity.ugui':run.VERSIONS[ver][1],**{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
-    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem'],'com.wulato.uikit.input-system':'git+'+source.as_uri()+'?path=Packages/com.wulato.uikit.input-system#'+revision})
+    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem']})
     from runtime import EXTENSIONS
     selected=selected_packages(phase,package_set)
     for name in selected:deps[name]='git+'+source.as_uri()+'?path=Packages/'+name+'#'+revision
-    if 'com.wulato.uikit.addressables' in selected:
+    if phase=='phase3' and package_set!='main':
         from addressables_content import VERSIONS as ADDRESSABLES_VERSIONS
         deps.update(dict(zip(('com.unity.addressables','com.unity.scriptablebuildpipeline'),ADDRESSABLES_VERSIONS[ver])))
     if profile=='smoke':
@@ -140,8 +140,8 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
     if phase in ('phase2','phase3') and package_set=='all':copy_sample('com.wulato.uikit','BusinessFlow')
-    if 'com.wulato.uikit.addressables' in selected:
-        copy_sample('com.wulato.uikit.addressables','LocalInventory')
+    if phase=='phase3' and package_set!='main':
+        copy_sample('com.wulato.uikit','LocalInventory')
         probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
         run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit','Wulato.UIKit.Addressables']))
         (probe/'Probe.cs').write_text('public static class AddressablesCompileProbe { public static Wulato.UIKit.UIContextBuilder Compose(Wulato.UIKit.UIContextBuilder b) => b.WithLoader(new Wulato.UIKit.AddressablesUIViewLoader()); }\n')
@@ -209,7 +209,7 @@ def run_build(args):
                         result['generation_compiled']=True
                         lock=host/'Packages/packages-lock.json';shutil.copy2(lock,out/'packages-lock.json')
                         dependencies=json.loads(lock.read_text())['dependencies']
-                        for name in ('com.wulato.uikit',*(['com.wulato.uikit.input-system'] if backend=='input' else []),*selected_packages(phase,package_set)):
+                        for name in ('com.wulato.uikit',):
                             if dependencies[name].get('source')!='git' or revision not in dependencies[name].get('version',''):raise ValueError('not-pinned-git-install:'+name)
                         if phase=='phase3':validate_phase3_install(out,ver,backend,package_set,revision)
                         result['dependency_lock_sha256']=hashlib.sha256(lock.read_bytes()).hexdigest()
@@ -240,11 +240,11 @@ def selected_packages(phase,scope):
 
 def validate_phase3_install(folder,editor,backend,scope,revision):
     from addressables_content import VERSIONS
-    from runtime import EXTENSIONS
+    from runtime import LEGACY_ADAPTERS
     report=json.loads((folder/'dependency-snapshot.json').read_text())
     packages={p['name']:p for p in report['packages']}
-    expected=set(selected_packages('phase3',scope))
-    if set(EXTENSIONS)&set(packages)!=expected:raise ValueError('phase3-package-isolation')
+    expected={'com.wulato.uikit'}
+    if LEGACY_ADAPTERS&set(packages):raise ValueError('Package migration: remove legacy UIKit adapter packages')
     if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.4.0':raise ValueError('phase3-installed-baseline')
     for name in expected:
         if packages[name].get('source')!='Git':raise ValueError('phase3-non-git-package:'+name)

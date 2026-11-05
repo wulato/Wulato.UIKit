@@ -1,9 +1,0 @@
-{
-  "name": "Wulato.UIKit.Samples.Addressables",
-  "references": [
-    "Wulato.UIKit",
-    "Wulato.UIKit.Addressables",
-    "UniTask",
-    "UnityEngine.UI"
-  ]
-}

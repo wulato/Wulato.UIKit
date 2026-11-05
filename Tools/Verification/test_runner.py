@@ -19,14 +19,14 @@ class ExtensionFingerprintTests(unittest.TestCase):
         from unittest.mock import patch
         import run
         with tempfile.TemporaryDirectory() as folder:
-            root=Path(folder);host=root/'Verification/Projects/u2022-legacy';package=root/'Packages/com.wulato.uikit.addressables'
+            root=Path(folder);host=root/'Verification/Projects/u2022-legacy';package=root/'Packages/com.wulato.uikit'
             package.mkdir(parents=True);(host/'Packages').mkdir(parents=True);(root/'Tools').mkdir()
-            (root/'Tools/matrix.json').write_text('{}');(package/'package.json').write_text('{"name":"com.wulato.uikit.addressables"}')
+            (root/'Tools/matrix.json').write_text('{}');(package/'package.json').write_text('{"name":"com.wulato.uikit"}')
             source=package/'Marker.cs';source.write_text('before')
-            manifest=host/'Packages/manifest.json';manifest.write_text(json.dumps({'dependencies':{'com.wulato.uikit.addressables':'file:../../../../Packages/com.wulato.uikit.addressables'}}))
+            manifest=host/'Packages/manifest.json';manifest.write_text(json.dumps({'dependencies':{'com.wulato.uikit':'file:../../../../Packages/com.wulato.uikit'}}))
             with patch.object(run,'R',root),patch.object(run,'C',root/'Tools'):
                 before=run.fingerprint(host);source.write_text('after');self.assertNotEqual(before,run.fingerprint(host))
-                manifest.write_text(json.dumps({'dependencies':{'com.wulato.uikit.addressables':'file:../../../../Packages/alternate'}}))
+                manifest.write_text(json.dumps({'dependencies':{'com.wulato.uikit':'file:../../../../Packages/alternate'}}))
                 with self.assertRaisesRegex(ValueError,'noncanonical-package-source'):run.package_sources(host)
 
 class ConfiguredTargetTests(unittest.TestCase):

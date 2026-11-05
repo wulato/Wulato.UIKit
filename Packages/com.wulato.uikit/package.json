@@ -28,6 +28,11 @@
       "displayName": "BusinessFlow",
       "description": "Navigation, dialogs, popup queue and per-session presenters",
       "path": "Samples~/BusinessFlow"
+    },
+    {
+      "displayName": "LocalInventory",
+      "description": "Optional Addressables SDK: explicit loader, local Bundle, cache and cancellation.",
+      "path": "Samples~/LocalInventory"
     }
   ]
 }

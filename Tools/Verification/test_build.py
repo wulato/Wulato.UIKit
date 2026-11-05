@@ -25,7 +25,7 @@ class BuildTests(ConsumerFixtureTests):
             data=json.loads((host/'Packages/manifest.json').read_text())
             self.assertNotIn('testables',data)
             self.assertFalse(any(any(n in key for n in ('test','acceptance','verification')) for key in data['dependencies']))
-            self.assertIn('#'+'a'*40,data['dependencies']['com.wulato.uikit.input-system'])
+            self.assertNotIn('com.wulato.uikit.input-system',data['dependencies']);self.assertIn('com.unity.inputsystem',data['dependencies'])
             self.assertFalse((host/'Assets/UIKitMobileSmoke').exists())
     def test_smoke_entry_is_non_test_assembly(self):
         import run
@@ -122,8 +122,8 @@ class PhaseThreeConsumerTests(ConsumerFixtureTests):
             with tempfile.TemporaryDirectory() as folder:
                 host=Path(folder)/'consumer';prepare_consumer(host,editor,'legacy',run.R,'e'*40,'clean',phase='phase3',package_set='addressables')
                 deps=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
-                self.assertEqual({'com.wulato.uikit.addressables'},set(EXTENSIONS)&set(deps))
-                self.assertIn('#'+'e'*40,deps['com.wulato.uikit.addressables']);self.assertEqual(wanted,deps['com.unity.addressables'])
+                self.assertEqual(set(),set(EXTENSIONS)&set(deps));self.assertNotIn('com.wulato.uikit.addressables',deps)
+                self.assertIn('#'+'e'*40,deps['com.wulato.uikit']);self.assertEqual(wanted,deps['com.unity.addressables'])
                 self.assertTrue((host/'Assets/Samples/Wulato UIKit/LocalInventory/Runtime/LocalInventoryDemo.cs').is_file())
     def test_phase3_all_installs_every_extension_at_same_revision(self):
         import run
@@ -186,7 +186,7 @@ class GitSnapshotTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name);self.inputs=self.root/'inputs'
-        for package in ('com.wulato.uikit','com.wulato.uikit.input-system','com.wulato.uikit.addressables'):
+        for package in ('com.wulato.uikit',):
             folder=self.inputs/'Packages'/package;folder.mkdir(parents=True)
             (folder/'package.json').write_text('{}\n')
             docs=folder/'Documentation~';docs.mkdir();(docs/'index.md').write_text('documentation\n')

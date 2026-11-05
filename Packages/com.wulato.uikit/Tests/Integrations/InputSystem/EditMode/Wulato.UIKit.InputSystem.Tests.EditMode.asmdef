@@ -1,0 +1,25 @@
+{
+  "name": "Wulato.UIKit.InputSystem.Tests.EditMode",
+  "references": [
+    "Wulato.UIKit",
+    "Wulato.UIKit.InputSystem",
+    "Unity.InputSystem",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.inputsystem",
+      "expression": "[1.17.0,2.0.0)",
+      "define": "WULATO_UIKIT_INPUT_SYSTEM"
+    }
+  ],
+  "defineConstraints": [
+    "WULATO_UIKIT_INPUT_SYSTEM"
+  ]
+}

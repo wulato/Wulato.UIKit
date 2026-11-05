@@ -13,8 +13,8 @@
 在 Package Manager 中通过 Add package from disk 选择主包 package.json；已有固定 Git 发布时可使用仓库 URL 的 `?path=Packages/com.wulato.uikit#<实际固定提交SHA>`，不要直接粘贴占位符。提交宿主解析后的 packages-lock.json。
 
 - **Legacy：** 使用主包 LegacyUIInputDriver；项目输入设置须支持旧输入。
-- **Input System：** 额外安装 Input System 1.17.0 与 com.wulato.uikit.input-system。项目自行将 Active Input Handling 设置为 Input System；工作台中拖入适配包 InputSystemUIInputDriver.cs。
-- **Addressables：** 额外安装 com.wulato.uikit.addressables，使用 WithLoader 显式注入；见 [第三阶段迁移](phase3-migration.md)。主包不会自动发现后端。
+- **Input System：** 只需额外安装 Unity Input System 1.17.0。项目自行将 Active Input Handling 设置为 Input System；工作台拖入主包 Runtime/Integrations/InputSystem 的 InputSystemUIInputDriver.cs，无需 UIKit 适配包。
+- **Addressables：** 额外安装 Unity Addressables 1.21.21（及对应 SBP 1.21.25），适配已在主包；当前仍 WithLoader 显式注入，见 [接入与所有权](Addressables/index.md)。自动资源路由留到 1.3。
 
 场景只能启用一个 UI 输入模块。工作台不删除普通 StandaloneInputModule、不自动安装包或修改 ProjectSettings；发现冲突会列出对象，请明确处理。
 
@@ -69,4 +69,4 @@ await host.ShutdownAsync();
 
 需要 configure 注入时，在自动 Start 前（例如业务 Awake）调用 Initialize，或关闭 Initialize On Start。成功后再次无参调用返回同一 Context；再次传 configure 会拒绝。Build 失败可修复后显式重试，Shutdown 后不可重启同一宿主。禁用组件不关闭，销毁/退出 PlayMode 请求有界关闭；不接管外部共享依赖。原手动 Builder 路径继续有效。
 
-[0.4 迁移](Migration-0.4.md) · [独立预览](Preview.md)
+[0.5 开发迁移](Migration-0.5.md) · [独立预览](Preview.md)

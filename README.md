@@ -3,11 +3,11 @@
 面向 Unity uGUI 的独立 UPM 框架，提供 Session 生命周期、异步打开关闭、缓存、导航、Dialogs、PopupQueue 和 Presenter 扩展点，不强制 MVC/MVP/MVVM。
 
 - 主包：`com.wulato.uikit`，当前为 0.5 开发树，基础 Runtime 已收敛为 `Wulato.UIKit`。package.json 暂保持 0.4.0，不表示已发布 0.5；见 [开发迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md)。
-- 可选：Input System 0.4.0、Addressables 0.2.0，未使用时无需安装对应 SDK。
-- [接入指南](Packages/com.wulato.uikit/Documentation~/QuickStart.md) · [升级迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.4.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
+- Addressables/Input System 适配已内置主包条件程序集；只按需安装 Unity SDK，无需额外 UIKit 适配包。
+- [接入指南](Packages/com.wulato.uikit/Documentation~/QuickStart.md) · [升级迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
 - [0.5 当前实施计划](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [0.4 历史计划与证据](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) · [验证入口](Verification/README.md)
 
-0.5 计划已批准，Phase 0 两项 PR 已合并，默认分支为 main。当前任务 1.1 仅收敛基础程序集，独立适配包及原业务 API/显式装配仍保留；单 Package 适配迁移与新 API 尚未交付。
+0.5 计划已批准，Phase 0 两项 PR 已合并，默认分支为 main。当前任务 1.2 合并可选适配包；原业务 API、显式 Loader/输入装配仍保留，统一资源路由与新 API 尚未交付。
 
 开发采用简化 GitHub Flow：main 为稳定基线，独立任务使用 feat/*、fix/*、refactor/*、chore/* 短分支，专项验证后提交 PR，由用户确认合并。main 已要求通过 PR，禁止强推和删除，管理员同样受约束；暂不要求额外审批账号或远端 CI 状态，人工合并确认仍然必需。不清理 master、原开发分支及未提交工作区。每项依赖任务从更新的 main 开始，不自动合并。
 

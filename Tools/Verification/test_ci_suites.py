@@ -4,6 +4,13 @@ from pathlib import Path
 from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
+    def test_integrated_optional_paths_keep_sdk_specific_scope(self):
+        import ci_suites
+        for section in ('Runtime','Editor','Tests'):
+            for folder,suite in [('Addressables','addressables-runtime'),('InputSystem','input-runtime')]:
+                p=ci_suites.plan([f'Packages/com.wulato.uikit/{section}/Integrations/{folder}/Probe.cs'])
+                self.assertIn(suite,{r['suite'] for r in p['tests']})
+                if folder=='InputSystem':self.assertEqual({'input'},{r['backend'] for r in p['tests']})
     def test_consolidated_runtime_metadata_keeps_boundary_suites_and_reload(self):
         import ci_suites
         for suffix in ('','.meta'):

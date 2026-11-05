@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2 均已按用户确认合并，main 为受保护默认分支；任务 1.1 实现与专项验证完成，PR #3 等待用户审核合并。任务 1.2 尚未开始。**
+**状态：2026-11-05 PR #1/#2/#3 均已按用户确认合并，main 为受保护默认分支；任务 1.2 实现与专项验证完成，正在收尾创建 PR。任务 1.3 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -565,7 +565,7 @@ Ruling：保护规则强制 PR，但必需批准数为 0，不要求第二个 Gi
 - [x] 当前快照、XML/trace/原始文件哈希、codegen/probe 清单及 Reload 证据索引均复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-1/verification.json)。
 - [x] 集中作者自审：Runtime C# 差异仅访问级别与友元属性收敛，无生命周期/资源/输入算法变更；脚本及序列化资产元数据保持；消费者无旧程序集引用；文档路径、代码围栏、18 项任务字段及 diff 空白检查通过。按用户要求未启子代理。
 - [x] 实现提交 `c7030dc9eb167d552347a7f7225b776593fe51a6` 已推送，创建 [任务 1.1 PR #3](https://github.com/wulato/Wulato.UIKit/pull/3)（main ← refactor/uikit-0.5-runtime-assembly）；后续仅补本条进度记录。
-- [ ] 用户确认合并 PR #3 后，从更新 main 开始 1.2；本次不自动合并。
+- [x] 后续按用户确认合并 PR #3，merge commit `68dcf43499f4dd793b40708cf8411f766aa01462`；从更新 main 开始 1.2。
 
 Ruling：同步已跟踪的四宿主消费 asmdef（包括旧 6000 夹具）仅消除悬空引用，不运行额外编辑器或扩大兼容声明。Addressables/Input System 本次仍是独立包，仅更新它们引用的基础程序集，包目录迁移留到 1.2。
 
@@ -578,3 +578,29 @@ Ruling：专项增加 editor/package-install、配对事务 transitions/flow-int
 实际验证均从仓库根目录调用现有 run.py，host-root=`Artifacts/uikit/ci-selected/hosts/phase1-1`、editor=`2022.3.62f2`：prepare runtime/main/backend all；codegen/backend legacy；上述 tests 的 mode/suite/backend；compile-probe/backend all；play-reset/backend all/scope context-host。每条命令日志和退出码在汇总目录，所有执行退出码 0。未跑 suite all、其他编辑器、远端 CI、Player/IL2CPP、真机；Addressables Runtime 集成本次未运行。
 
 原始索引：prepare `20261105T081319150802-prepare-8b9dec`、codegen `20261105T081711745351-codegen-00b375`、compiler `contract-probes/20261105T082154587823-dc0a08`、Host Reload `20261105T082235088575-host-reset-408088`（均位于 Artifacts/uikit）；11 个 suite 原始路径逐项列于 verification.json。材料在本地保留，不冒充远端 artifact 或完整发布门禁。
+
+
+### 2026-11-05 任务 1.2 合并可选适配包
+
+- 基线 `68dcf43499f4dd793b40708cf8411f766aa01462`；分支 `refactor/uikit-0.5-optional-adapters`，复用干净 worktree，原用户脏目录不动。
+- [x] Addressables/Input System 的 Runtime/Editor/Tests 迁入主包 Integrations；LocalInventory 样例、文档及变更记录同迁。删除两个旧独立包及 manifest/lock 引用；保留程序集/类型名称、脚本及资产 GUID，不留空壳。
+- [x] 每个可选 Runtime/Editor/Tests/Sample asmdef 独立声明 SDK Version Defines 与 Define Constraints；主 Runtime 不反向引用 SDK，主包必需依赖不变。业务安装一个 UIKit 包，SDK 按需安装。
+- [x] 验证、Git 快照、消费者与发布工具识别单包和 SDK 组合；manifest/lock 中的旧 UIKit 适配包在准备前拒绝，并提供移除旧包/保留 SDK 提示。Editor Validate/build 同样提供迁移提示；不承诺在重复 asmdef 已导致编译失败时仍能加载 Editor 提示，应先按迁移文档移除旧包。
+- [x] 根 lock 仅移除两个已退休 UIKit 包节点；不整理其他历史节点。同步四个已跟踪验证宿主引用，不运行额外编辑器。
+- [x] 新增安装用例检查实际 Player/Editor 程序集与 SDK 存在性对应、基础 IL 引用隔离及旧包提示；更新 package-install 必需清单。结构用例 RED→GREEN；受影响 Python 11 模块共 135/135 PASS。
+- [x] Unity 2022.3.62f2 的四个全新隔离宿主 prepare 与初次 package-install 各 4/4 PASS：C0 无 SDK、C1 仅 Addressables、C2 仅 Input System、C3 双 SDK。初次 C1/C3 安装记录在后续样例/内容准备后由最终记录替代，不重复计数。
+- [x] 最终 15 组、209/209 Unity 用例 PASS：四组合 package-install 各 4；C1/C3 addressables EditMode 各 5、addressables-runtime PlayMode 各 12、addressables-integration PlayMode 各 11；C0 Legacy input-runtime 43；C2/C3 input-package 各 2、input-runtime 各 45。XML 实际用例集合与必需集合完全一致，无跳过/额外类别匹配。
+- [x] C1/C3 真实样例导入/生成/编译/写回/场景/验证各 9 步 PASS；各产出 2 个真实 StandaloneOSX Bundle（不是 Player 构建），内容源指纹及 5 个内容文件哈希分别复核 PASS。
+- [x] 最终各 suite 当前指纹、原始索引/XML/trace/文件哈希、4 组实际程序集开关、两个样例各 34 个原始文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-2/verification.json)。保留 40 份迁移 .meta 原文，5 个适配 Runtime C# 文件内容不变。
+- [x] 集中作者自审：单 UIKit 包、独立条件程序集、无基础 SDK 反向依赖、无运行时算法修改；迁移说明/路径/引用、必需用例及 diff 空白检查通过。按用户要求不启子代理。
+- [ ] 集中差异审查、提交并创建 PR；不自动合并。
+
+Ruling：Version Defines 的表达式 Addressables `[1.21.21,3.0.0)`、Input System `[1.17.0,2.0.0)` 仅决定候选程序集启用范围；实际本轮验证仅 2022.3.62f2 + Addressables 1.21.21 / SBP 1.21.25 / Input System 1.17.0，不构成整个版本区间的兼容声明。无 SDK 时适配 Runtime/Editor/Tests 不参与编译；可选样例仍须 SDK。版本保持 0.5 Unreleased 开发检查点，最终提升在 6.1。
+
+Ruling：运行时加载/租约/输入 C# 算法不变；不提前实现 1.3 的自动资源路由，Addressables 仍显式 WithLoader，输入后端仍由项目选择。文档说明卸载旧 UIKit 适配包、保留 SDK、程序集名/GUID 不变。回退以整项 revert 并恢复消费 manifest 为准，不删除 SDK、用户资产或远端历史。
+
+失败与修复记录：Python 首次运行的 sample SDK fixture/错误文本仍沿用旧包假设，修复 1 轮后 135/135 PASS。C3 首次 Addressables integration 10/11 PASS，唯一失败为 LocalInventoryScene 路径不存在：该独立宿主未执行 prepare-samples，补齐样例准备和真实 Bundle 构建后定向复验 11/11 PASS（宿主准备修复计数 1，已解决）。不修改运行时或放宽断言；原始失败日志保留。既有类别筛选问题历史计数 1 继续保留，不夹带原目录未提交修改。
+
+最终验证在宿主与迁移文档稳定后集中执行一次上述 15 组，`*-final.log/.exit` 为最终命令；文档澄清引起输入指纹变化，早期试验记录保留但不与最终记录重复计数。汇总脚本初版将 Addressables sample step 误当作含 returncode 字段的通用 step；依据现有 samples.py 结构，改为核对原始成功标记、编译错误及文件哈希（脚本调整 1 次），不修改生产代码/测试/原始证据，不重复跑 Unity。当前未解决代码失败 0。
+
+实际命令均从仓库根目录调用现有 `Tools/Verification/run.py`，editor=`2022.3.62f2`，host-root=`Artifacts/uikit/ci-selected/hosts/phase1-2-c0/c1/c2/c3`（每条命令选择单一目录）。prepare runtime 的 package-set/backend 依次 main/legacy、addressables/legacy、main/input、addressables/input；C1/C3 另运行 prepare-samples/sample-set addressables、prepare/phase addressables，再执行上列 tests/mode/suite。完整命令在各原始 command.json，日志与退出码及失败修复记录集中在 `Artifacts/uikit/phase1-2/`。未跑 suite all、额外编辑器、远端 CI、Player/IL2CPP、真机；未将 asmdef 候选版本范围当作全区间验证通过。下一动作仅交付本任务 PR 并等待用户合并，不开始 1.3。
