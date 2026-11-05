@@ -1,6 +1,6 @@
-# 0.5 开发迁移：任务 1.1–1.2
+# 0.5 开发迁移：任务 1.1–1.3
 
-当前完成基础 Runtime 收敛与可选适配迁移，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。后续资源路由、业务 API 和版本升级按计划交付。
+当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。后续业务 API 和版本升级按计划交付。
 
 ## 消费程序集
 
@@ -34,6 +34,6 @@ IUIContext、View/Session、Loader/Lease、布局、Input driver、单界面及�
 
 开发验收锁定 Unity 2022.3.62f2、Addressables 1.21.21 / SBP 1.21.25、Input System 1.17.0；条件编译的版本区间仅控制候选代码是否参与编译，不代表区间内所有版本均已验证。消费项目应使用锁定版本；现有验证入口会拒绝与所选 editor profile 不符的依赖，并提示修复。其他编辑器兼容 profile 不作为本次通过声明。
 
-当前仍显式 `WithLoader(new AddressablesUIViewLoader())`，Input driver 由宿主/工作台明确选择，不自动安装 SDK、替换输入模块或更改 ProjectSettings。资源自动路由属于 1.3。SDK 不存在时不要在业务非条件程序集里直接引用适配类型。
+默认 Context 按 Registry 的 Prefab / Resources / External 描述路由；已安装的 Addressables 适配自动注册，无需 `WithLoader(new AddressablesUIViewLoader())`。每 Context 拥有后端快照与独立 Loader，后续注册不改变既有 Context；缺少后端在 Context 分配资源前失败。自定义 `WithLoader` 覆盖整套路由，依赖仍归调用方所有。Input driver 继续由宿主/工作台明确选择，不自动安装 SDK、替换输入模块或更改 ProjectSettings。SDK 不存在时不要在业务非条件程序集里直接引用适配类型。
 
 LocalInventory 现在从主包 Samples 导入；要求先安装 Addressables SDK。已导入样例不会被自动移动或覆盖，来源配置与租约所有权契约保持。

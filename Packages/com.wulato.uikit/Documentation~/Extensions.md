@@ -11,3 +11,5 @@ IUITransition 的 Enter/Exit 单次消费，Stop 必须同步停止后续写入�
 IUISessionLifecycleObserver.OnPreparing 返回的幂等租约纳入 Session scope，注册顺序准备，逆序释放；只有成功返回绑定的观察者收到对应终结通知。WithServiceFactory 按注册顺序创建，仅能查询已创建服务；Context 拥有这些工厂产物并在 Shutdown/失败回滚时逆序释放。Builder 注入的外部共享依赖由调用方持有。
 
 多 Context 共享输入时，调用方显式创建 UIInputDomain/UIInputArbiter 并注入匹配当前 EventSystem 的 arbiter；每个 Context 独立 FIFO。只有一个当前输入 owner，Modal 屏障及按住跨移交的隔离由框架处理。业务无需自行切换 InputModule，也不应旁路 CanvasGroup/overrideSorting 控制权。
+
+默认资源入口按 Registry 来源路由；Addressables 在 SDK 存在时自动注册第一方工厂，Context 只捕获本次用到的后端并各自创建 Loader，不共享租约。自定义 IUIViewLoader 仍通过 WithLoader 覆盖整体路由，不由 Context Dispose。

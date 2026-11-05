@@ -58,7 +58,7 @@ namespace Wulato.UIKit.Verification.Addressables.Tests
             internal readonly Errors Errors=new Errors();
             internal readonly IUIContext UI;internal readonly TrackingLoader Loader;internal readonly Presenters Presenters=new Presenters();
             internal readonly GameObject Root,Events;readonly UIRegistry registry;readonly BundleRegistryProvider provider;readonly EventSystem prior;
-            internal Fixture(TrackingLoader loader=null,INavigationTransition pair=null)
+            internal Fixture(TrackingLoader loader=null,INavigationTransition pair=null,bool automatic=false)
             {
                 BundleHomeView.Events.Clear();BundleDialogView.Responder=null;Loader=loader??new TrackingLoader();prior=EventSystem.current;
                 Events=new GameObject("bundle-events",typeof(EventSystem));
@@ -68,9 +68,11 @@ namespace Wulato.UIKit.Verification.Addressables.Tests
                 Events.AddComponent<LegacyUIInputDriver>();
 #endif
                 EventSystem.current=Events.GetComponent<EventSystem>();Root=new GameObject("bundle-root",typeof(RectTransform),typeof(UIRoot));Root.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
-                registry=ScriptableObject.CreateInstance<UIRegistry>();provider=ScriptableObject.CreateInstance<BundleRegistryProvider>();
+                registry=ScriptableObject.CreateInstance<UIRegistry>();provider=ScriptableObject.CreateInstance<BundleRegistryProvider>();provider.MixedSources=automatic;
                 typeof(UIRegistry).GetField("providers",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(registry,new List<UIRegistryProvider>{provider});
-                UI=new UIContextBuilder(Root.GetComponent<UIRoot>(),registry).WithLoader(Loader).WithErrorSink(Errors).WithSettings(new UIContextSettings{CacheCapacity=1})
+                var builder=new UIContextBuilder(Root.GetComponent<UIRoot>(),registry).WithErrorSink(Errors).WithSettings(new UIContextSettings{CacheCapacity=1});
+                if(!automatic)builder.WithLoader(Loader);
+                UI=builder
                     .UseNavigation(pair).UsePresentation(Presenters).UseDialogs(new DialogRegistry().Register<BundleQuestion,bool>(new UIViewTypeKey("bundle-dialog"))).UsePopupQueue().Build();
             }
             internal async UniTask DisposeAsync()
@@ -97,6 +99,23 @@ namespace Wulato.UIKit.Verification.Addressables.Tests
         static async UniTask Settle(){for(int i=0;i<5;i++)await UniTask.NextFrame();}
         static async UniTask WaitFor(Func<bool> condition)
         {var deadline=Time.realtimeSinceStartup+5;while(!condition()&&Time.realtimeSinceStartup<deadline)await UniTask.NextFrame();Assert.That(condition(),Is.True,"condition timed out");}
+        [UnityTest] public IEnumerator RegistryRouting_MixesThreeSourcesWithoutLoaderInjection() => UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture(automatic:true);try
+            {
+                var home=await f.UI.OpenAsync<BundleHomeView,int>(19);var first=BundleHomeView.Last;
+                await home.CloseAsync();var reopened=await f.UI.OpenAsync<BundleHomeView,int>(23);
+                Assert.That(BundleHomeView.Last,Is.SameAs(first));Assert.That(home.Id,Is.Not.EqualTo(reopened.Id));
+                await reopened.CloseAsync();await f.UI.ClearCacheAsync();await Settle();Assert.That(first==null,Is.True);
+                var resources=await f.UI.OpenAsync<BundlePageView>();await resources.CloseAsync();
+                var direct=await f.UI.OpenAsync<AddressableProbeView>();await direct.CloseAsync();
+                using(var ct=new CancellationTokenSource())
+                {ct.Cancel();try{await f.UI.OpenAsync<BundleHomeView,int>(99,ct.Token);Assert.Fail("Expected cancellation");}catch(OperationCanceledException){}}
+                await f.UI.ShutdownAsync();await Settle();f.AssertStopped();
+                Assert.That(Resources.Load<GameObject>("UIKitAddressablesFallback"),Is.Not.Null);
+                Measurements.Add("default-router:prefab/resources/addressables;cache;cancel;shutdown");
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest] public IEnumerator CacheReopen_RebindsPresenterAndPreservesLifecycleOrder() => UniTask.ToCoroutine(async()=>
         {
             var f=new Fixture();try

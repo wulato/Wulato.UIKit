@@ -52,6 +52,8 @@ namespace Wulato.UIKit.Verification.Addressables.Editor
             File.WriteAllText(Folder+"/Resources/UIKitAddressablesGuid.txt",entry.guid);
             if(!File.Exists(Folder+"/Resources/UIKitAddressablesFallback.prefab"))
                 AssetDatabase.CopyAsset(PrefabPath,Folder+"/Resources/UIKitAddressablesFallback.prefab");
+            if(!File.Exists(Folder+"/Resources/UIKitAddressablesPage.prefab"))
+                AssetDatabase.CopyAsset(Folder+"/Page.prefab",Folder+"/Resources/UIKitAddressablesPage.prefab");
             AssetDatabase.Refresh();
             AssetDatabase.SaveAssets();
             AddressableAssetSettings.BuildPlayerContent(out AddressablesPlayerBuildResult result);

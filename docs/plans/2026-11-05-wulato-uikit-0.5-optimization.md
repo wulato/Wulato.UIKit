@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3 均已按用户确认合并，main 为受保护默认分支；任务 1.2 实现与专项验证完成，PR #4 等待用户审核合并。任务 1.3 尚未开始。**
+**状态：2026-11-05 PR #1/#2/#3/#4 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，任务 1.3 实现与专项验证完成，正在收尾创建 PR。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -594,7 +594,7 @@ Ruling：专项增加 editor/package-install、配对事务 transitions/flow-int
 - [x] 最终各 suite 当前指纹、原始索引/XML/trace/文件哈希、4 组实际程序集开关、两个样例各 34 个原始文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-2/verification.json)。保留 40 份迁移 .meta 原文，5 个适配 Runtime C# 文件内容不变。
 - [x] 集中作者自审：单 UIKit 包、独立条件程序集、无基础 SDK 反向依赖、无运行时算法修改；迁移说明/路径/引用、必需用例及 diff 空白检查通过。按用户要求不启子代理。
 - [x] 实现提交 `b8df5ff433972a9d10d9257ef1f66f1e10ced9b3` 已推送，创建 [任务 1.2 PR #4](https://github.com/wulato/Wulato.UIKit/pull/4)（main ← refactor/uikit-0.5-optional-adapters）；本次仅补执行记录，不自动合并。
-- [ ] 等待用户确认合并 PR #4 后，从更新 main 开始 1.3。
+- [x] 后续按用户确认合并 PR #4，merge commit `ab69a0e5c4f2b3120b3ac57041782855be93b5ed`；从更新 main 开始 1.3。
 
 Ruling：Version Defines 的表达式 Addressables `[1.21.21,3.0.0)`、Input System `[1.17.0,2.0.0)` 仅决定候选程序集启用范围；实际本轮验证仅 2022.3.62f2 + Addressables 1.21.21 / SBP 1.21.25 / Input System 1.17.0，不构成整个版本区间的兼容声明。无 SDK 时适配 Runtime/Editor/Tests 不参与编译；可选样例仍须 SDK。版本保持 0.5 Unreleased 开发检查点，最终提升在 6.1。
 
@@ -605,3 +605,36 @@ Ruling：运行时加载/租约/输入 C# 算法不变；不提前实现 1.3 的
 最终验证在宿主与迁移文档稳定后集中执行一次上述 15 组，`*-final.log/.exit` 为最终命令；文档澄清引起输入指纹变化，早期试验记录保留但不与最终记录重复计数。汇总脚本初版将 Addressables sample step 误当作含 returncode 字段的通用 step；依据现有 samples.py 结构，改为核对原始成功标记、编译错误及文件哈希（脚本调整 1 次），不修改生产代码/测试/原始证据，不重复跑 Unity。当前未解决代码失败 0。
 
 实际命令均从仓库根目录调用现有 `Tools/Verification/run.py`，editor=`2022.3.62f2`，host-root=`Artifacts/uikit/ci-selected/hosts/phase1-2-c0/c1/c2/c3`（每条命令选择单一目录）。prepare runtime 的 package-set/backend 依次 main/legacy、addressables/legacy、main/input、addressables/input；C1/C3 另运行 prepare-samples/sample-set addressables、prepare/phase addressables，再执行上列 tests/mode/suite。完整命令在各原始 command.json，日志与退出码及失败修复记录集中在 `Artifacts/uikit/phase1-2/`。未跑 suite all、额外编辑器、远端 CI、Player/IL2CPP、真机；未将 asmdef 候选版本范围当作全区间验证通过。下一动作仅交付本任务 PR 并等待用户合并，不开始 1.3。
+
+
+### 2026-11-05 任务 1.3 统一资源路由
+
+- 基线 `ab69a0e5c4f2b3120b3ac57041782855be93b5ed`；分支 `refactor/uikit-0.5-resource-routing`，复用干净 worktree，不动原用户脏目录。
+- [x] 新契约测试先编译 RED：UIResourceResolver 尚不存在；预期 CS0103/CS0246 及退出 1 保存在 `Artifacts/uikit/phase1-3/routing-red.log` 与原始记录。不是非预期修复。
+- [x] 统一路由、适配注册、Editor 来源检查与样例迁移；默认 Builder 使用 Resolver，保留显式 Loader 覆盖。
+- [x] 受影响 Python 10 模块 121/121 PASS；最终 `python-final-2.log/.exit`。CI 专项选择覆盖 Resolver/Bootstrap 的 contracts/加载/SDK/Reload，测试源仅映射直接 suite。
+- [x] 最终 15 组、236/236 Unity 用例 PASS，实际集合与 matrix 必需集合完全相等，无跳过/额外类别匹配。无 SDK Legacy：contracts 27、integration 20、editor 17、package-install 4、loading-layout 26、cleanup 15，共 109。双 SDK Input：contracts 27、integration 21、editor 17、addressables 5、package-install 4、loading-layout 26、addressables-runtime 12、addressables-integration 12、generated-integration 3，共 127。
+- [x] 两宿主 codegen 各 9 阶段 PASS；SDK 样例导入/生成/写回/场景/验证 9 阶段 PASS，LocalInventory 不再注入 Loader。同 Registry 的 Prefab/Resources/Addressables 实际加载、缓存新 Session、ClearCache 销毁、取消和 Shutdown 专项 PASS。
+- [x] SDK 宿主真实 StandaloneOSX 内容构建 2 个 Bundle；内容源指纹和 5 文件哈希通过。这不是 Player 构建。
+- [x] 两宿主 Reload option 0/3 各两轮实际 Play/退出，共 4 组/8 次，PASS；每轮记录 SDK 有/无时后端注册状态，并保留自动退出 Context/锁/订阅归零证据。
+- [x] 当前最终指纹、XML/trace/原始索引/哈希、实际 SDK 程序集开关、codegen 各 37 个原始文件及样例 34 文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-3/verification.json)。
+- [x] 集中作者自审与 L0：四个新增脚本均含 .meta，主包 330 GUID 无重复，既有 .meta 不变；当前文档入口路径与 diff 空白检查通过。未改 Engine/FIFO/Session/Lease/取消与迟到清理算法，无基础 Runtime→SDK 反向引用；未启子代理。
+- [ ] 提交并创建 PR，等待用户确认合并；不开始 2.1。
+
+Ruling：每 Context 构建时复制第一方 provider 工厂表，先验证整个 Registry，再为用到的后端各创建一个 Loader；只共享工厂，不共享 Loader/View/Lease。Engine/FIFO/取消/迟到清理不改动；Resolver 直接传递原始 UniTask，不额外消费。显式 WithLoader 覆盖整个路由，依赖仍调用方所有，保留自定义 backend 高级入口。
+
+Ruling：Editor 只对第一方 addressables 来源检查后端可用性，未知自定义来源保留显式 Loader 工作流；默认 Context Build 则对所有 External 来源验证后端。工厂注册仅第一方 internal 友元接口，不引入公共注册中心、扫描、DI 或第二生命周期。Unity 启动按 SubsystemRegistration 清表、AfterAssembliesLoaded 重新注册；Editor 适配 InitializeOnLoad 注册。采用 AlwaysLinkAssembly 保护仅自动启动引用的适配入口，实际 Player/IL2CPP 验收仍留 Phase 6。依据 [Unity 初始化 API](https://docs.unity.cn/2022.2/Documentation/ScriptReference/RuntimeInitializeOnLoadMethodAttribute.html) 与 [Domain Reload 说明](https://docs.unity.cn/Manual/DomainReloading.html)，实际准确版本由本轮验证记录证明。
+
+本次非预期修复记录：Reload 探针新增 LINQ 查询缺少 using System.Linq，首次 prepare 编译 CS1061；补齐后 prepare PASS（同原因 1 轮，已解决）。既有类别筛选历史修复计数 1 保留，不引入原目录未提交修复。
+
+Editor 修复记录：首次 editor 专项揭示 Inputs 在 Preview/Generate 阶段提前要求 SDK，破坏无 SDK 生成纯描述的既有契约；将第一方后端检查移到 ValidateFor/构建门禁，新增独立回归用例（同原因修复 1 轮）。同批 RegistryGenerationTests 缺少现有 codegen 夹具，补运行 codegen；其失败留下的宿主生成产物由该标准准备流程恢复（宿主准备原因修复 1 轮）。原始失败与输入变化记录保留；最终验证在准备和文档稳定后进行。
+
+SDK 宿主编译修复记录：原 Addressables Editor asmdef 只有基础/SDK 引用，新 Editor bootstrap 调用适配 Runtime 入口时 CS0103。依据引用图补上 Wulato.UIKit.Addressables 显式引用，仍由相同 SDK 条件隔离（此引用原因修复 1 轮）；不修改基础 Runtime 引用。输入稳定后复验受影响的两宿主证据。
+
+Ruling：复用现有 UIRegistry.CopyValidated/不可变 UIRegistration，不为路由增加新 Registry 公共类型或重复复制协议。原 DefaultLoader 删除；Prefab/Resources/External 统一在内部 UIResourceResolver 分发，Addressables 原有显式 Loader 的 fallback 保留以支持 WithLoader 高级入口。
+
+验证范围：默认 Unity 2022.3.62f2；无 SDK Legacy 宿主和双 SDK Input 宿主。contracts、integration、editor、package-install、loading-layout；基础另跑 cleanup，SDK 另跑 addressables/editor/runtime/integration 和 generated-integration。默认/双禁用 Reload（option 0/3）各两次真实 Play，两个宿主共 8 次；不扩展四组合 Reload、其他编辑器或全 Suite。codegen/样例先准备、内容先构建，再在稳定输入执行相关专项；不因收尾自动运行完整 CI 或 Player。
+
+汇总脚本修复记录：codegen 汇总没有 evidence 字段，而 samples 有；依据现有 codegen.py 格式解析其固定宿主子目录后复核通过（汇总脚本修复 1 次）。不改原始证据或测试断言，不为该汇总问题重跑 Unity。最终未解决失败 0；同原因均未超过 1 轮自动修复。
+
+原始失败保留：有意 RED `20261105T123712318055-prepare-3d7c1b`；LINQ 编译 `20261105T124057322336-prepare-21935c`；Editor 门禁/缺夹具 `20261105T124535658427-tests-7ccd01`；SDK Editor asmdef 引用 `20261105T124932091619-prepare-99d05c`（均在 Artifacts/uikit）。文档或程序集引用变化前的预备通过记录不与最终 236 用例重复计数。最终执行脚本 `Artifacts/uikit/phase1-3/final-commands.sh`、逐条日志/退出码与汇总原始路径可定位全部命令；证据本地保留，不冒充远端上传或完整发布验收。未运行 suite all、完整 Reload 组合、额外编辑器、远端 CI、Player/IL2CPP、真机。下一动作仅交付本任务 PR 并等待用户合并，不开始 2.1。

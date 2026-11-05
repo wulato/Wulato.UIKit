@@ -4,6 +4,18 @@ from pathlib import Path
 from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
+    def test_resource_router_and_bootstrap_select_targeted_contracts_and_reload(self):
+        import ci_suites
+        for path in ('Packages/com.wulato.uikit/Runtime/Loading/UIResourceResolver.cs',
+                     'Packages/com.wulato.uikit/Runtime/Integrations/Addressables/AddressablesUIBootstrap.cs'):
+            for suffix in ('','.meta'):
+                p=ci_suites.plan([path+suffix]);suites={r['suite'] for r in p['tests']}
+                self.assertIn('addressables-integration',suites)
+                self.assertTrue(any(r['scope']=='integration' for r in p['reload']))
+                if '/Loading/' in path:self.assertTrue({'contracts','integration','loading-layout','cleanup'}<=suites)
+                self.assertNotIn('all',suites)
+        direct=ci_suites.plan(['Packages/com.wulato.uikit/Tests/EditMode/ResourceResolverTests.cs'])
+        self.assertEqual({'contracts'},{r['suite'] for r in direct['tests']})
     def test_integrated_optional_paths_keep_sdk_specific_scope(self):
         import ci_suites
         for section in ('Runtime','Editor','Tests'):

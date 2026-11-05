@@ -77,6 +77,16 @@ namespace Wulato.UIKit.Tests.Editor
             Assert.That(text,Does.Contain("UIViewAsset.External(\"addressables\",\"UI/Variant\")"));
             Assert.That(text,Does.Contain("RectTransform").And.Contain("label"));Assert.That(text,Does.Not.Contain("GameObject prefab"));
         }
+        [Test] public void ExternalBackendAvailability_IsCheckedAtValidation()
+        {
+            CreatePrefab();var marker=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab).GetComponent<UIBindingMarker>();
+            marker.externalProviderId="addressables";marker.externalAssetId="UI/Probe";EditorUtility.SetDirty(marker);AssetDatabase.SaveAssets();
+            Assert.That((string)Call("Preview",new object[]{new[]{Prefab}}),Does.Contain("UIViewAsset.External"));
+            var error=Assert.Throws<InvalidOperationException>(()=>Call("ValidateFor",new object[]{new[]{Prefab}}));
+            var installed=AppDomain.CurrentDomain.GetAssemblies().Any(a=>a.GetName().Name=="Wulato.UIKit.Addressables");
+            if(installed)Assert.That(error.Message,Does.Not.Contain("No UI resource backend"));
+            else Assert.That(error.Message,Does.Contain("No UI resource backend registered for 'addressables'"));
+        }
         [Test] public void ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset()
         {
             CreatePrefab();var asset=AssetDatabase.LoadAssetAtPath<GameObject>(Prefab);var so=new SerializedObject(asset.GetComponent("UIBindingMarker"));

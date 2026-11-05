@@ -12,7 +12,7 @@ TEST_GROUPS={
     ('PlayMode','sessions'): 'SessionLifecycleTests ClosePolicyTests',
     ('PlayMode','integration'): 'RuntimeResetTests',
     ('EditMode','editor'): 'GeneratorTests RegistryGenerationTests EditorOnlyCodegenView',
-    ('EditMode','contracts'): 'ContractTests RegistryTests SettingsTests ExternalAssetContractTests',
+    ('EditMode','contracts'): 'ContractTests RegistryTests SettingsTests ExternalAssetContractTests ResourceResolverTests',
     ('EditMode','sessions'): 'QueueTests ScopeTests SingleConsumptionTests TypeErasedOpenTests',
     ('EditMode','cleanup'): 'CachePolicyTests BudgetTests',
     ('EditMode','integration'): 'BuilderTests DiagnosticsTests',
@@ -48,7 +48,9 @@ def select_suites(paths):
             elif '/Samples~/' in path:add('PlayMode','samples')
             elif '/Runtime/UGUI/Input/' in path:add('PlayMode','input-runtime');add('PlayMode','flow-integration')
             elif '/Transactions/' in path:add('PlayMode','transitions');add('EditMode','navigation');add('PlayMode','flow-integration')
-            elif '/Runtime/Loading/' in path:add('PlayMode','loading-layout');add('PlayMode','cleanup')
+            elif '/Runtime/Loading/' in path:
+                add('PlayMode','loading-layout');add('PlayMode','cleanup')
+                if path.removesuffix('.meta').endswith('/UIResourceResolver.cs'):add('EditMode','contracts');add('EditMode','integration')
             else:
                 for suite in ('contracts','integration','sessions',*MODULES):add('EditMode',suite)
                 for suite in ('sessions','cleanup','integration','flow-integration'):add('PlayMode',suite)
@@ -141,7 +143,7 @@ def plan(paths,editor=None,backend='auto',full=False):
         scopes=[]
         if full or 'context-host' in suites:scopes.append('context-host')
         if full or suites & {'preview-runtime','preview-authoring'}:scopes.append('preview')
-        if full or any(p.endswith(('/RuntimeResetTests.cs','/UIPlayModeResetCheck.cs')) for p in paths):scopes.append('integration')
+        if full or any(p.removesuffix('.meta').endswith(('/RuntimeResetTests.cs','/UIPlayModeResetCheck.cs','/UIResourceResolver.cs','/AddressablesUIBootstrap.cs')) for p in paths):scopes.append('integration')
         for scope in scopes:reload.append(dict(command='play-reset',editor=ver,backend=back,scope=scope,reason=sorted(suites)))
     return dict(schema=2,paths=paths,tools=tools or full,warnings=warnings,tests=rows,prepare=prepare,reload=reload,full=full,host_root=None if full else str(CI_DIR/'hosts'))
 

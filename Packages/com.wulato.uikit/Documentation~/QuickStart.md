@@ -14,7 +14,7 @@
 
 - **Legacy：** 使用主包 LegacyUIInputDriver；项目输入设置须支持旧输入。
 - **Input System：** 只需额外安装 Unity Input System 1.17.0。项目自行将 Active Input Handling 设置为 Input System；工作台拖入主包 Runtime/Integrations/InputSystem 的 InputSystemUIInputDriver.cs，无需 UIKit 适配包。
-- **Addressables：** 额外安装 Unity Addressables 1.21.21（及对应 SBP 1.21.25），适配已在主包；当前仍 WithLoader 显式注入，见 [接入与所有权](Addressables/index.md)。自动资源路由留到 1.3。
+- **Addressables：** 额外安装 Unity Addressables 1.21.21（及对应 SBP 1.21.25），适配已在主包；Registry 的 addressables 来源自动路由，无需 WithLoader，见 [接入与所有权](Addressables/index.md)。
 
 场景只能启用一个 UI 输入模块。工作台不删除普通 StandaloneInputModule、不自动安装包或修改 ProjectSettings；发现冲突会列出对象，请明确处理。
 

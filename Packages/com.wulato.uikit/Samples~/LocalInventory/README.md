@@ -1,6 +1,6 @@
 # Local Addressables Inventory
 
-安装主包、UniTask 和 Unity Addressables SDK 后，从主包导入本样例，无需独立 UIKit 适配包。开发验收固定 Unity 2022.3.62f2 / Addressables 1.21.21 / SBP 1.21.25；其他编辑器需显式验证。
+安装主包、UniTask 和 Unity Addressables SDK 后，从主包导入本样例，无需独立 UIKit 适配包。默认 Builder 无需 WithLoader；Prefab/Resources/Addressables 可混合注册。开发验收固定 Unity 2022.3.62f2 / Addressables 1.21.21 / SBP 1.21.25；其他编辑器需显式验证。
 
 1. 显式调用 `Wulato.UIKit.Samples.Addressables.Editor.LocalInventorySetup.Author()` 创建缺失 Prefab 与本地组，不覆盖已有资源。
 2. 执行 UIKit Generate，等待编译，Complete writeback，再调用 `FinalizeSample()`。

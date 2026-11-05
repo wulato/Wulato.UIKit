@@ -1,17 +1,16 @@
 # Addressables 接入与所有权
 
-适配位于 `com.wulato.uikit/Runtime/Integrations/Addressables`，不再安装独立 UIKit 适配包。主包仅强制 uGUI/UniTask；项目按需安装 Addressables 1.21.21 / SBP 1.21.25。开发默认 Unity 2022.3.62f2，其他版本必须显式验证。升级见 [0.5 开发迁移](../Migration-0.5.md)。当前仍显式注入 Loader，自动路由留给 1.3。
+适配位于 `com.wulato.uikit/Runtime/Integrations/Addressables`，不再安装独立 UIKit 适配包。主包仅强制 uGUI/UniTask；项目按需安装 Addressables 1.21.21 / SBP 1.21.25。开发默认 Unity 2022.3.62f2，其他版本必须显式验证。升级见 [0.5 开发迁移](../Migration-0.5.md)。适配在 Unity 启动及 Editor 初始化时幂等注册工厂，默认按 Registry 自动路由，无需注入 Loader。
 
 ```csharp
 builder.Add<InventoryView,int>(new UIViewTypeKey("inventory"),
     UIViewAsset.External("addressables", "UI/Inventory"),
     closePolicy: UIClosePolicy.CacheOne);
-var ui = new UIContextBuilder(root, registry)
-    .WithLoader(new AddressablesUIViewLoader()).Build();
+var ui = new UIContextBuilder(root, registry).Build();
 var session = await ui.OpenAsync<InventoryView,int>(12, cancellationToken);
 ```
 
-`builder` 的注册示例位于业务 UIRegistryProvider.Populate(UIRegistryBuilder builder) 内，Context 构建仍使用显式 UIRegistry。可直接配置完整 GUID；GUID 必须已收录 catalog。使用明确 address/GUID，不使用 label、子资产键或多资源匹配。Provider ID 固定 `addressables`，区分大小写，不 Trim。Prefab/Resources 描述仍走原默认加载器，未知 provider 返回失败任务。
+`builder` 的注册示例位于业务 UIRegistryProvider.Populate(UIRegistryBuilder builder) 内，Context 构建仍使用显式 UIRegistry。可直接配置完整 GUID；GUID 必须已收录 catalog。使用明确 address/GUID，不使用 label、子资产键或多资源匹配。Provider ID 固定 `addressables`，区分大小写，不 Trim。Prefab/Resources 描述仍走原默认加载器，缺失后端在默认 Context Build 时、分配资源前报错；Editor Validate/构建校验同样检查第一方 addressables 后端。自定义 provider 可继续显式 WithLoader，调用方保留依赖所有权。
 
 Editor 的 UIBindingMarker 同时填写 externalProviderId/externalAssetId。Generate → 等待编译 → Complete writeback → Validate，之后由宿主显式构建本地 Addressables 内容。新注册输出 External 描述，无 Prefab 硬引用；绑定仍序列化到原 Prefab。地址改变会使生成产物过期。普通构建预处理只校验，不创建 Groups、不生成 C#、不构建 Bundle。Addressables 校验要求 Prefab 显式加入启用的 Bundle Group，address 唯一，Prefab 为 activeSelf=true 的 RectTransform 根及唯一 enabled UIView。
 
