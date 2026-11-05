@@ -7,9 +7,9 @@
 - [接入指南](Packages/com.wulato.uikit/Documentation~/QuickStart.md) · [升级迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.4.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
 - [0.5 当前实施计划](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [0.4 历史计划与证据](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) · [验证入口](Verification/README.md)
 
-0.5 计划已批准，当前进行 Phase 0 稳定基线迁移；上方包版本及接入指南仍描述已实现的 0.4，不表示单包与新 API 已交付。
+0.5 计划已批准，Phase 0 基线 PR #1 已合并，默认分支已切换为 main；当前收尾 GitHub Flow 约定。上方包版本及接入指南仍描述已实现的 0.4，不表示单包与新 API 已交付。
 
-开发采用简化 GitHub Flow：main 为稳定基线，独立任务使用 feat/*、fix/*、refactor/*、chore/* 短分支，专项验证后提交 PR，由用户确认合并。Phase 0 基线 PR 合并前默认分支保持 master；不强推或清理原开发分支及未提交工作区。每项依赖任务从更新的 main 开始，不自动合并。
+开发采用简化 GitHub Flow：main 为稳定基线，独立任务使用 feat/*、fix/*、refactor/*、chore/* 短分支，专项验证后提交 PR，由用户确认合并。main 已要求通过 PR，禁止强推和删除，管理员同样受约束；暂不要求额外审批账号或远端 CI 状态，人工合并确认仍然必需。不清理 master、原开发分支及未提交工作区。每项依赖任务从更新的 main 开始，不自动合并。
 
 开发默认使用 Unity 2022.3.62f2。其他编辑器按明确兼容目标配置和验证；开发默认、已有历史证据与新版支持声明是不同概念。包的最低版本声明保持不变，不宣称所有更新版本均已验证。
 
