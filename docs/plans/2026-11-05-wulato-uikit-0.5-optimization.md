@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 用户已批准计划，开始 Phase 0；后续阶段等待各依赖 PR 合并。**
+**状态：2026-11-05 用户已批准计划；Phase 0 基线材料与最小验收完成，PR #1 等待用户审核合并。默认分支切换/保护及后续阶段尚未执行。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -505,7 +505,7 @@ python3 Tools/Verification/run.py tests --editor 2022.3.62f2 --backend legacy --
 - [x] 最小实际验收通过：Unity 2022.3.62f2/Legacy；主包干净宿主 prepare 退出 0，package-install EditMode 2/2，QuickStart 8 个跨编译准备/幂等步骤及 PlayMode 1/1，全部无失败/跳过。
 - [x] 原始证据以当前快照复核：两个 suite 的 XML/trace/哈希/必需用例 PASS，汇总 [verification.json](../../Artifacts/uikit/phase0/verification.json)。命令日志与退出码在同目录。
 - [x] 创建 main/e041e03；远端默认分支仍为 master，没有合并或改写已有功能分支。
-- [ ] 推送任务分支并创建基线 PR，不合并。
+- [x] 提交并推送文档（首提交 0dff1e3），创建 [基线 PR #1](https://github.com/wulato/Wulato.UIKit/pull/1)，base=main、head=chore/uikit-0.5-baseline；未合并。后续仅补本执行记录。
 - [ ] 用户合并后切默认 main、配置保护、开始 0.2 后续验收。
 
 Ruling：基线任务分支直接从 a117100 建立，而 main 从其祖先 e041e03 建立；这与从 main 引入现有分支的普通快进结果一致，避免新增无内容合并提交。PR 树仍按 a117100 加本次明确文档差异核验。
@@ -525,3 +525,7 @@ python3 Tools/Verification/run.py prepare-samples --editor 2022.3.62f2 --backend
 Ruling：基线 PR 会引入历史 workflow，HEAD 文档提交使用 `[skip ci]` 避免 pull_request/push 自动触发远端流水线，符合远端 CI 留到 Phase 6 的边界；不修改 workflow 或禁用仓库 Actions。[GitHub 官方说明](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs)。若未来配置必需检查，跳过可能留下 Pending，不应绕过门禁；Phase 0 main 合并仍由用户确认。
 
 GitHub 连接器创建分支返回 403（Resource not accessible by integration）；已用现有 gh 账户完成获准的创建操作，没有扩展连接器权限。
+
+集中作者自审：本次差异仅四份文档，生产树与已验证输入未变；本地链接/18 项任务字段/代码围栏/空白检查通过。原工作区仍在 codex/p0-p1-preflight，8 个已修改文件与 Evo/TMP 未跟踪资产均保留，未暂存、提交或清理其内容。未启动子代理；未执行新 hook。干净 worktree 保留供 PR 反馈使用。
+
+**下一步（需用户确认 main 合并）：** 审核 PR #1 并以普通 merge 导入历史；合并后重新核对远端状态，执行默认分支切换与保护，不擅自删除旧分支。0.2 文档已准备，设置验收待合并；Phase 1 未开始。本地验证材料在上述 Artifacts 中，不冒充远端 artifact 或发布验收。
