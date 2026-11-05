@@ -27,7 +27,7 @@ def fixture(host,source):
         target=root/folder;target.mkdir()
         (target/(name+'.cs')).write_text((source/(name+'.cs.txt')).read_text())
         if assembly:
-            (target/(assembly+'.asmdef')).write_text(json.dumps(dict(name=assembly,references=['Wulato.UIKit.Core','UniTask'],autoReferenced=name!='ViewB'),indent=2)+'\n')
+            (target/(assembly+'.asmdef')).write_text(json.dumps(dict(name=assembly,references=['Wulato.UIKit','UniTask'],autoReferenced=name!='ViewB'),indent=2)+'\n')
     return root
 
 def usage(root,source):

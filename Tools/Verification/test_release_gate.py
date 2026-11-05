@@ -50,5 +50,5 @@ class PhaseTwoGateTests(unittest.TestCase):
         report['cases'].pop();self.assertIn('smoke-cases',assess_mobile(report,'build','current',phase='phase2'))
     def test_phase_two_clean_requires_extension_assemblies(self):
         from release_gate import assess_build
-        report=dict(status='PASS',phase='phase2',fingerprint='current',source_after='current',generation_compiled=True,profile='clean',build_id='build',architecture='ARM64',scripting_backend='IL2CPP',player_assemblies=['Wulato.UIKit.Core.dll'])
+        report=dict(status='PASS',phase='phase2',fingerprint='current',source_after='current',generation_compiled=True,profile='clean',build_id='build',architecture='ARM64',scripting_backend='IL2CPP',player_assemblies=['Wulato.UIKit.dll'])
         self.assertIn('phase2-runtime-assemblies',assess_build(report,'current',phase='phase2'))

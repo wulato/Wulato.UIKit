@@ -27,7 +27,7 @@ namespace Wulato.UIKit.InputSystem.Tests
         [Test,Category("input_package")] public void AdapterAssemblyReferences_OnlyPointToAllowedRuntimeAssemblies()
         {
             var refs=JsonUtility.FromJson<Assembly>(File.ReadAllText(Path.Combine(PackagePath,"Runtime/Wulato.UIKit.InputSystem.asmdef"))).references;
-            CollectionAssert.AreEquivalent(new[]{"Wulato.UIKit.Core","Wulato.UIKit.UGUI","UnityEngine.UI","Unity.InputSystem"},refs);
+            CollectionAssert.AreEquivalent(new[]{"Wulato.UIKit","UnityEngine.UI","Unity.InputSystem"},refs);
             foreach(var assembly in new[]{typeof(UIViewBase).Assembly,typeof(UIInputArbiter).Assembly})
                 Assert.That(assembly.GetReferencedAssemblies().Any(a=>a.Name=="Unity.InputSystem"||a.Name=="Wulato.UIKit.InputSystem"),Is.False);
             Save();

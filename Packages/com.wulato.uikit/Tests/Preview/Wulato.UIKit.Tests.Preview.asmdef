@@ -1,6 +1,16 @@
 {
- "name":"Wulato.UIKit.Tests.Preview",
- "references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","Wulato.UIKit.Loading","Wulato.UIKit.Editor","Wulato.UIKit.Tests.Support","UniTask","UnityEngine.UI"],
- "includePlatforms":["Editor"],
- "optionalUnityReferences":["TestAssemblies"]
+  "name": "Wulato.UIKit.Tests.Preview",
+  "references": [
+    "Wulato.UIKit",
+    "Wulato.UIKit.Editor",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
 }

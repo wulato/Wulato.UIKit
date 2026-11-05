@@ -1,1 +1,10 @@
-{"name":"Wulato.UIKit.Acceptance.QuickStart.Editor","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","Wulato.UIKit.Editor"],"includePlatforms":["Editor"]}
+{
+  "name": "Wulato.UIKit.Acceptance.QuickStart.Editor",
+  "references": [
+    "Wulato.UIKit",
+    "Wulato.UIKit.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

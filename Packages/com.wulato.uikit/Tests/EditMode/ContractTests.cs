@@ -6,6 +6,17 @@ namespace Wulato.UIKit.Tests
     [Category("contracts")]
     public sealed class ContractTests
     {
+        [Test] public void RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure()
+        {
+            var assembly=typeof(IUIContext).Assembly;
+            Assert.That(assembly.GetName().Name,Is.EqualTo("Wulato.UIKit"));
+            foreach(var type in new[]{typeof(UIViewBase),typeof(UIContextBuilder),typeof(ResourcesUIViewLoader),
+                typeof(Navigation.UINavigator),typeof(Dialogs.UIDialogs),typeof(PopupQueue.UIPopupQueue),typeof(Presentation.UIPresenterObserver)})
+                Assert.That(type.Assembly,Is.SameAs(assembly),type.FullName);
+            foreach(var name in new[]{"IUITransactionAccess","IUITransactionSteps","IUIPageTransactionAccess","IUIPageTransactionSteps","IUITransactionParticipant","UITransitionOwner",
+                "UIInputNode","UIInputPointerTracker","UIInputDragTracker","UIInputCancelTracker","UIModalMask","UIInputDomainRegistration"})
+                Assert.That(assembly.GetType("Wulato.UIKit."+name,true).IsPublic,Is.False,name);
+        }
         [Test] public void ViewBranches_AreDistinct()
         {
             Assert.That(typeof(UIView).BaseType, Is.EqualTo(typeof(UIViewBase)));

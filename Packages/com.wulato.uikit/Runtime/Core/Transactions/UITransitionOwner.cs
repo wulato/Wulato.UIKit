@@ -1,4 +1,4 @@
 namespace Wulato.UIKit
 {
-    public enum UITransitionOwner { CoreDefault, External }
+    internal enum UITransitionOwner { CoreDefault, External }
 }

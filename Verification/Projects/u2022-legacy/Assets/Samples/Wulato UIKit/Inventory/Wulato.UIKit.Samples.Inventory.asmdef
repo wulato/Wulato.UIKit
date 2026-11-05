@@ -1,8 +1,7 @@
 {
   "name": "Wulato.UIKit.Samples.Inventory",
   "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "UniTask",
     "UnityEngine.UI"
   ]

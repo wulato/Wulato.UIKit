@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 namespace Wulato.UIKit
 {
     // Framework-owned cancellation bookkeeping. Event spies remain unfiltered observers.
-    public sealed class UIInputNode : MonoBehaviour
+    internal sealed class UIInputNode : MonoBehaviour
     {
         public UIInputGate Gate;
         public readonly Dictionary<int,PointerEventData> Presses=new Dictionary<int,PointerEventData>();

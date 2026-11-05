@@ -16,6 +16,7 @@ namespace Wulato.UIKit.Acceptance.Tests
         }
         [Test] public void CoreAssembly_DoesNotReferenceOptionalOrEditorAssemblies()
         {
+            Assert.That(typeof(IUIContext).Assembly.GetName().Name,Is.EqualTo("Wulato.UIKit"));
             var names=typeof(IUIContext).Assembly.GetReferencedAssemblies().Select(a=>a.Name).ToArray();
             Assert.That(names,Does.Not.Contain("Unity.InputSystem"));Assert.That(names,Does.Not.Contain("Unity.TextMeshPro"));
             Assert.That(names.Any(n=>n.StartsWith("UnityEditor")||n.Contains("Verification")||n.Contains("Acceptance")||n.Contains("Test")),Is.False);

@@ -1,1 +1,11 @@
-{"name":"Wulato.UIKit.MobileSmoke","references":["Wulato.UIKit.Core","Wulato.UIKit.UGUI","UniTask","UnityEngine.UI"],"defineConstraints":["UIKIT_MOBILE_SMOKE"]}
+{
+  "name": "Wulato.UIKit.MobileSmoke",
+  "references": [
+    "Wulato.UIKit",
+    "UniTask",
+    "UnityEngine.UI"
+  ],
+  "defineConstraints": [
+    "UIKIT_MOBILE_SMOKE"
+  ]
+}

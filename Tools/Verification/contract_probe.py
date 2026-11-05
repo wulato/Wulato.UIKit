@@ -28,7 +28,7 @@ def run_probe(args):
                 try:
                     folder.mkdir()
                     navigation='com.wulato.uikit' in snapshot.get('manifest',{}).get('dependencies',{})
-                    references=['Wulato.UIKit.Core','UniTask']+(['Wulato.UIKit.Navigation'] if navigation else [])
+                    references=['Wulato.UIKit','UniTask']
                     run.dump(folder/'Wulato.UIKit.Acceptance.Compiler.asmdef',dict(name='Wulato.UIKit.Acceptance.Compiler',references=references,includePlatforms=['Editor']))
                     (folder/'ProbeEntry.cs').write_text('public static class UIKitProbeEntry { public static void Run() { UnityEngine.Debug.Log("UIKIT_CONTRACT_PROBE_OK"); } }\n')
                     source=(run.V/'Packages/com.wulato.uikit.acceptance/Tests/ContractCompileProbe.cs.txt').read_text()

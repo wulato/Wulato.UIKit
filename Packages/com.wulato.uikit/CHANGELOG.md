@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased — 0.5 task 1.1
+
+- Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
+- Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
+- Migrate consumers, samples, codegen/compiler probes and verification boundaries. Optional Addressables/Input System packages remain separate until task 1.2.
+- See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
+
 ## 0.4.0
 
 Integrated Navigation, Presentation, Dialogs and PopupQueue without renaming assemblies or types. Added optional UIContextHost composition, Workbench host installation and isolated PlayMode preview with explicit adapters and scene recovery. Optional SDK adapters remain separate; see Documentation~/Migration-0.4.md.

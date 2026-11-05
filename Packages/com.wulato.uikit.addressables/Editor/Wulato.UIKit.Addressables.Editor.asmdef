@@ -1,8 +1,7 @@
 {
   "name": "Wulato.UIKit.Addressables.Editor",
   "references": [
-    "Wulato.UIKit.Core",
-    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit",
     "Wulato.UIKit.Editor",
     "Unity.Addressables",
     "Unity.Addressables.Editor",

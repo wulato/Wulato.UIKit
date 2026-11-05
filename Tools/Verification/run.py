@@ -85,7 +85,7 @@ def snapshot(ver,backend,host):
   errors.extend(validate_dependencies(ver,m,lock))
   from runtime import validate_main_package
   package=R/'Packages/com.wulato.uikit'
-  assemblies={name:json.loads((package/('Runtime/'+name)/('Wulato.UIKit.'+name+'.asmdef')).read_text()).get('references',[]) for name in ('Core','Loading','UGUI')}
+  assemblies={definition['name']:definition.get('references',[]) for path in (package/'Runtime').rglob('*.asmdef') for definition in [json.loads(path.read_text())]}
   errors.extend(validate_main_package(json.loads((package/'package.json').read_text()),assemblies))
  try:
   sources={name:str(path) for name,path in package_sources(host).items()};fp=fingerprint(host)

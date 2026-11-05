@@ -1,6 +1,8 @@
 # UIKit verification
 
-当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0 基线安装/QuickStart 检查已完成，GitHub Flow 收尾仅做文档/远端设置核验，不重复 Unity；下一项 1.1 按计划选择受影响专项。下文旧阶段命令及报告不自动构成本轮门禁，远端 CI 与完整移动发布留到 Phase 6。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0 已完成，当前 1.1 验证统一 `Wulato.UIKit` Runtime 身份、消费者引用和内部事务边界；实际专项/编译/Reload 证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
+
+1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界；不依赖可选 SDK。Addressables/Input System 目前仍是独立适配包。
 
 M6 干净安装使用现有 `build --phase phase3 --profile clean --prepare-only`，显式选择默认编辑器；组合为 main/legacy、addressables/legacy、all/legacy、all/input。`--target Android` 在此仅保留安装记录身份，不构建 Player。隔离 Git 快照强制收录授权包目录（不受用户忽略规则影响），逐文件核对提交清单及 SHA-256，并保存 `package-snapshot.json`；样例和 `.meta` 必须从该固定提交读取，不能用快照工作目录的脏文件或未跟踪文件补齐。原始证据索引包含快照清单。安装通过仍要求生成/编译和实际依赖隔离通过；预期退出 1/BLOCKED 的唯一允许原因是 `prepare-only; no mobile Player built`，不等于移动构建通过。2026-11-03 的旧安装证据漏收样例/文档，完整交付结论由 M6 补验替代。
 

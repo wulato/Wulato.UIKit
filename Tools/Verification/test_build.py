@@ -142,13 +142,13 @@ class PhaseThreeConsumerTests(ConsumerFixtureTests):
 
 class RuntimeClosureTests(unittest.TestCase):
     def fixture(self):
-        return {'runtimeAssemblies':['UIKit.Consumer','Wulato.UIKit.Core','UnityEngine.TestRunner'],
-                'runtimeAssemblyGraph':[{'name':'UIKit.Consumer','references':['Wulato.UIKit.Core'],'metadataReferences':[],'assetSource':True},
-                    {'name':'Wulato.UIKit.Core','references':[],'metadataReferences':[],'assetSource':False},
+        return {'runtimeAssemblies':['UIKit.Consumer','Wulato.UIKit','UnityEngine.TestRunner'],
+                'runtimeAssemblyGraph':[{'name':'UIKit.Consumer','references':['Wulato.UIKit'],'metadataReferences':[],'assetSource':True},
+                    {'name':'Wulato.UIKit','references':[],'metadataReferences':[],'assetSource':False},
                     {'name':'UnityEngine.TestRunner','references':[],'metadataReferences':[],'assetSource':False}]}
     def test_unused_test_candidate_is_not_a_player_dependency(self):
         from build import runtime_dependency_closure
-        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(self.fixture()))
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit'],runtime_dependency_closure(self.fixture()))
     def test_reachable_test_assembly_is_rejected(self):
         from build import runtime_dependency_closure
         report=self.fixture();report['runtimeAssemblyGraph'][0]['references'].append('UnityEngine.TestRunner')
@@ -172,7 +172,7 @@ class EngineProtocolReferenceTests(unittest.TestCase):
         from build import runtime_dependency_closure
         report=RuntimeClosureTests().fixture()
         report['runtimeAssemblyGraph'][0]['precompiledReferences']=['UnityEngine.UnityTestProtocolModule','UnityEngine.CoreModule']
-        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(report))
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit'],runtime_dependency_closure(report))
 
 class CompilerOnlyReferenceTests(unittest.TestCase):
     def test_unused_compiler_nunit_reference_is_not_an_il_import(self):
@@ -180,7 +180,7 @@ class CompilerOnlyReferenceTests(unittest.TestCase):
         report=RuntimeClosureTests().fixture()
         report['runtimeAssemblyGraph'][0]['precompiledReferences']=['nunit.framework']
         report['runtimeAssemblyGraph'][0]['metadataReferences']=[]
-        self.assertEqual(['UIKit.Consumer','Wulato.UIKit.Core'],runtime_dependency_closure(report))
+        self.assertEqual(['UIKit.Consumer','Wulato.UIKit'],runtime_dependency_closure(report))
 
 class GitSnapshotTests(unittest.TestCase):
     def setUp(self):

@@ -131,19 +131,19 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         definition=host/'Assets/UIKitMobileSmoke/Wulato.UIKit.MobileSmoke.asmdef'
         data=json.loads(definition.read_text());data.pop('defineConstraints',None)
         if phase=='phase2':
-            data['references']+=['Wulato.UIKit.Navigation','Wulato.UIKit.Dialogs','Wulato.UIKit.Presentation','Wulato.UIKit.PopupQueue','Wulato.UIKit.Samples.BusinessFlow']
+            data['references']+=['Wulato.UIKit.Samples.BusinessFlow']
             data['versionDefines']=[dict(name='com.wulato.uikit',expression='0.4.0',define='UIKIT_PHASE2_SMOKE')]
         run.dump(definition,data)
         editor=host/'Assets/UIKitMobileSmoke/Editor';editor.mkdir()
         body=(run.V/'Packages/com.wulato.uikit.acceptance/Editor/MobileSmokeSceneBuilder.cs').read_text().replace('#if UIKIT_MOBILE_SMOKE','').replace('#endif','')
         (editor/'MobileSmokeSceneBuilder.cs').write_text(body)
-        run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
+        run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
     if phase in ('phase2','phase3') and package_set=='all':copy_sample('com.wulato.uikit','BusinessFlow')
     if 'com.wulato.uikit.addressables' in selected:
         copy_sample('com.wulato.uikit.addressables','LocalInventory')
         probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
-        run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit.Core','Wulato.UIKit.UGUI','Wulato.UIKit.Addressables']))
+        run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit','Wulato.UIKit.Addressables']))
         (probe/'Probe.cs').write_text('public static class AddressablesCompileProbe { public static Wulato.UIKit.UIContextBuilder Compose(Wulato.UIKit.UIContextBuilder b) => b.WithLoader(new Wulato.UIKit.AddressablesUIViewLoader()); }\n')
     for name in ('QuickStart','Modals','Inventory'):
         copy_sample('com.wulato.uikit',name)
@@ -260,8 +260,8 @@ def validate_phase3_install(folder,editor,backend,scope,revision):
         if node['name'] not in assemblies:continue
         path=folder/node.get('metadataFile','')
         if not path.resolve().is_relative_to((folder/'runtime-metadata').resolve()) or not path.is_file() or sha256(path)!=node.get('metadataSha256'):raise ValueError('phase3-runtime-il-evidence:'+node['name'])
-    (folder/'runtime-closure.json').write_text(json.dumps(dict(scope='editor-compiled-runtime IL imports and Player compilation graph; no Player built',roots=sorted(n['name'] for n in report['runtimeAssemblyGraph'] if n['assetSource'] or n['name'].startswith('Wulato.UIKit.')),reachable=assemblies,precompiled=sorted({b for n in report['runtimeAssemblyGraph'] if n['name'] in assemblies for b in n.get('precompiledReferences',[]) if b in n['metadataReferences']}),unreferenced_candidates=excluded),indent=2)+'\n')
-    required={'Wulato.UIKit.Core','Wulato.UIKit.UGUI'}|({'Wulato.UIKit.Addressables','Wulato.UIKit.Samples.Addressables'} if scope!='main' else set())
+    (folder/'runtime-closure.json').write_text(json.dumps(dict(scope='editor-compiled-runtime IL imports and Player compilation graph; no Player built',roots=sorted(n['name'] for n in report['runtimeAssemblyGraph'] if n['assetSource'] or (n['name']=='Wulato.UIKit' or n['name'].startswith('Wulato.UIKit.'))),reachable=assemblies,precompiled=sorted({b for n in report['runtimeAssemblyGraph'] if n['name'] in assemblies for b in n.get('precompiledReferences',[]) if b in n['metadataReferences']}),unreferenced_candidates=excluded),indent=2)+'\n')
+    required={'Wulato.UIKit'}|({'Wulato.UIKit.Addressables','Wulato.UIKit.Samples.Addressables'} if scope!='main' else set())
     if not required.issubset(assemblies):raise ValueError('phase3-missing-runtime-assemblies')
 
 
@@ -270,7 +270,7 @@ def runtime_dependency_closure(report):
     # Follow actual compiler references from consumer sources and selected UIKit runtime assemblies.
     graph=report.get('runtimeAssemblyGraph',[]);nodes={n['name']:n for n in graph}
     if not nodes or len(nodes)!=len(graph) or set(nodes)!=set(report.get('runtimeAssemblies',[])):raise ValueError('phase3-missing-runtime-dependency-graph')
-    roots={name for name,node in nodes.items() if node.get('assetSource') is True or name.startswith('Wulato.UIKit.')}
+    roots={name for name,node in nodes.items() if node.get('assetSource') is True or (name=='Wulato.UIKit' or name.startswith('Wulato.UIKit.'))}
     if not roots:raise ValueError('phase3-missing-runtime-roots')
     pending=list(roots);visited=set()
     while pending:

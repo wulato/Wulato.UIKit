@@ -12,7 +12,7 @@ namespace Wulato.UIKit
         void InvalidatePointers();
     }
     [DisallowMultipleComponent]
-    public sealed class UIInputDomainRegistration : MonoBehaviour
+    internal sealed class UIInputDomainRegistration : MonoBehaviour
     {
         internal UIInputDomain Domain;
         void OnDestroy() { Domain?.Dispose(); }

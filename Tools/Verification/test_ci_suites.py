@@ -4,6 +4,15 @@ from pathlib import Path
 from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
+    def test_consolidated_runtime_metadata_keeps_boundary_suites_and_reload(self):
+        import ci_suites
+        for suffix in ('','.meta'):
+            chosen=ci_suites.plan(['Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef'+suffix])
+            suites={r['suite'] for r in chosen['tests']}
+            self.assertTrue({'contracts','integration','editor','package-install','loading-layout','generated-integration','context-host','transitions','flow-integration','input-runtime'}<=suites)
+            self.assertNotIn('all',suites)
+            self.assertEqual({'legacy','input'},{r['backend'] for r in chosen['tests']})
+            self.assertTrue(chosen['reload'])
     def test_navigation_change_does_not_run_unrelated_modules_or_all(self):
         self.assertEqual([('EditMode','navigation','all'),('PlayMode','flow-integration','all')],select_suites(['Packages/com.wulato.uikit/Runtime/Navigation/UINavigator.cs']))
     def test_input_adapter_uses_only_input_hosts(self):
