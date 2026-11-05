@@ -23,24 +23,33 @@ class RuntimeDependencyTests(unittest.TestCase):
         for backend in ('legacy','input'):
             m=runtime_manifest('2022.3.62f2',backend)
             self.assertIn('com.wulato.uikit',m['testables']);self.assertIn('com.wulato.uikit.acceptance',m['testables'])
-            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['dependencies'])
-            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['testables'])
+            self.assertNotIn('com.wulato.uikit.input-system',m['dependencies'])
+            self.assertNotIn('com.wulato.uikit.input-system',m['testables'])
             self.assertEqual(backend=='input','com.unity.inputsystem' in m['dependencies'])
 
 class RuntimePreparationTests(unittest.TestCase):
+    def test_legacy_adapter_dependencies_and_lock_are_rejected_without_mutation(self):
+        from runtime import prepare_runtime_manifest
+        for name in ('com.wulato.uikit.addressables','com.wulato.uikit.input-system'):
+            for in_lock in (False,True):
+                manifest=runtime_manifest('2022.3.62f2','legacy','main');lock={'dependencies':{}}
+                (lock if in_lock else manifest)['dependencies'][name]='old'
+                before=copy.deepcopy((manifest,lock))
+                with self.assertRaisesRegex(ValueError,'Package migration: remove '+name):prepare_runtime_manifest('2022.3.62f2','legacy',manifest,lock,'main')
+                self.assertEqual(before,(manifest,lock))
     def test_scoped_main_runtime_excludes_optional_sdk_and_probe(self):
         for backend in ('legacy','input'):
             m=runtime_manifest('2022.3.62f2',backend,'main')
             self.assertNotIn('com.wulato.uikit.addressables',m['dependencies'])
             self.assertNotIn('com.wulato.uikit.verification.addressables',m['dependencies'])
             self.assertNotIn('com.unity.addressables',m['dependencies'])
-            self.assertEqual(backend=='input','com.wulato.uikit.input-system' in m['dependencies'])
+            self.assertNotIn('com.wulato.uikit.input-system',m['dependencies'])
             self.assertIn('com.wulato.uikit.acceptance.flows',m['dependencies'])
     def test_explicit_addressables_runtime_retains_profile_constraints(self):
         m=runtime_manifest('2022.3.62f2','legacy','addressables')
         self.assertEqual('1.21.21',m['dependencies']['com.unity.addressables'])
         self.assertEqual('1.21.25',m['dependencies']['com.unity.scriptablebuildpipeline'])
-        self.assertIn('com.wulato.uikit.addressables',m['testables'])
+        self.assertIn('com.wulato.uikit',m['testables']);self.assertNotIn('com.wulato.uikit.addressables',m['testables'])
     def test_scoped_preparation_keeps_existing_dependency_rejection(self):
         from runtime import prepare_runtime_manifest
         original=runtime_manifest('2022.3.62f2','legacy');original['dependencies']['com.cysharp.unitask']='incompatible'
@@ -68,7 +77,7 @@ class RuntimePreparationTests(unittest.TestCase):
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
         package={'name':'com.wulato.uikit','version':'0.4.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
-        assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI']}
+        assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI'],'Wulato.UIKit.Addressables':['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'],'Wulato.UIKit.InputSystem':['Wulato.UIKit','UnityEngine.UI','Unity.InputSystem']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
         self.assertTrue(validate_main_package(package,assemblies))
@@ -88,7 +97,7 @@ class ExtensionBoundaryTests(unittest.TestCase):
     def test_extension_identity_does_not_capture_arbitrary_packages(self):
         from runtime import is_extension_package
         self.assertFalse(is_extension_package('com.wulato.uikit.navigation'))
-        self.assertTrue(is_extension_package('com.wulato.uikit.addressables'))
+        self.assertFalse(is_extension_package('com.wulato.uikit.addressables'))
         self.assertFalse(is_extension_package('com.wulato.uikit.navigation.evil'))
     def test_absent_extension_suite_is_not_required(self):
         from run import applicable_suites
@@ -101,7 +110,7 @@ class ExtensionMetadataTests(unittest.TestCase):
         from runtime import validate_extension_package
         package={'name':'com.wulato.uikit.addressables','version':'0.2.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.addressables':'1.21.21'}}
         refs=['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager']
-        self.assertEqual([],validate_extension_package(package,refs))
+        self.assertIn('migration',' '.join(validate_extension_package(package,refs)).lower())
         package['dependencies']['com.wulato.uikit']='0.1.0'
         self.assertTrue(validate_extension_package(package,refs))
         package['dependencies']['com.wulato.uikit']='0.4.0'

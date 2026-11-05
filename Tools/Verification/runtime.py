@@ -3,6 +3,11 @@ from editor_targets import PROFILES
 UNITASK='https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11'
 MAIN='com.wulato.uikit'
 ACCEPTANCE=MAIN+'.acceptance'
+LEGACY_ADAPTERS={MAIN+'.addressables',MAIN+'.input-system'}
+
+def legacy_adapter_errors(manifest,lock):
+    found=LEGACY_ADAPTERS&(set(manifest.get('dependencies',{}))|set(lock.get('dependencies',{})))
+    return ['Package migration: remove '+name+'; its adapter is integrated in com.wulato.uikit; keep the Unity SDK dependency.' for name in sorted(found)]
 
 def runtime_manifest(ver,backend,package_set='all'):
     if package_set not in ('main','addressables','all'):raise ValueError('unknown-runtime-package-set:'+package_set)
@@ -15,13 +20,9 @@ def runtime_manifest(ver,backend,package_set='all'):
     tests=[COMMON,package,MAIN,ACCEPTANCE]
     if backend=='input':
         deps['com.unity.inputsystem']=PROFILES[ver]['inputSystem'];tests.append('com.unity.inputsystem')
-        deps[MAIN+'.input-system']='file:../../../../Packages/'+MAIN+'.input-system';tests.append(MAIN+'.input-system')
     deps.update({MAIN:'file:../../../../Packages/'+MAIN,ACCEPTANCE:'file:../../../Packages/'+ACCEPTANCE,'com.cysharp.unitask':UNITASK})
     from pathlib import Path
     root=Path(__file__).resolve().parents[2]
-    for name in (EXTENSIONS if package_set!='main' else ()):
-        if (root/'Packages'/name/'package.json').is_file():
-            deps[name]='file:../../../../Packages/'+name;tests.append(name)
     if MAIN in deps and (root/'Verification/Packages/com.wulato.uikit.acceptance.flows/package.json').is_file():
         name='com.wulato.uikit.acceptance.flows';deps[name]='file:../../../Packages/'+name;tests.append(name)
     probe=MAIN+'.verification.addressables'
@@ -33,14 +34,14 @@ def runtime_manifest(ver,backend,package_set='all'):
 
 def validate_dependencies(ver,manifest,lock):
     from run import VERSIONS
-    errors=[];deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
+    errors=legacy_adapter_errors(manifest,lock);deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
     ugui=VERSIONS[ver][1]
     if deps.get('com.unity.ugui')!=ugui or resolved.get('com.unity.ugui',{}).get('version')!=ugui:
         errors.append('Declare and lock com.unity.ugui '+ugui+' explicitly for Unity '+ver)
     task=resolved.get('com.cysharp.unitask',{})
     if deps.get('com.cysharp.unitask')!=UNITASK or task.get('version')!=UNITASK or task.get('source')!='git':
         errors.append('Install and lock UniTask 2.5.11 using '+UNITASK)
-    if MAIN+'.addressables' in deps or MAIN+'.verification.addressables' in deps:
+    if 'com.unity.addressables' in deps or MAIN+'.verification.addressables' in deps:
         from addressables_content import VERSIONS as ADDRESSABLES_VERSIONS
         for name,wanted in zip(('com.unity.addressables','com.unity.scriptablebuildpipeline'),ADDRESSABLES_VERSIONS[ver]):
             if deps.get(name)!=wanted or resolved.get(name,{}).get('version')!=wanted:errors.append('addressables-resolved-version:'+name)
@@ -50,6 +51,8 @@ def prepare_runtime_manifest(ver,backend,manifest,lock,package_set='all'):
     """Reject incompatible existing input before preparing; never silently repair it."""
     from run import VERSIONS
     deps=manifest.get('dependencies',{});resolved=lock.get('dependencies',{})
+    migration=legacy_adapter_errors(manifest,lock)
+    if migration:raise ValueError('; '.join(migration))
     ugui=VERSIONS[ver][1]
     if deps.get('com.unity.ugui')!=ugui or ('com.unity.ugui' in resolved and resolved['com.unity.ugui'].get('version')!=ugui):
         raise ValueError('Declare and lock com.unity.ugui '+ugui+' explicitly before runtime preparation')
@@ -74,7 +77,10 @@ def validate_main_package(package,assemblies):
     if package.get('name')!=MAIN or package.get('version')!='0.4.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
         errors.append('main-package-identity-or-unity-baseline')
     if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
-    if set(assemblies)!={'Wulato.UIKit'} or set(assemblies.get('Wulato.UIKit',[]))!={'UniTask','UnityEngine.UI'}:
+    expected_graph={'Wulato.UIKit':{'UniTask','UnityEngine.UI'},
+        'Wulato.UIKit.Addressables':{'Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'},
+        'Wulato.UIKit.InputSystem':{'Wulato.UIKit','UnityEngine.UI','Unity.InputSystem'}}
+    if set(assemblies)!=set(expected_graph) or any(set(assemblies.get(n,[]))!=refs for n,refs in expected_graph.items()):
         errors.append('runtime-assembly-boundary:Wulato.UIKit')
     return errors
 
@@ -94,19 +100,9 @@ def validate_installed_report(ver,folder):
 
 # Explicit optional package identities, never a permissive namespace prefix.
 FLOW_EXTENSIONS={MAIN+'.'+name:name for name in ('navigation','presentation','dialogs','popup-queue')}
-EXTENSIONS={MAIN+'.addressables':'addressables'}
+EXTENSIONS={}
 def is_extension_package(name):
     return name in EXTENSIONS
 
 def validate_extension_package(package,references):
-    errors=[]
-    if package.get('name')==MAIN+'.addressables':
-        expected={'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.addressables':'1.21.21'}
-        if package.get('version')!='0.2.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':errors.append('addressables-identity')
-        if package.get('dependencies')!=expected:errors.append('addressables-dependencies')
-        if set(references)!={'Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'}:errors.append('addressables-assembly-boundary')
-        return errors
-    if not is_extension_package(package.get('name')) or package.get('version')!='0.1.1' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':errors.append('extension-identity-or-unity-baseline')
-    if package.get('dependencies')!={'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11'}:errors.append('extension-core-or-optional-dependency')
-    if set(references)!={'Wulato.UIKit','UniTask'}:errors.append('extension-runtime-assembly-boundary')
-    return errors
+    return ['Package migration: UIKit adapters now ship in com.wulato.uikit; remove '+str(package.get('name'))]

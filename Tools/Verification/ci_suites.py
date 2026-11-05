@@ -22,6 +22,10 @@ def select_suites(paths):
     selected=set()
     def add(mode,suite,backend='all'):selected.add((mode,suite,backend))
     for path in paths:
+        for section in ('Runtime','Editor','Tests'):
+            for folder,package in (('Addressables','addressables'),('InputSystem','input-system')):
+                path=path.replace(f'Packages/com.wulato.uikit/{section}/Integrations/{folder}/',f'Packages/com.wulato.uikit.{package}/{section}/')
+        if '/Samples~/LocalInventory/' in path:path=path.replace('Packages/com.wulato.uikit/','Packages/com.wulato.uikit.addressables/',1)
         if path.removesuffix('.meta')=='Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef':
             for suite in ('contracts','integration','editor','package-install',*MODULES):add('EditMode',suite)
             for suite in ('loading-layout','generated-integration','context-host','transitions','flow-integration','input-runtime'):add('PlayMode',suite)
@@ -70,6 +74,10 @@ def plan(paths,editor=None,backend='auto',full=False):
     tests={};warnings=[];tools=False
     for original in paths:
         path=original
+        for section in ('Runtime','Editor','Tests'):
+            for folder,package in (('Addressables','addressables'),('InputSystem','input-system')):
+                path=path.replace(f'Packages/com.wulato.uikit/{section}/Integrations/{folder}/',f'Packages/com.wulato.uikit.{package}/{section}/')
+        if '/Samples~/LocalInventory/' in path:path=path.replace('Packages/com.wulato.uikit/','Packages/com.wulato.uikit.addressables/',1)
         for folder,name in (('Navigation','navigation'),('Presentation','presentation'),('Dialogs','dialogs'),('PopupQueue','popup-queue')):
             for section in ('Runtime','Tests','Documentation~'):
                 prefix=f'Packages/com.wulato.uikit/{section}/{folder}/'

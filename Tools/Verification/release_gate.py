@@ -130,7 +130,7 @@ def release(root,phase="phase1"):
                             r=json.loads((folder/'summary.json').read_text());errors+=verify_files(folder,r)
                             if r.get('install_status')!='PASS' or not r.get('generation_compiled') or r.get('fingerprint')!=fingerprint or r.get('source_after')!=fingerprint:errors.append('stale-or-uncompiled-git-install')
                             dependencies=json.loads((folder/'packages-lock.json').read_text())['dependencies']
-                            names=['com.wulato.uikit']+(['com.wulato.uikit.input-system'] if backend=='input' else [])
+                            names=['com.wulato.uikit']
                             for name in names:
                                 if dependencies[name].get('source')!='git' or r['git_revision'] not in dependencies[name].get('version',''):errors.append('unpinned-install:'+name)
                         except (OSError,ValueError,KeyError,TypeError) as e:errors.append('invalid-install:'+str(e))

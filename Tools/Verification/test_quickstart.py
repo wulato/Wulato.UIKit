@@ -13,7 +13,7 @@ class QuickStartConsumerTests(unittest.TestCase):
             self.assertNotIn('com.wulato.uikit.acceptance.samples',deps)
             self.assertNotIn('com.wulato.uikit.navigation',deps)
             self.assertNotIn('com.wulato.uikit.addressables',deps)
-            self.assertEqual('com.wulato.uikit.input-system' in deps,backend=='input')
+            self.assertNotIn('com.wulato.uikit.input-system',deps);self.assertEqual('com.unity.inputsystem' in deps,backend=='input')
     def test_quickstart_consumer_hosts_do_not_replace_standard_selection(self):
         import argparse,run
         args=argparse.Namespace(editor='2022.3.62f2',backend='legacy')

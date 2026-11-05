@@ -78,8 +78,8 @@ def sample_sources(root,host,sample_set='all'):
     sources=[root/"Packages/com.wulato.uikit/Samples~"/name for name in NAMES]
     dependencies=json.loads((host/'Packages/manifest.json').read_text())['dependencies']
     if sample_set in ('business','all') and 'com.wulato.uikit' in dependencies:sources.append(root/'Packages/com.wulato.uikit/Samples~/BusinessFlow')
-    if sample_set=='addressables' and 'com.wulato.uikit.addressables' not in dependencies:raise ValueError('addressables-samples-require-adapter')
-    if sample_set in ('addressables','all') and 'com.wulato.uikit.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit.addressables/Samples~/LocalInventory')
+    if sample_set=='addressables' and 'com.unity.addressables' not in dependencies:raise ValueError('addressables-samples-require-sdk')
+    if sample_set in ('addressables','all') and 'com.unity.addressables' in dependencies:sources.append(root/'Packages/com.wulato.uikit/Samples~/LocalInventory')
     return sources
 
 def quickstart_manifest(ver,backend):
@@ -90,8 +90,8 @@ def quickstart_manifest(ver,backend):
           'com.unity.ugui':run.VERSIONS[ver][1],'com.unity.test-framework':run.VERSIONS[ver][2],
           package:'file:'+str(run.V/'Packages'/package),
           **{'com.unity.modules.'+n:'1.0.0' for n in ('ui','imgui','physics','physics2d','jsonserialize')}}
-    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem'],'com.wulato.uikit.input-system':'file:'+str(run.R/'Packages/com.wulato.uikit.input-system')})
-    return dict(dependencies=deps,testables=['com.wulato.uikit',package]+(['com.wulato.uikit.input-system'] if backend=='input' else []))
+    if backend=='input':deps.update({'com.unity.inputsystem':PROFILES[ver]['inputSystem']})
+    return dict(dependencies=deps,testables=['com.wulato.uikit',package]+(['com.unity.inputsystem'] if backend=='input' else []))
 
 def prepare_quickstart(args):
     """Orchestrate clean imports through the existing Unity executor and registered test runner."""

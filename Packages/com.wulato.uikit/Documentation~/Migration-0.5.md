@@ -1,6 +1,6 @@
-# 0.5 开发迁移：任务 1.1
+# 0.5 开发迁移：任务 1.1–1.2
 
-当前仅完成基础 Runtime 程序集收敛，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。后续 API、单 Package 适配整合和版本升级分别按计划交付。
+当前完成基础 Runtime 收敛与可选适配迁移，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。后续资源路由、业务 API 和版本升级按计划交付。
 
 ## 消费程序集
 
@@ -26,4 +26,14 @@ Wulato.UIKit.PopupQueue
 
 IUIContext、View/Session、Loader/Lease、布局、Input driver、单界面及配对 Transition 扩展点保持现有行为。Session/FIFO、取消、缓存、迟到清理、输入门控与 Shutdown 不引入第二套实现。
 
-Addressables/Input System 适配包仍单独安装，仅将它们的 Runtime 引用更新为新基础程序集；不改变第三方 SDK 版本或自动注册方式。任务 1.2 之前不要删除消费项目中的独立适配包引用。
+## 适配单 Package 迁移
+
+升级前从消费 manifest 移除 `com.wulato.uikit.addressables` 与 `com.wulato.uikit.input-system`，随后让 UPM 正常重解析锁；保留按需使用的 `com.unity.addressables` / `com.unity.inputsystem` SDK。不要复制旧 Runtime 或手工安装两份 UIKit 适配源码，否则会发生重复程序集/类型；验证入口在启动 Unity 前检查并拒绝旧包引用；Editor Validate/构建校验也会给出移除提示。重复 asmdef 已导致 Unity 编译失败时，须先移除旧包才能加载 Editor 校验。
+
+程序集名 `Wulato.UIKit.Addressables`、`Wulato.UIKit.InputSystem`、类型名及脚本 GUID 保留；现有业务 asmdef 对这些程序集的引用无需改名。代码、Editor 校验、测试和 LocalInventory 样例均在主包内，分别使用 Version Defines/Define Constraints 隔离 SDK 引用；符号只在各自 asmdef 内有效。主包 package.json 不增加可选 SDK 必需依赖。
+
+开发验收锁定 Unity 2022.3.62f2、Addressables 1.21.21 / SBP 1.21.25、Input System 1.17.0；条件编译的版本区间仅控制候选代码是否参与编译，不代表区间内所有版本均已验证。消费项目应使用锁定版本；现有验证入口会拒绝与所选 editor profile 不符的依赖，并提示修复。其他编辑器兼容 profile 不作为本次通过声明。
+
+当前仍显式 `WithLoader(new AddressablesUIViewLoader())`，Input driver 由宿主/工作台明确选择，不自动安装 SDK、替换输入模块或更改 ProjectSettings。资源自动路由属于 1.3。SDK 不存在时不要在业务非条件程序集里直接引用适配类型。
+
+LocalInventory 现在从主包 Samples 导入；要求先安装 Addressables SDK。已导入样例不会被自动移动或覆盖，来源配置与租约所有权契约保持。

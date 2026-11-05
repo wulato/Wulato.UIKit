@@ -51,7 +51,7 @@ namespace Wulato.UIKit.Editor.Authoring
         void DrawDriver()
         {
             driverScript=(MonoScript)EditorGUILayout.ObjectField("输入驱动脚本",driverScript,typeof(MonoScript),false);
-            EditorGUILayout.HelpBox("留空使用 LegacyUIInputDriver。Input System 项目请拖入已安装适配包的 InputSystemUIInputDriver 脚本；不会自动安装、扫描或切换项目输入设置。",MessageType.Info);
+            EditorGUILayout.HelpBox("留空使用 LegacyUIInputDriver。Input System 项目安装 Unity SDK 后，拖入主包 Integrations/InputSystem 的驱动脚本；无需独立 UIKit 适配包，不自动安装 SDK 或切换项目设置。",MessageType.Info);
         }
         void DrawScene()
         {

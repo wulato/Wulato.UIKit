@@ -1,8 +1,10 @@
 # UIKit verification
 
-当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0 已完成，当前 1.1 验证统一 `Wulato.UIKit` Runtime 身份、消费者引用和内部事务边界；实际专项/编译/Reload 证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0 与 1.1 已合并；当前 1.2 验证主包内可选适配程序集、四种 SDK 组合和加载/输入专项；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
 
-1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界；不依赖可选 SDK。Addressables/Input System 目前仍是独立适配包。
+1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界，不反向依赖可选 SDK。1.2 将 Addressables/Input System 适配迁入主包 Integrations 条件程序集；主包为唯一 UIKit 包，验证入口在启动 Unity 前拒绝旧适配包 manifest/lock 引用。
+
+1.2 的安装范围 `--package-set main` 表示不安装 Addressables SDK，`addressables/all` 表示加入 SDK/SBP 与内容验证夹具；Input SDK 由 `--backend input` 控制。两开关形成 C0 无 SDK、C1 仅 Addressables、C2 仅 Input、C3 两者都有。package-install 包含依赖、基础程序集隔离、适配条件编译的实际程序集及旧包提示检查；本轮不默认扩展全部编辑器或完整 suite。
 
 M6 干净安装使用现有 `build --phase phase3 --profile clean --prepare-only`，显式选择默认编辑器；组合为 main/legacy、addressables/legacy、all/legacy、all/input。`--target Android` 在此仅保留安装记录身份，不构建 Player。隔离 Git 快照强制收录授权包目录（不受用户忽略规则影响），逐文件核对提交清单及 SHA-256，并保存 `package-snapshot.json`；样例和 `.meta` 必须从该固定提交读取，不能用快照工作目录的脏文件或未跟踪文件补齐。原始证据索引包含快照清单。安装通过仍要求生成/编译和实际依赖隔离通过；预期退出 1/BLOCKED 的唯一允许原因是 `prepare-only; no mobile Player built`，不等于移动构建通过。2026-11-03 的旧安装证据漏收样例/文档，完整交付结论由 M6 补验替代。
 
@@ -59,7 +61,7 @@ python3 Tools/Verification/run.py play-reset --backend all --scope preview
 
 context-host/preview 的独立 Editor Reload 验证使用现有 play-reset 执行器，Legacy 四组合、input 默认及双禁用，各连续两次；这些证据不能代替完整 integration Reload 或移动发布矩阵。preview 需要先 codegen/prepare-samples，恢复记录及临时场景来自真实生产预览路径。
 
-主包内含四业务模块，安装 main 不安装 Addressables/Input System；addressables 仅增适配和 SDK，all 按显式输入后端组合。旧单业务包安装参数返回迁移错误。SDK 与编辑器依赖以 profile 为准。
+主包内含四业务模块，安装 main 不安装 Addressables/Input System；addressables 仅增 Addressables SDK 与验证夹具，all 按显式输入后端组合。旧单业务包安装参数返回迁移错误。SDK 与编辑器依赖以 profile 为准。
 
 以下为历史阶段说明及证据索引；旧包数量、版本和固定四宿主命令不作为当前任务要求。
 

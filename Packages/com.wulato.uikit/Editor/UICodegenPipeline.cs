@@ -180,8 +180,15 @@ namespace Wulato.UIKit.Editor
         }
         [MenuItem("Tools/Wulato/UIKit/Validate")]
         public static void Validate()=>ValidateFor(Discover());
+        internal static void ValidateAdapterPackages(System.Collections.Generic.IEnumerable<string> names=null)
+        {
+            foreach(var name in names??UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Select(p=>p.name))
+                if(name=="com.wulato.uikit.addressables"||name=="com.wulato.uikit.input-system")
+                    throw new InvalidOperationException("Package migration: remove "+name+"; UIKit adapters now ship in com.wulato.uikit. Keep the Unity SDK dependency.");
+        }
         public static void ValidateFor(string[] prefabs)
         {
+            ValidateAdapterPackages();
             var views=Inputs(prefabs);var files=Sources(views);var state=State(views,files);
             if(File.Exists(Pending)||!File.Exists(Manifest))throw new InvalidOperationException("Bindings missing or pending; generate, compile and complete writeback before build.");
             var prior=JsonUtility.FromJson<CodegenState>(File.ReadAllText(Manifest));

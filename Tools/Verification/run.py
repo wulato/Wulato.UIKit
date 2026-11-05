@@ -128,9 +128,10 @@ def applicable_suites(matrix,manifest):
  optional={'samples','performance','performance-markers','flow-samples'}
  mapping={suite:package for package,suite in EXTENSIONS.items()}
  mapping.update({suite:'com.wulato.uikit' for suite in ('navigation','presentation','dialogs','popup-queue')})
- mapping['addressables']='com.wulato.uikit.addressables'
+ mapping['addressables']='com.unity.addressables'
  mapping['addressables-integration']='com.wulato.uikit.verification.addressables'
- mapping['addressables-runtime']='com.wulato.uikit.addressables'
+ mapping['addressables-runtime']='com.unity.addressables'
+ mapping['input-package']='com.unity.inputsystem'
  mapping['addressables-preflight']='com.wulato.uikit.verification.addressables'
  mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
  mapping['flow-samples']='com.wulato.uikit.acceptance.flows'

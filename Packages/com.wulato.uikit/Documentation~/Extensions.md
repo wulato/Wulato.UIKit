@@ -1,6 +1,6 @@
 # 业务模块与可选适配
 
-Navigation、Presentation、Dialogs、PopupQueue 已内置主包，并与 Core/Loading/UGUI 共用 `Wulato.UIKit` Runtime 程序集；当前仍显式装配，不自动注册服务。Addressables/Input System 保持独立可选包，后续任务 1.2 才合并其包位置。
+Navigation、Presentation、Dialogs、PopupQueue 已内置主包，并与 Core/Loading/UGUI 共用 `Wulato.UIKit` Runtime 程序集；当前仍显式装配，不自动注册服务。Addressables/Input System 适配已在主包 Integrations 下，通过独立条件程序集保持 SDK 可选；不再安装独立 UIKit 适配包。
 
 # 可选扩展接入
 

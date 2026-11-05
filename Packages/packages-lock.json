@@ -267,16 +267,6 @@
         "com.cysharp.unitask": "2.5.11"
       }
     },
-    "com.wulato.uikit.addressables": {
-      "version": "file:com.wulato.uikit.addressables",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.cysharp.unitask": "2.5.11",
-        "com.unity.addressables": "1.21.21"
-      }
-    },
     "com.wulato.uikit.dialogs": {
       "version": "file:com.wulato.uikit.dialogs",
       "depth": 0,
@@ -284,15 +274,6 @@
       "dependencies": {
         "com.wulato.uikit": "0.3.0",
         "com.cysharp.unitask": "2.5.11"
-      }
-    },
-    "com.wulato.uikit.input-system": {
-      "version": "file:com.wulato.uikit.input-system",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {
-        "com.wulato.uikit": "0.3.0",
-        "com.unity.inputsystem": "1.17.0"
       }
     },
     "com.wulato.uikit.navigation": {
