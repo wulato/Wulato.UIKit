@@ -1,6 +1,6 @@
-# 0.5 开发迁移：任务 1.1–1.3
+# 0.5 开发迁移：任务 1.1–2.1
 
-当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。后续业务 API 和版本升级按计划交付。
+当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。本检查点已收敛 Context 入口与默认装配；后续导航语义、Dialog/Popup 便捷入口和版本升级继续按计划交付。
 
 ## 消费程序集
 
@@ -37,3 +37,15 @@ IUIContext、View/Session、Loader/Lease、布局、Input driver、单界面及�
 默认 Context 按 Registry 的 Prefab / Resources / External 描述路由；已安装的 Addressables 适配自动注册，无需 `WithLoader(new AddressablesUIViewLoader())`。每 Context 拥有后端快照与独立 Loader，后续注册不改变既有 Context；缺少后端在 Context 分配资源前失败。自定义 `WithLoader` 覆盖整套路由，依赖仍归调用方所有。Input driver 继续由宿主/工作台明确选择，不自动安装 SDK、替换输入模块或更改 ProjectSettings。SDK 不存在时不要在业务非条件程序集里直接引用适配类型。
 
 LocalInventory 现在从主包 Samples 导入；要求先安装 Addressables SDK。已导入样例不会被自动移动或覆盖，来源配置与租约所有权契约保持。
+
+## 默认装配与所属 Context（2.1）
+
+`UIContextHost.Context` 改为 `UI`，`Initialize()` 仍返回同一个 IUIContext。Navigation、Dialogs、PopupQueue 默认装配，移除 `UseNavigation` / `UseDialogs` / `UsePopupQueue` 与公开 `WithTransactions`；自定义配对动画改用 `WithNavigationTransition(pair, settings)`。Presenter 仍显式 `UsePresentation(factory)`，简单界面无需业务分层或服务查找。
+
+`IUIContext.ContextId`、`IUISession.ContextId` 提供归属身份。`await ui.CloseAsync(session)` 只接受此 Context 创建的真实 Session（包括 typed 包装），拒绝其他 Context 或伪造句柄；旧 Session 重复关闭只返回自己的 Closed 结果，不关闭缓存重开后的新会话。
+
+Dialog 的请求/结果映射与 View 一起注册：`builder.AddDialog<ConfirmView,ConfirmRequest,bool>(key, asset)`，默认 Modal 层；不再创建单独 DialogRegistry。重复请求类型在构建 Registry 时拒绝。生成器识别 DialogArguments 自动输出 AddDialog；更新后重新生成、编译和写回 Registry。普通 Add<View,DialogArguments<...>> 不声明业务请求映射。
+
+业务扩展工厂执行前，三个默认服务和 Registry/Lifetime 已可查找；默认服务不可被 WithServiceFactory 覆盖。构建阶段只允许读取服务和 ContextId，命令须等 Build 返回；失败先取消 Lifetime，再逆序释放创建的服务并回滚 Root/Input 所有权。注入 Loader/动画/Presenter 工厂仍归调用方所有。
+
+本任务提供无需 GetService 的普通 Open/Close；页面新根历史、Replace/PopTo 与导航便捷入口在 2.2，统一 Back 在 2.3，DialogAsync/泛型 PopupAsync 在 2.4。当前高级业务服务仍可通过 GetService 访问，避免先添加一组稍后废弃的服务属性或并行实现。

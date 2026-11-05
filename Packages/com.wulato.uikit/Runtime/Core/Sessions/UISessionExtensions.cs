@@ -9,6 +9,7 @@ namespace Wulato.UIKit
             readonly IUISession session;
             public Typed(IUISession session) { this.session=session; }
             public IUISession Session => session;
+            public UIContextId ContextId => session.ContextId;
             public UISessionId Id => session.Id;
             public UIState State => session.State;
             public UniTask<UICompletion> Closed => session.Closed;

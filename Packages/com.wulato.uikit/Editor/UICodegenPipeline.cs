@@ -96,6 +96,7 @@ namespace Wulato.UIKit.Editor
                     }
                     Type args=null;var branch=type;
                     while(branch!=null){if(branch.IsGenericType&&branch.GetGenericTypeDefinition()==typeof(UIView<>)){args=branch.GetGenericArguments()[0];break;}branch=branch.BaseType;}
+                    if(args!=null&&args.IsGenericType&&args.GetGenericTypeDefinition()==typeof(Dialogs.DialogArguments<,>)&&marker.layer!=UILayer.Modal)throw new InvalidOperationException("Dialog Views require the Modal layer.");
                     if(args==null&&!typeof(UIView).IsAssignableFrom(type))throw new InvalidOperationException("Unsupported UIView branch.");
                     results.Add(new ViewInput{Path=path,Prefab=prefab,Marker=marker,Type=type,Args=args,Guid=guid,Key=key,Route=route,Fingerprint=Hash(identity.ToString())});
                 }

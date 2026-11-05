@@ -86,13 +86,13 @@ namespace Wulato.UIKit.Tests.EditMode
                 .WithServiceFactory<string>(_=>throw new Exception("later-factory")).Build());
             Assert.That(disposed,Is.True);Keep(Builder().Build());
         }
-        [Test] public void ProductionBuilder_ExplicitTransactionsOnly()
+        [Test] public void ProductionBuilder_TransactionsAreBuiltIn()
         {
-            var ui=Keep(Builder().WithTransactions().Build());
+            var ui=Keep(Builder().Build());
             Assert.That(ui.GetService<IUITransactionAccess>(),Is.Not.Null);
             ui.ShutdownAsync().GetAwaiter().GetResult();
             var normal=Keep(Builder().Build());
-            Assert.Throws<InvalidOperationException>(()=>normal.GetService<IUITransactionAccess>());
+            Assert.That(normal.GetService<IUITransactionAccess>(),Is.Not.Null);
         }
         [Test] public void BuiltInServices_CannotBeOverridden()
         {

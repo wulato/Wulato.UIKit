@@ -9,6 +9,7 @@ namespace Wulato.UIKit
     /// <summary>A single successful open; never exposes a reusable View instance.</summary>
     public interface IUISession
     {
+        UIContextId ContextId { get; }
         UISessionId Id { get; }
         UIState State { get; }
         UniTask<UICompletion> Closed { get; }

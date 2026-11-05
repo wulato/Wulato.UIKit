@@ -11,8 +11,10 @@ namespace Wulato.UIKit.Editor
             text.Append("public override void Populate(global::Wulato.UIKit.UIRegistryBuilder builder) {\n");
             for(int i=0;i<views.Length;i++)
             {
-                var v=views[i];text.Append("builder.Add<").Append(UICodegenPipeline.TypeName(v.Type));
-                if(v.Args!=null)text.Append(',').Append(UICodegenPipeline.TypeName(v.Args));
+                var v=views[i];var dialog=v.Args!=null&&v.Args.IsGenericType&&v.Args.GetGenericTypeDefinition()==typeof(Dialogs.DialogArguments<,>);
+                text.Append(dialog?"builder.AddDialog<":"builder.Add<").Append(UICodegenPipeline.TypeName(v.Type));
+                if(dialog)foreach(var argument in v.Args.GetGenericArguments())text.Append(',').Append(UICodegenPipeline.TypeName(argument));
+                else if(v.Args!=null)text.Append(',').Append(UICodegenPipeline.TypeName(v.Args));
                 text.Append(">(new global::Wulato.UIKit.UIViewTypeKey(").Append(UICodegenPipeline.Literal(v.Key)).Append("), global::Wulato.UIKit.UIViewAsset.");
                 if(string.IsNullOrEmpty(v.Marker.externalProviderId))text.Append("Direct(prefab").Append(i).Append("), ");
                 else text.Append("External(").Append(UICodegenPipeline.Literal(v.Marker.externalProviderId)).Append(',').Append(UICodegenPipeline.Literal(v.Marker.externalAssetId)).Append("), ");

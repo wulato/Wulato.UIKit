@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Wulato.UIKit.Dialogs;
 
 namespace Wulato.UIKit
 {
@@ -70,9 +71,10 @@ namespace Wulato.UIKit
         public UIClosePolicy ClosePolicy { get; }
         public UIBackAction BackAction { get; }
         public UIInputPolicy InputPolicy { get; }
+        internal DialogRegistry.Entry Dialog { get; }
         internal UIRegistration(UIViewTypeKey key,Type viewType,Type argumentType,UIViewAsset asset,UILayer layer,
-            UIMultiplicity multiplicity,UIClosePolicy closePolicy,UIBackAction backAction,UIInputPolicy inputPolicy)
-        { Key=key;ViewType=viewType;ArgumentType=argumentType;this.asset=asset.CopyValidated();Layer=layer;Multiplicity=multiplicity;ClosePolicy=closePolicy;BackAction=backAction;InputPolicy=inputPolicy; }
+            UIMultiplicity multiplicity,UIClosePolicy closePolicy,UIBackAction backAction,UIInputPolicy inputPolicy,DialogRegistry.Entry dialog=null)
+        { Key=key;ViewType=viewType;ArgumentType=argumentType;this.asset=asset.CopyValidated();Layer=layer;Multiplicity=multiplicity;ClosePolicy=closePolicy;BackAction=backAction;InputPolicy=inputPolicy;Dialog=dialog; }
         public bool Accepts(UIArguments args) => ArgumentType==args.ArgumentType;
     }
     /// <summary>Generated providers populate explicit mappings; no assembly scanning or Type.GetType.</summary>
@@ -104,8 +106,19 @@ namespace Wulato.UIKit
         public void Add<TView,TArgs>(UIViewTypeKey key,UIViewAsset asset,UILayer layer=UILayer.Page,UIMultiplicity multiplicity=UIMultiplicity.Single,
             UIClosePolicy closePolicy=UIClosePolicy.Release,UIBackAction backAction=UIBackAction.RequestClose,UIInputPolicy? inputPolicy=null) where TView : UIView<TArgs>
             => Add(key,typeof(TView),typeof(TArgs),asset,layer,multiplicity,closePolicy,backAction,inputPolicy);
+        /// <summary>Register a modal View and its typed request/result mapping together.</summary>
+        public void AddDialog<TView,TRequest,TResult>(UIViewTypeKey key,UIViewAsset asset,UILayer layer=UILayer.Modal,UIMultiplicity multiplicity=UIMultiplicity.Single,
+            UIClosePolicy closePolicy=UIClosePolicy.Release,UIBackAction backAction=UIBackAction.RequestClose,UIInputPolicy? inputPolicy=null)
+            where TView:UIView<DialogArguments<TRequest,TResult>> where TRequest:IDialogRequest<TResult>
+        {
+            if(layer!=UILayer.Modal)throw new ArgumentException("Dialogs require the Modal layer.");
+            foreach(var entry in entries)if(entry.Dialog?.RequestType==typeof(TRequest))throw new ArgumentException("Duplicate dialog request type.");
+            var dialog=new DialogRegistry.Entry(key,typeof(TRequest),typeof(TResult),typeof(DialogArguments<TRequest,TResult>),
+                (request,responder)=>UIArguments.From(new DialogArguments<TRequest,TResult>((TRequest)request,(IDialogResponder<TResult>)responder)));
+            Add(key,typeof(TView),typeof(DialogArguments<TRequest,TResult>),asset,layer,multiplicity,closePolicy,backAction,inputPolicy,dialog);
+        }
         private void Add(UIViewTypeKey key,Type viewType,Type argumentType,UIViewAsset asset,UILayer layer,UIMultiplicity multiplicity,
-            UIClosePolicy closePolicy,UIBackAction backAction,UIInputPolicy? inputPolicy)
+            UIClosePolicy closePolicy,UIBackAction backAction,UIInputPolicy? inputPolicy,DialogRegistry.Entry dialog=null)
         {
             if(string.IsNullOrWhiteSpace(key.Value) || viewType.IsAbstract || viewType.ContainsGenericParameters || asset==null)
                 throw new ArgumentException("A concrete View, stable key and asset are required.");
@@ -114,7 +127,7 @@ namespace Wulato.UIKit
             if(multiplicity==UIMultiplicity.Multi && closePolicy==UIClosePolicy.CacheOne)throw new ArgumentException("Multi only supports Release.");
             foreach(var item in entries)if(item.Key==key || item.ViewType==viewType)throw new ArgumentException("Duplicate View type or key.");
             entries.Add(new UIRegistration(key,viewType,argumentType,asset,layer,multiplicity,closePolicy,backAction,
-                inputPolicy ?? new UIInputPolicy(layer!=UILayer.Toast,layer==UILayer.Modal)));
+                inputPolicy ?? new UIInputPolicy(layer!=UILayer.Toast,layer==UILayer.Modal),dialog));
         }
         public UIRegistrySnapshot Build() => new UIRegistrySnapshot(entries);
     }

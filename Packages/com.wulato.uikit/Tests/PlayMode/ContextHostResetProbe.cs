@@ -9,11 +9,11 @@ namespace Wulato.UIKit.Tests.PlayMode
         static UIContextHost host;static IUIContext context;static UIInputArbiter arbiter;static IDisposable inputLock;
         public static bool Ready()
         {
-            host=UnityEngine.Object.FindObjectOfType<UIContextHost>();return host!=null&&host.Context!=null;
+            host=UnityEngine.Object.FindObjectOfType<UIContextHost>();return host!=null&&host.UI!=null;
         }
         public static void Enter()
         {
-            Assert.That(Ready(),Is.True);context=host.Context;Assert.That(context.GetDiagnostics().State,Is.EqualTo(UIContextState.Running));
+            Assert.That(Ready(),Is.True);context=host.UI;Assert.That(context.GetDiagnostics().State,Is.EqualTo(UIContextState.Running));
             var events=UnityEngine.EventSystems.EventSystem.current;arbiter=events.GetComponent<UIInputDomainRegistration>().Domain.Arbiter;
             inputLock=arbiter.AcquireLock(context.GetDiagnostics().ContextId);Assert.That(UIContextFacade.ActiveCount,Is.EqualTo(1));
             var previous=Path.Combine(Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR"),"automatic-exit-0.json");

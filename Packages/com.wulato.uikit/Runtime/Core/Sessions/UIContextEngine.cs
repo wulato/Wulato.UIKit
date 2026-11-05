@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Wulato.UIKit
 {
     /// <summary>Logical command engine. Unity host construction is a separate first-party backend.</summary>
-    internal sealed partial class UIContextEngine : IUIContext, IUITransactionAccess, IUIPageTransactionAccess
+    internal sealed partial class UIContextEngine : IUITransactionAccess, IUIPageTransactionAccess
     {
         readonly UIContextId id;
         readonly UIRuntimeDependencies dependencies;
@@ -475,6 +475,14 @@ namespace Wulato.UIKit
             completions.Post(() => session.Completion.TrySetResult(result));
         }
 
+        internal UIContextId ContextId=>id;
+        internal UniTask<UICompletion> CloseAsync(IUISession session,UICloseReason reason=UICloseReason.Owner)
+        {
+            if(session is IUISessionReference reference)session=reference.Session;
+            if(!(session is UISessionHandle handle)||!handle.BelongsTo(this))
+                return UniTask.FromException<UICompletion>(Error(UIErrorCode.InvalidRequest,"session-context"));
+            return Close(handle,reason);
+        }
         internal UniTask<UICompletion> Close(UISessionHandle session, UICloseReason reason)
         {
             var error = SubmissionError(true);

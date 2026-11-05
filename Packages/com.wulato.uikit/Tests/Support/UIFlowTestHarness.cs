@@ -18,7 +18,9 @@ namespace Wulato.UIKit.Tests.Support
         public UIFlowTestHarness(UIRegistrySnapshot registry)
         {
             this.registry=registry;
-            UI=new UIContextEngine(new UIContextId(Guid.NewGuid()),new UIRuntimeDependencies(registry,new UIContextSettings().CopyValidated(),this,Clock,new FakeViewHostFactory(),this,this,new FakeInputArbiter(),this,new[]{this},null,true));
+            var facade=new UIContextFacade(null,new UIServiceRegistry());
+            var engine=new UIContextEngine(facade.Id,new UIRuntimeDependencies(registry,new UIContextSettings().CopyValidated(),this,Clock,new FakeViewHostFactory(),this,this,new FakeInputArbiter(),this,new[]{this},null,true,lifetime:facade.Lifetime));
+            facade.Initialize(engine,null,null);UI=facade;
         }
         public UniTask<IUIViewLease> CreateAsync(UIViewAsset asset,Transform parent,CancellationToken ct)
         {

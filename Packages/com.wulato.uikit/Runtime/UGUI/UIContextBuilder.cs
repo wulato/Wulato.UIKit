@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Wulato.UIKit.Navigation;
+using Wulato.UIKit.Dialogs;
+using Wulato.UIKit.PopupQueue;
 namespace Wulato.UIKit
 {
     /// <summary>Explicit main-thread composition. Injected dependencies remain owned by the caller.</summary>
@@ -17,7 +20,8 @@ namespace Wulato.UIKit
         IUILayoutReady layout;
         IUIErrorSink sink;
         IUIInputArbiter input;
-        bool transactions;
+        INavigationTransition navigationTransition;
+        NavigationSettings navigationSettings;
         readonly List<IUISessionLifecycleObserver> observers = new List<IUISessionLifecycleObserver>();
         readonly List<KeyValuePair<Type,Func<IUIContext,object>>> factories = new List<KeyValuePair<Type,Func<IUIContext,object>>>();
         public UIContextBuilder(UIRoot root, UIRegistry registry)
@@ -34,13 +38,14 @@ namespace Wulato.UIKit
         public UIContextBuilder WithServiceFactory<TService>(Func<IUIContext,TService> factory) where TService:class
         {
             Required(factory);
-            if(typeof(TService)==typeof(IUIContextLifetime)||typeof(TService)==typeof(UIRegistrySnapshot)||typeof(TService)==typeof(IUITransactionAccess)||typeof(TService)==typeof(IUIPageTransactionAccess))
+            if(typeof(TService)==typeof(IUIContext)||typeof(TService)==typeof(IUINavigator)||typeof(TService)==typeof(IUIDialogs)||typeof(TService)==typeof(IUIPopupQueue)||typeof(TService)==typeof(IUIContextLifetime)||typeof(TService)==typeof(UIRegistrySnapshot)||typeof(TService)==typeof(IUITransactionAccess)||typeof(TService)==typeof(IUIPageTransactionAccess))
                 throw new InvalidOperationException("Built-in service types are reserved.");
             if(factories.Exists(f=>f.Key==typeof(TService)))throw new InvalidOperationException("Duplicate service type.");
             factories.Add(new KeyValuePair<Type,Func<IUIContext,object>>(typeof(TService),ui=>factory(ui)));return this;
         }
-        /// <summary>Enable the explicit first-party transaction capability.</summary>
-        public UIContextBuilder WithTransactions() { transactions=true;return this; }
+        /// <summary>Configure the built-in Navigator's paired transition; the dependency remains caller-owned.</summary>
+        public UIContextBuilder WithNavigationTransition(INavigationTransition value,NavigationSettings settings=null)
+        {navigationTransition=value;navigationSettings=settings;return this;}
         public IUIContext Build()
         {
             if(!PlayerLoopHelper.IsMainThread)throw new InvalidOperationException("Build requires the main thread.");
@@ -68,7 +73,11 @@ namespace Wulato.UIKit
                 facade.Claim();
                 services.Values.Add(typeof(IUIContextLifetime),facade.Lifetime);
                 services.Values.Add(typeof(UIRegistrySnapshot),mapping);
-                var allObservers=new List<IUISessionLifecycleObserver>(observers);
+                var navigator=new UINavigator(facade,navigationTransition,navigationSettings);
+                services.Add(typeof(IUINavigator),navigator);
+                services.Add(typeof(IUIDialogs),new UIDialogs(facade));
+                services.Add(typeof(IUIPopupQueue),new UIPopupQueue(facade));
+                var allObservers=new List<IUISessionLifecycleObserver>(observers){navigator};
                 foreach(var factory in factories.ToArray())
                 {
                     var value=factory.Value(facade);services.Add(factory.Key,value);
@@ -77,7 +86,7 @@ namespace Wulato.UIKit
                 hosts=new UIViewHostFactory(root);
                 facade.Initialize(new UIContextEngine(facade.Id,new UIRuntimeDependencies(mapping,config,resources,
                     scheduler??new UniTaskUIAsyncScheduler(),hosts,layout??new UILayoutReady(),transition??new ImmediateUITransition(),
-                    arbiter,sink??new UnityErrorSink(),allObservers,services.Values,enableTransactions:transactions,stopResources:facade.Release,lifetime:facade.Lifetime)),ownedDomain,ownedArbiter);
+                    arbiter,sink??new UnityErrorSink(),allObservers,services.Values,enableTransactions:true,stopResources:facade.Release,lifetime:facade.Lifetime)),ownedDomain,ownedArbiter);
                 return facade;
             }
             catch(Exception original)

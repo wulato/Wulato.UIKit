@@ -59,7 +59,7 @@ namespace Wulato.UIKit.Tests.Preview
                         var source=(System.Threading.CancellationTokenSource)type.GetField("cancellation",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(runtime);
                         source.Token.Register(()=>throw new ArgumentException("cancel callback failed"));Exception shutdownError=null;
                         try{await (UniTask<UIShutdownCompletion>)type.GetMethod("ShutdownAsync").Invoke(runtime,null);}catch(Exception e){shutdownError=e;}
-                        Assert.That(shutdownError,Is.Not.Null);Assert.That(host.Context.GetDiagnostics().State,Is.EqualTo(UIContextState.Stopped),"Cancellation callbacks must not prevent Context shutdown.");
+                        Assert.That(shutdownError,Is.Not.Null);Assert.That(host.UI.GetDiagnostics().State,Is.EqualTo(UIContextState.Stopped),"Cancellation callbacks must not prevent Context shutdown.");
                     }
                     else {await (UniTask<UIShutdownCompletion>)type.GetMethod("ShutdownAsync").Invoke(runtime,null);await (UniTask<UIShutdownCompletion>)type.GetMethod("ShutdownAsync").Invoke(runtime,null);}
                     Assert.That(adapterType.GetField("Configures").GetValue(null),Is.EqualTo(1));Assert.That(adapterType.GetField("Releases").GetValue(null),Is.EqualTo(1));

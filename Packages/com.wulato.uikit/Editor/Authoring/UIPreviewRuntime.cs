@@ -14,7 +14,7 @@ namespace Wulato.UIKit.Editor.Authoring
         UniTaskCompletionSource<UIShutdownCompletion> stopped;
         public bool Busy=>busy;
         public IUISession Session { get; private set; }
-        public IUIContext Context=>host.Context;
+        public IUIContext Context=>host.UI;
         public UIPreviewRuntime(UIPreviewProfile profile,UIContextHost host)
         {
             this.profile=profile;this.host=host;

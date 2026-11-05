@@ -22,10 +22,10 @@ namespace Wulato.UIKit.Dialogs.Tests
         UIFlowTestHarness Fixture()
         {
             ConfirmView.Responder=null;ConfirmView.Fail=false;ConfirmView.SubmitEarly=false;ConfirmView.FailClose=false;ConfirmView.SubmitOnClose=false;ConfirmView.OpenGate=null;ConfirmView.CloseGate=null;
-            var registry=new UIRegistryBuilder();registry.Add<ConfirmView,DialogArguments<Confirm,bool>>(new UIViewTypeKey("confirm"),UIViewAsset.Resources("confirm"),UILayer.Modal,closePolicy:UIClosePolicy.CacheOne);
+            var registry=new UIRegistryBuilder();registry.AddDialog<ConfirmView,Confirm,bool>(new UIViewTypeKey("confirm"),UIViewAsset.Resources("confirm"),UILayer.Modal,closePolicy:UIClosePolicy.CacheOne);
             return new UIFlowTestHarness(registry.Build());
         }
-        UIDialogs Dialogs(UIFlowTestHarness fixture)=>new UIDialogs(fixture.UI,new DialogRegistry().Register<Confirm,bool>(new UIViewTypeKey("confirm")));
+        UIDialogs Dialogs(UIFlowTestHarness fixture)=>new UIDialogs(fixture.UI);
         [Test] public void ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand()
         {
             using(var f=Fixture())
@@ -53,8 +53,8 @@ namespace Wulato.UIKit.Dialogs.Tests
         }
         [Test] public void DuplicateRequestRegistration_IsRejected()
         {
-            var registry=new DialogRegistry().Register<Confirm,bool>(new UIViewTypeKey("confirm"));
-            Assert.Throws<ArgumentException>(()=>registry.Register<Confirm,bool>(new UIViewTypeKey("confirm")));
+            var registry=new UIRegistryBuilder();registry.AddDialog<ConfirmView,Confirm,bool>(new UIViewTypeKey("confirm"),UIViewAsset.Resources("confirm"));
+            Assert.Throws<ArgumentException>(()=>registry.AddDialog<ConfirmView,Confirm,bool>(new UIViewTypeKey("confirm"),UIViewAsset.Resources("confirm")));
         }
         [Test] public void CanceledBeforeOpen_DoesNotLoad()
         {

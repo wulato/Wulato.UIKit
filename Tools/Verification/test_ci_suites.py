@@ -4,6 +4,12 @@ from pathlib import Path
 from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
+    def test_context_api_tests_select_both_owned_categories(self):
+        import ci_suites
+        for suffix in ('','.meta'):
+            chosen=ci_suites.plan(['Packages/com.wulato.uikit/Tests/EditMode/ContextApiTests.cs'+suffix])
+            self.assertEqual({'contracts','integration'},{r['suite'] for r in chosen['tests']})
+            self.assertFalse(chosen['reload'])
     def test_resource_router_and_bootstrap_select_targeted_contracts_and_reload(self):
         import ci_suites
         for path in ('Packages/com.wulato.uikit/Runtime/Loading/UIResourceResolver.cs',

@@ -2,27 +2,25 @@ using System;
 using System.Collections.Generic;
 namespace Wulato.UIKit.Dialogs
 {
-    /// <summary>Explicit request mappings, copied when the dialog service is created.</summary>
-    public sealed class DialogRegistry
+    internal static class DialogRegistry
     {
         internal sealed class Entry
         {
-            internal UIViewTypeKey Key;internal Type ResultType,ArgumentsType;
-            internal Func<object,object,UIArguments> Bind;
+            internal readonly UIViewTypeKey Key;
+            internal readonly Type RequestType,ResultType,ArgumentsType;
+            internal readonly Func<object,object,UIArguments> Bind;
+            internal Entry(UIViewTypeKey key,Type request,Type result,Type arguments,Func<object,object,UIArguments> bind)
+            {Key=key;RequestType=request;ResultType=result;ArgumentsType=arguments;Bind=bind;}
         }
-        readonly Dictionary<Type,Entry> entries=new Dictionary<Type,Entry>();
-        /// <inheritdoc/>
-        public DialogRegistry Register<TRequest,TResult>(UIViewTypeKey viewKey) where TRequest:IDialogRequest<TResult>
+        internal static Dictionary<Type,Entry> Copy(UIRegistrySnapshot views)
         {
-            entries.Add(typeof(TRequest),new Entry{Key=viewKey,ResultType=typeof(TResult),ArgumentsType=typeof(DialogArguments<TRequest,TResult>),
-                Bind=(request,responder)=>UIArguments.From(new DialogArguments<TRequest,TResult>((TRequest)request,(IDialogResponder<TResult>)responder))});
-            return this;
-        }
-        internal Dictionary<Type,Entry> Copy(UIRegistrySnapshot views)
-        {
-            var result=new Dictionary<Type,Entry>(entries);
-            foreach(var entry in result.Values)
-                if(views.Get(entry.Key).ArgumentType!=entry.ArgumentsType)throw new ArgumentException("Dialog View arguments do not match the explicit request mapping.");
+            var result=new Dictionary<Type,Entry>();
+            foreach(var view in views.Entries)
+            {
+                var entry=view.Dialog;if(entry==null)continue;
+                if(view.ArgumentType!=entry.ArgumentsType||view.Layer!=UILayer.Modal)throw new ArgumentException("Invalid dialog View mapping.");
+                result.Add(entry.RequestType,entry);
+            }
             return result;
         }
     }

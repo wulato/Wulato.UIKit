@@ -10,10 +10,10 @@ namespace Wulato.UIKit.Dialogs
         readonly IUIContext context;readonly IUIContextLifetime lifetime;
         readonly Dictionary<Type,DialogRegistry.Entry> entries;
         /// <inheritdoc/>
-        public UIDialogs(IUIContext context,DialogRegistry registry)
+        public UIDialogs(IUIContext context)
         {
             this.context=context??throw new ArgumentNullException(nameof(context));
-            lifetime=context.GetService<IUIContextLifetime>();entries=(registry??throw new ArgumentNullException(nameof(registry))).Copy(context.GetService<UIRegistrySnapshot>());
+            lifetime=context.GetService<IUIContextLifetime>();entries=DialogRegistry.Copy(context.GetService<UIRegistrySnapshot>());
         }
         /// <inheritdoc/>
         public async UniTask<DialogResult<TResult>> ShowAsync<TResult>(IDialogRequest<TResult> request,CancellationToken cancellationToken=default)
@@ -74,15 +74,6 @@ namespace Wulato.UIKit.Dialogs
             internal void CancelCaller()=>Resolve(3,default);
             internal void ContextStop(){Ready.TrySetResult();}
             internal void Invalidate(){lock(gate)ended=true;}
-        }
-    }
-    public static class DialogsBuilderExtensions
-    {
-        /// <inheritdoc/>
-        public static UIContextBuilder UseDialogs(this UIContextBuilder builder,DialogRegistry registry)
-        {
-            if(registry==null)throw new ArgumentNullException(nameof(registry));
-            return builder.WithServiceFactory<IUIDialogs>(ui=>new UIDialogs(ui,registry));
         }
     }
 }
