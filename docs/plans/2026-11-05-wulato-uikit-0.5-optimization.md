@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 用户已批准计划；Phase 0 基线材料与最小验收完成，PR #1 等待用户审核合并。默认分支切换/保护及后续阶段尚未执行。**
+**状态：2026-11-05 PR #1 已按用户确认合并；main 已成为默认分支并配置保护。Phase 0.2 工作流收尾材料待 PR 审核，下一项为 1.1；Phase 1 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -506,7 +506,7 @@ python3 Tools/Verification/run.py tests --editor 2022.3.62f2 --backend legacy --
 - [x] 原始证据以当前快照复核：两个 suite 的 XML/trace/哈希/必需用例 PASS，汇总 [verification.json](../../Artifacts/uikit/phase0/verification.json)。命令日志与退出码在同目录。
 - [x] 创建 main/e041e03；远端默认分支仍为 master，没有合并或改写已有功能分支。
 - [x] 提交并推送文档（首提交 0dff1e3），创建 [基线 PR #1](https://github.com/wulato/Wulato.UIKit/pull/1)，base=main、head=chore/uikit-0.5-baseline；未合并。后续仅补本执行记录。
-- [ ] 用户合并后切默认 main、配置保护、开始 0.2 后续验收。
+- [x] 用户确认后普通合并 PR #1，切默认 main、配置保护并开始 0.2；详情见下方收尾记录。
 
 Ruling：基线任务分支直接从 a117100 建立，而 main 从其祖先 e041e03 建立；这与从 main 引入现有分支的普通快进结果一致，避免新增无内容合并提交。PR 树仍按 a117100 加本次明确文档差异核验。
 
@@ -528,4 +528,21 @@ GitHub 连接器创建分支返回 403（Resource not accessible by integration�
 
 集中作者自审：本次差异仅四份文档，生产树与已验证输入未变；本地链接/18 项任务字段/代码围栏/空白检查通过。原工作区仍在 codex/p0-p1-preflight，8 个已修改文件与 Evo/TMP 未跟踪资产均保留，未暂存、提交或清理其内容。未启动子代理；未执行新 hook。干净 worktree 保留供 PR 反馈使用。
 
-**下一步（需用户确认 main 合并）：** 审核 PR #1 并以普通 merge 导入历史；合并后重新核对远端状态，执行默认分支切换与保护，不擅自删除旧分支。0.2 文档已准备，设置验收待合并；Phase 1 未开始。本地验证材料在上述 Artifacts 中，不冒充远端 artifact 或发布验收。
+以上为基线准备时的历史记录；PR #1 的后续合并与设置结果见下节。本地验证材料不冒充远端 artifact 或发布验收。
+
+### 2026-11-05 Phase 0.2 GitHub Flow 收尾
+
+- [x] 用户明确确认“合并 PR #1，切换默认分支为 main 并配置保护，然后按计划继续下一项任务”。
+- [x] 合并前重新核对 PR #1 OPEN/CLEAN、HEAD=`7c1d9a88747b4dbd7defdbb8583528a41231cc2e`；使用 `gh pr merge --merge --match-head-commit` 普通合并，无管理员绕过、无分支删除。
+- [x] PR #1 合并提交=`7b88f696b62ba707ec82f43186ecfb2b4e46cf0a`；远端 default_branch=main，master/原开发分支保留。
+- [x] main 保护：required_pull_request_reviews 已配置，required_approving_review_count=0，dismiss_stale_reviews=true；enforce_admins=true；allow_force_pushes=false；allow_deletions=false；required_status_checks=null。
+- [x] 从更新后的 github/main 建立 `chore/uikit-0.5-github-flow`，复用当前干净 worktree，不新建工作区、不触碰原脏目录。
+- [x] 更新 AGENTS/README/验证入口与本计划，避免继续引用“PR #1 未合并/默认 master”的当前状态；历史记录保留。
+- [x] 文档/远端配置 L0 核验通过：[verification.json](../../Artifacts/uikit/phase0/github-flow/verification.json)；合并树与 7c1d9a8 完全一致，四份文档以外的生产树未改。
+- [ ] 提交收尾 PR，等待用户确认合并；不自动进入依赖任务 1.1。
+
+Ruling：保护规则强制 PR，但必需批准数为 0，不要求第二个 GitHub 账号为同账号代理创建的 PR 批准。用户明确的合并确认仍由会话工作流执行，零批准不是自动合并授权。Phase 6 前不新增 required CI checks，不修改或禁用历史 workflows。
+
+本任务档位 STANDARD（配置与文档收尾），验证为 L0：远端 PR/默认分支/保护字段读取、合并树与已验收基线比较、局部文档链接/计划字段/差异检查；不新增或重复 Unity、Python suite、Player 或远端 CI。证据保存在 `Artifacts/uikit/phase0/github-flow/`。本次代码修复次数 0；历史类别筛选修复次数 1 原样保留。
+
+**下一动作：** 本收尾 PR 合并后，从最新 main 创建 `refactor/uikit-0.5-runtime-assembly` 执行任务 1.1；不将本次配置核验扩大为程序集迁移验收。
