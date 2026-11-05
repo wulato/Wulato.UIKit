@@ -1,6 +1,6 @@
 # Popup Queue
 
-主包0.4.0内置模块，保持独立程序集和显式装配，依赖 UniTask 2.5.11；不依赖 Dialogs。builder.UsePopupQueue() 后取得 IUIPopupQueue。
+主包内置模块，与基础 Runtime 共用程序集并默认装配，依赖 UniTask 2.5.11；不依赖 Dialogs。Build 后已有 IUIPopupQueue。泛型 PopupAsync 入口按 2.4 交付。
 
 IPopupRequest 仅提供 ViewType 和 UIArguments；业务先完成数据准备，队列统一调用核心 OpenAsync。参数应为不可变快照。
 

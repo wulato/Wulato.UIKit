@@ -9,6 +9,8 @@ namespace Wulato.UIKit
     /// <summary>One isolated UI command domain. Async errors are returned through the operation.</summary>
     public interface IUIContext
     {
+        UIContextId ContextId { get; }
+        UniTask<UICompletion> CloseAsync(IUISession session,UICloseReason reason=UICloseReason.Owner);
         UniTask<IUISession<TView>> OpenAsync<TView>(CancellationToken cancellationToken = default) where TView : UIView;
         UniTask<IUISession<TView>> OpenAsync<TView,TArgs>(TArgs args, CancellationToken cancellationToken = default) where TView : UIView<TArgs>;
         UniTask<IUISession> OpenAsync(UIViewTypeKey type, UIArguments args, CancellationToken cancellationToken = default);

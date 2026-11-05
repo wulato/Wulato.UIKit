@@ -32,7 +32,7 @@ namespace Wulato.UIKit.Acceptance.Flows
         {
             b.Add<Home>(new UIViewTypeKey("home"),UIViewAsset.Direct(Home),closePolicy:UIClosePolicy.CacheOne);
             b.Add<Settings>(new UIViewTypeKey("settings"),UIViewAsset.Direct(Settings));
-            b.Add<Confirm,DialogArguments<Question,bool>>(new UIViewTypeKey("confirm"),UIViewAsset.Direct(Confirm),UILayer.Modal);
+            b.AddDialog<Confirm,Question,bool>(new UIViewTypeKey("confirm"),UIViewAsset.Direct(Confirm),UILayer.Modal);
             b.Add<Reward>(new UIViewTypeKey("reward"),UIViewAsset.Direct(Reward),UILayer.Modal);
         }
     }
@@ -63,8 +63,8 @@ namespace Wulato.UIKit.Acceptance.Flows
                 events.AddComponent<LegacyUIInputDriver>();
 #endif
                 EventSystem.current=events.GetComponent<EventSystem>();root=new GameObject("flow root",typeof(RectTransform),typeof(UIRoot));root.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
-                UI=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).UseNavigation(transition).UsePresentation(Presenters)
-                    .UseDialogs(new DialogRegistry().Register<Question,bool>(new UIViewTypeKey("confirm"))).UsePopupQueue().Build();
+                UI=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).WithNavigationTransition(transition).UsePresentation(Presenters)
+                    .Build();
             }
             GameObject Prefab<T>()where T:UIViewBase
             {var go=new GameObject(typeof(T).Name,typeof(RectTransform));go.transform.SetParent(sources.transform,false);go.AddComponent<T>();return go;}

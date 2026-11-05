@@ -4,7 +4,7 @@
 
 ```csharp
 using Wulato.UIKit.Navigation;
-var ui = new UIContextBuilder(root, registry).UseNavigation().Build();
+var ui = new UIContextBuilder(root, registry).Build();
 var nav = ui.GetService<IUINavigator>();
 await nav.PushAsync<HomeView>(ct);
 await nav.PushAsync<SettingsView, SettingsArgs>(args, ct);

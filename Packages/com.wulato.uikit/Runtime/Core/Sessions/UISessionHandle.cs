@@ -29,6 +29,8 @@ namespace Wulato.UIKit
         internal DefaultUIForegroundScope Foreground;
         internal bool OpenEntered,CloseRequested,UserRequestPending;
         internal UICloseReason Reason;
+        public UIContextId ContextId => engine.ContextId;
+        internal bool BelongsTo(UIContextEngine owner)=>ReferenceEquals(engine,owner);
         public UISessionId Id { get; }
         public UIState State { get; internal set; }=UIState.Opening;
         public UniTask<UICompletion> Closed => Completion.Task;

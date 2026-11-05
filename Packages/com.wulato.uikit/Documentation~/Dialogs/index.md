@@ -1,8 +1,8 @@
 # Dialogs
 
-主包0.4.0内置模块，保持独立程序集和显式装配，依赖 UniTask 2.5.11；无需 Navigation/Presentation/Popup Queue。
+主包内置模块，与基础 Runtime 共用程序集并默认装配，依赖 UniTask 2.5.11；无需 Navigation/Presentation/Popup Queue。
 
-请求实现 IDialogRequest<TResult>。对应 View 继承 UIView<DialogArguments<TRequest,TResult>>，在 OnOpenAsync 接收 Request 与 Responder；显式 DialogRegistry.Register<TRequest,TResult>(viewKey)，再 builder.UseDialogs(registry)。注册集合在服务创建时复制校验。
+请求实现 IDialogRequest<TResult>。对应 View 继承 UIView<DialogArguments<TRequest,TResult>>，在 OnOpenAsync 接收 Request 与 Responder；通过 UIRegistryBuilder.AddDialog<TView,TRequest,TResult>(viewKey, asset) 一次注册 View 和请求/结果映射，不再单独装配 DialogRegistry。注册集合在服务创建时复制校验。
 
 ```csharp
 try {

@@ -100,10 +100,4 @@ namespace Wulato.UIKit.PopupQueue
         /// <inheritdoc/>
         public void Dispose(){StopAsync().Forget(error=>UnityEngine.Debug.LogException(error));}
     }
-    public static class PopupQueueBuilderExtensions
-    {
-        /// <inheritdoc/>
-        public static UIContextBuilder UsePopupQueue(this UIContextBuilder builder)
-            =>builder.WithServiceFactory<IUIPopupQueue>(ui=>new UIPopupQueue(ui));
-    }
 }

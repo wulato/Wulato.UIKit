@@ -26,7 +26,7 @@ namespace Wulato.UIKit.Tests.PlayMode
             try{return (IUIContext)HostType.GetMethod("Initialize").Invoke(host,new object[]{configure});}catch(TargetInvocationException e){throw e.InnerException;}
         }
         UniTask<UIShutdownCompletion> Stop()=>(UniTask<UIShutdownCompletion>)HostType.GetMethod("ShutdownAsync").Invoke(host,null);
-        IUIContext Context=>(IUIContext)HostType.GetProperty("Context").GetValue(host);
+        IUIContext Context=>(IUIContext)HostType.GetProperty("UI").GetValue(host);
         [UnityTest] public IEnumerator ShutdownDuringInitialization_DoesNotPublishLiveContext()=>UniTask.ToCoroutine(async()=>{
             UniTask<UIShutdownCompletion> stopping=default;
             Assert.Throws<InvalidOperationException>(()=>Init(b=>{stopping=Stop();}));

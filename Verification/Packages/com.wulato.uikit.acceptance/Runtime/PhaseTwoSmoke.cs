@@ -27,8 +27,8 @@ namespace Wulato.UIKit.Acceptance
         public static async UniTask RunAsync(UIRoot root,UIRegistry registry,Action<string> passed)
         {
             Require(registry!=null,"phase2 registry");var pair=new Pair();var presenters=new BusinessFlowDemo.PresenterFactory();
-            var ui=new UIContextBuilder(root,registry).WithErrorSink(new Sink()).UseNavigation(pair).UsePresentation(presenters)
-                .UseDialogs(new DialogRegistry().Register<ConfirmRequest,bool>(new UIViewTypeKey("flow-confirm"))).UsePopupQueue().Build();
+            var ui=new UIContextBuilder(root,registry).WithErrorSink(new Sink()).WithNavigationTransition(pair).UsePresentation(presenters)
+                .Build();
             try
             {
                 var nav=ui.GetService<IUINavigator>();await nav.PushAsync<HomePage,FlowActions>(default);await nav.PushAsync<SettingsPage,FlowActions>(default);

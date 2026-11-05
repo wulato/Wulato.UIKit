@@ -12,10 +12,10 @@ TEST_GROUPS={
     ('PlayMode','sessions'): 'SessionLifecycleTests ClosePolicyTests',
     ('PlayMode','integration'): 'RuntimeResetTests',
     ('EditMode','editor'): 'GeneratorTests RegistryGenerationTests EditorOnlyCodegenView',
-    ('EditMode','contracts'): 'ContractTests RegistryTests SettingsTests ExternalAssetContractTests ResourceResolverTests',
+    ('EditMode','contracts'): 'ContractTests RegistryTests SettingsTests ExternalAssetContractTests ResourceResolverTests ContextApiTests',
     ('EditMode','sessions'): 'QueueTests ScopeTests SingleConsumptionTests TypeErasedOpenTests',
     ('EditMode','cleanup'): 'CachePolicyTests BudgetTests',
-    ('EditMode','integration'): 'BuilderTests DiagnosticsTests',
+    ('EditMode','integration'): 'BuilderTests DiagnosticsTests ContextApiTests',
 }
 CI_DIR=Path('Artifacts/uikit/ci-selected')
 def select_suites(paths):

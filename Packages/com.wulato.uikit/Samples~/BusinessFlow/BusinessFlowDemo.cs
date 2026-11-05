@@ -18,8 +18,8 @@ namespace Wulato.UIKit.Samples.BusinessFlow
         public IUIContext CreateContext()
         {
             if(ui!=null)throw new InvalidOperationException("A Context already exists.");
-            ui=new UIContextBuilder(root,registry).UseNavigation().UseDialogs(new DialogRegistry().Register<ConfirmRequest,bool>(new UIViewTypeKey("flow-confirm")))
-                .UsePopupQueue().UsePresentation(presenters).Build();
+            ui=new UIContextBuilder(root,registry)
+                .UsePresentation(presenters).Build();
             actions=new FlowActions(()=>ui.GetService<IUINavigator>().PushAsync<SettingsPage,FlowActions>(actions).Forget(Debug.LogException),
                 ()=>ui.GetService<IUINavigator>().BackAsync().Forget(Debug.LogException),()=>ConfirmAsync().Forget(Debug.LogException),QueueRewards);
             return ui;

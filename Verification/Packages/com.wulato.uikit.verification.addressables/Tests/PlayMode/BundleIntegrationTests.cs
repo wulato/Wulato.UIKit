@@ -73,7 +73,7 @@ namespace Wulato.UIKit.Verification.Addressables.Tests
                 var builder=new UIContextBuilder(Root.GetComponent<UIRoot>(),registry).WithErrorSink(Errors).WithSettings(new UIContextSettings{CacheCapacity=1});
                 if(!automatic)builder.WithLoader(Loader);
                 UI=builder
-                    .UseNavigation(pair).UsePresentation(Presenters).UseDialogs(new DialogRegistry().Register<BundleQuestion,bool>(new UIViewTypeKey("bundle-dialog"))).UsePopupQueue().Build();
+                    .WithNavigationTransition(pair).UsePresentation(Presenters).Build();
             }
             internal async UniTask DisposeAsync()
             {

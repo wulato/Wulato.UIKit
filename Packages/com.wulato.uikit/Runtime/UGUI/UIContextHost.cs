@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 namespace Wulato.UIKit
 {
-    /// <summary>Scene-owned composition of an existing Context. Injected dependencies remain caller-owned.</summary>
+    /// <summary>Scene-owned composition of an existing UI. Injected dependencies remain caller-owned.</summary>
     [DisallowMultipleComponent]
     public sealed class UIContextHost : MonoBehaviour
     {
@@ -14,28 +14,28 @@ namespace Wulato.UIKit
         bool shutdownRequested,starting,autoAttempted,shutdownStarted;
         static int playGeneration;
         UniTaskCompletionSource<UIShutdownCompletion> shutdown;
-        public IUIContext Context { get; private set; }
+        public IUIContext UI { get; private set; }
         public UIShutdownCompletion ShutdownResult { get; private set; }
         public Exception LastError { get; private set; }
         public IUIContext Initialize(Action<UIContextBuilder> configure=null)
         {
             if(!PlayerLoopHelper.IsMainThread||!Application.isPlaying)throw new InvalidOperationException("Initialize requires PlayMode on the main thread.");
             if(shutdownRequested)throw new InvalidOperationException("This host has already requested Shutdown.");
-            if(Context!=null)
+            if(UI!=null)
             {
                 if(configure!=null)throw new InvalidOperationException("Configure is only accepted before the first successful Build.");
-                return Context;
+                return UI;
             }
-            if(starting)throw new InvalidOperationException("Context initialization is already in progress.");
+            if(starting)throw new InvalidOperationException("UI initialization is already in progress.");
             autoAttempted=true;starting=true;
             try
             {
                 var builder=new UIContextBuilder(root,registry).WithSettings((settings??new UIContextHostSettings()).ToSettings());
                 configure?.Invoke(builder);
                 if(shutdownRequested)throw new InvalidOperationException("Shutdown was requested during initialization.");
-                Context=builder.Build();
+                UI=builder.Build();
                 if(shutdownRequested)throw new InvalidOperationException("Shutdown was requested during initialization.");
-                root.Destroyed+=RootDestroyed;LastError=null;return Context;
+                root.Destroyed+=RootDestroyed;LastError=null;return UI;
             }
             catch(Exception error){LastError=error;throw;}
             finally{starting=false;if(shutdownRequested&&shutdown!=null&&!shutdownStarted)BeginShutdown();}
@@ -48,7 +48,7 @@ namespace Wulato.UIKit
         }
         void BeginShutdown()
         {
-            shutdownStarted=true;CompleteShutdown(Context,shutdown).Forget();
+            shutdownStarted=true;CompleteShutdown(UI,shutdown).Forget();
         }
         async UniTaskVoid CompleteShutdown(IUIContext context,UniTaskCompletionSource<UIShutdownCompletion> completion)
         {
@@ -68,7 +68,7 @@ namespace Wulato.UIKit
         }
         void StartAutomatically()
         {
-            if(!initializeOnStart||shutdownRequested||Context!=null||autoAttempted)return;
+            if(!initializeOnStart||shutdownRequested||UI!=null||autoAttempted)return;
             try{Initialize();}catch(Exception error){Debug.LogException(error,this);}
         }
         void RootDestroyed()=>ShutdownAsync().Forget(Debug.LogException);
@@ -86,9 +86,9 @@ namespace Wulato.UIKit
             foreach(var host in Resources.FindObjectsOfTypeAll<UIContextHost>())
             {
                 if(!host.gameObject.scene.IsValid())continue;
-                if(host.Context!=null)host.ShutdownAsync().Forget(Debug.LogException);
+                if(host.UI!=null)host.ShutdownAsync().Forget(Debug.LogException);
                 if(!ReferenceEquals(host.root,null))host.root.Destroyed-=host.RootDestroyed;
-                host.Context=null;host.shutdown=null;host.shutdownRequested=false;host.starting=false;host.autoAttempted=false;host.shutdownStarted=false;host.ShutdownResult=null;host.LastError=null;
+                host.UI=null;host.shutdown=null;host.shutdownRequested=false;host.starting=false;host.autoAttempted=false;host.shutdownStarted=false;host.ShutdownResult=null;host.LastError=null;
             }
         }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

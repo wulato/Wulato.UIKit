@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased — 0.5 tasks 1.1–1.3
+## Unreleased — 0.5 tasks 1.1–2.1
 
 - Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
 - Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
 - Migrate consumers, samples, codegen/compiler probes and verification boundaries. Addressables/Input System adapters now ship in SDK-gated Runtime/Editor/Tests assemblies inside the main package; LocalInventory is a main-package sample. Remove retired adapter package references, retain optional Unity SDKs. Default resource routing now follows Registry sources with per-context backend snapshots; optional Addressables auto-registers and missing backends fail before Context allocation. Explicit WithLoader remains available.
+- Make the facade the sole production IUIContext; expose host.UI and ContextId, validate Context-owned CloseAsync. Compose navigation/dialogs/popup queue before user factories; keep Presenter optional. Register dialog requests with their View through AddDialog and regenerate providers.
 - See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
 
 ## 0.4.0

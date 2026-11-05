@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3/#4 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，任务 1.3 实现与专项验证完成，PR #5 等待用户审核合并；2.1 尚未开始。**
+**状态：2026-11-05 PR #1/#2/#3/#4/#5 均已按用户确认合并，main 为受保护默认分支；任务 1.2 已合并，Phase 1 已合并，任务 2.1 实现与专项验证完成，PR #6 等待用户审核合并；2.2 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -620,7 +620,7 @@ Ruling：运行时加载/租约/输入 C# 算法不变；不提前实现 1.3 的
 - [x] 当前最终指纹、XML/trace/原始索引/哈希、实际 SDK 程序集开关、codegen 各 37 个原始文件及样例 34 文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-3/verification.json)。
 - [x] 集中作者自审与 L0：四个新增脚本均含 .meta，主包 330 GUID 无重复，既有 .meta 不变；当前文档入口路径与 diff 空白检查通过。未改 Engine/FIFO/Session/Lease/取消与迟到清理算法，无基础 Runtime→SDK 反向引用；未启子代理。
 - [x] 实现提交 `c69e77ace12cd71bb5918247d39ebcd4bc95281d` 已推送，创建 [任务 1.3 PR #5](https://github.com/wulato/Wulato.UIKit/pull/5)（main ← refactor/uikit-0.5-resource-routing）；本次仅补执行记录，不自动合并。
-- [ ] 等待用户确认合并 PR #5 后，从更新 main 开始 2.1。
+- [x] 后续按用户明确确认合并 PR #5，merge commit `d2c2a40d7163910fcdcb17a182bc37ed98b926d9`；从更新 main 开始 2.1。
 
 Ruling：每 Context 构建时复制第一方 provider 工厂表，先验证整个 Registry，再为用到的后端各创建一个 Loader；只共享工厂，不共享 Loader/View/Lease。Engine/FIFO/取消/迟到清理不改动；Resolver 直接传递原始 UniTask，不额外消费。显式 WithLoader 覆盖整个路由，依赖仍调用方所有，保留自定义 backend 高级入口。
 
@@ -639,3 +639,30 @@ Ruling：复用现有 UIRegistry.CopyValidated/不可变 UIRegistration，不为
 汇总脚本修复记录：codegen 汇总没有 evidence 字段，而 samples 有；依据现有 codegen.py 格式解析其固定宿主子目录后复核通过（汇总脚本修复 1 次）。不改原始证据或测试断言，不为该汇总问题重跑 Unity。最终未解决失败 0；同原因均未超过 1 轮自动修复。
 
 原始失败保留：有意 RED `20261105T123712318055-prepare-3d7c1b`；LINQ 编译 `20261105T124057322336-prepare-21935c`；Editor 门禁/缺夹具 `20261105T124535658427-tests-7ccd01`；SDK Editor asmdef 引用 `20261105T124932091619-prepare-99d05c`（均在 Artifacts/uikit）。文档或程序集引用变化前的预备通过记录不与最终 236 用例重复计数。最终执行脚本 `Artifacts/uikit/phase1-3/final-commands.sh`、逐条日志/退出码与汇总原始路径可定位全部命令；证据本地保留，不冒充远端上传或完整发布验收。未运行 suite all、完整 Reload 组合、额外编辑器、远端 CI、Player/IL2CPP、真机。下一动作仅交付本任务 PR 并等待用户合并，不开始 2.1。
+
+
+### 2026-11-05 任务 2.1 入口及默认装配
+
+- 基线 `d2c2a40d7163910fcdcb17a182bc37ed98b926d9`；分支 `refactor/uikit-0.5-default-composition`，复用干净 worktree，原用户脏目录不动。先前“进行下一步”的合并请求被自动审批认为未明确授权而拒绝；用户本轮明确确认后正常合并，无绕过。
+- [x] 新契约编译 RED（AddDialog/ContextId/CloseAsync 尚未实现，CS1061/CS7036），原始 `20261105T134848711386-prepare-fe59c7`，不是非预期修复。实现后无 SDK Legacy prepare 和首轮 contracts PASS。
+- [x] Engine 不再实现 IUIContext，生产实现只剩 Facade；Host.UI、Context/Session ContextId、Context.CloseAsync 归属校验及 typed 包装转发。默认三服务先于用户工厂；Presenter 保持可选；删除 UseNavigation/Dialogs/PopupQueue 与 WithTransactions 旧入口。
+- [x] AddDialog 把请求/结果映射放进 Registry 快照；DialogRegistry 改为内部只读映射，生成器输出 AddDialog 并检查 Modal 层。迁移直接样例、夹具、Host/Preview 消费者。
+- [x] 最终受影响 Python 10 模块 122/122 PASS，见 `Artifacts/uikit/phase2-1/python-final.log/.exit`。新 ContextApiTests 源文件/元数据同时选择其拥有的 contracts/integration，不扩大无关 suite。
+- [x] 最终 29 组、362/362 Unity 用例 PASS；实际集合逐项与 matrix 必需集合完全一致，无跳过/额外类别匹配。Legacy 无 SDK 16 组/225 项，Input 双 SDK 13 组/137 项；精确命令见 `final-commands.sh`，结果逐项见 verification.json。
+- [x] 计划最小 contracts/integration/sessions/context-host/dialogs/popup-queue/presentation 均覆盖；因修改生成器、Host/Preview 消费者和默认 Navigator 事务装配，补 editor/package-install/navigation/transitions/generated-integration/flow-integration/flow-samples/preview-runtime 直接相关组；不是 suite all 或完整宿主矩阵。
+- [x] 两宿主 codegen 各 9 阶段 PASS；Legacy business 样例准备 6 步、SDK all 样例 9 步 PASS，生成器实际产出统一 AddDialog 映射，默认服务驱动的真实业务/样例/Addressables 场景均通过。SDK 真实 StandaloneOSX 构建 2 个 Bundle，源指纹及 5 文件哈希通过；不是 Player。
+- [x] Host Reload：Legacy 0/1/2/3、Input 0/3，共 6 组，各两次真实 Play/退出，共 12 次；旧 Context/锁/订阅归零报告 PASS。
+- [x] 当前指纹、XML/trace/原始索引/文件哈希、实际依赖程序集开关、codegen 各 37 文件、样例 25/34 文件及 Reload 证据复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase2-1/verification.json)。汇总首次通过，无修改原始证据。
+- [x] 集中作者自审：生产仅 Facade 实现 IUIContext；外来/伪造关闭先验所属 Engine 实例，不调用不可信句柄方法；默认服务预装、逆序释放和失败回滚有新旧专项证据；无第二生命周期。保留 Presenter/注入依赖调用方所有权。删除旧静态 NavigationBuilderExtensions 及对应 .meta，不留兼容空壳；其余既有 .meta 不变，新增测试附 .meta，主包 330 GUID 唯一。文档路径、现行入口和 diff 空白检查 PASS；未启子代理。
+- [x] 实现提交 `dbc640821b56c99ea8064bfe6b43c46a1f30d3d7` 已推送，创建 [任务 2.1 PR #6](https://github.com/wulato/Wulato.UIKit/pull/6)（main ← refactor/uikit-0.5-default-composition）；本次仅补执行记录，不自动合并。
+- [ ] 等待用户确认合并 PR #6 后，从更新 main 开始 2.2。
+
+Ruling：UIRegistry/默认服务/Host 及 Context.CloseAsync 属于 2.1；不提前实现 2.2 页面新根/Replace/PopTo、2.3 Back 路由或 2.4 DialogAsync/泛型 PopupAsync。普通 Open/Close 无需 GetService；当前模块高级入口保留 GetService，不临时添加随后废弃的服务属性。
+
+Ruling：原 Engine 单元夹具继续直接验证 Engine；业务模块公共夹具改用同一个生产 Facade 包装 Engine，不增加第二个 IUIContext 实现或生命周期。生产 Builder 在用户工厂前装配 Navigator/Dialogs/PopupQueue，Lifetime 先取消、服务逆序释放；新基础事务默认开启，公开协议仍 internal。WithNavigationTransition 仅配置配对动画，传入依赖不转移所有权。
+
+失败修复记录：首轮 integration 23/24 PASS，缓存重开归属用例揭示模块夹具分别生成 Facade/Engine Id；改为共享 Id 和 Lifetime，并在内部 Initialize 校验身份一致（同原因修复 1 轮）。生产 Builder 原本已共享 Id；保留失败原始 `20261105T135734555175-tests-8441f5`。
+
+最终运行环境：Unity 2022.3.62f2，base 无 SDK/Legacy 与 sdk 双 SDK/Input 两隔离宿主；Addressables 1.21.21 / SBP 1.21.25 / Input System 1.17.0。命令从仓库根目录调用既有 run.py，host-root 分别 `Artifacts/uikit/ci-selected/hosts/phase2-1`、`.../phase2-1-sdk`，脚本/逐条日志/退出码、首次失败及修复全部保留在 `Artifacts/uikit/phase2-1/`。首轮契约/预备通过记录不与最终 362 用例重复计数。当前未解决失败 0；仅夹具身份原因自动修复 1 轮，既有类别筛选历史修复计数 1 保留，不夹带原目录未提交修复。
+
+未运行 suite all、额外编辑器、远端 CI、Player/IL2CPP、真机，不把候选 SDK 范围当作全区间兼容证明；未修改 ProjectSettings、根 manifest/lock 或 CI 工作流。本任务只推进 2.1；2.2 仍须本 PR 经用户确认合并后从更新 main 开始。

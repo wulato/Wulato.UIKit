@@ -310,7 +310,9 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
           "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
-          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -371,9 +373,13 @@
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_TransactionsAreBuiltIn",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.DefaultServices_AreAvailableBeforeUserFactoriesAndCannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.FailedBuild_StopsDefaultsAndReleasesUserServicesInReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.ContextClose_RejectsForeignAndForgedSessionsWithoutClosingEitherContext",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.CachedReopen_ExposesNewSessionAndOldContextCloseCannotCloseIt"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -803,7 +809,9 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
           "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
-          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -869,9 +877,13 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_TransactionsAreBuiltIn",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.DefaultServices_AreAvailableBeforeUserFactoriesAndCannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.FailedBuild_StopsDefaultsAndReleasesUserServicesInReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.ContextClose_RejectsForeignAndForgedSessionsWithoutClosingEitherContext",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.CachedReopen_ExposesNewSessionAndOldContextCloseCannotCloseIt"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -1300,7 +1312,9 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
           "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
-          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1361,9 +1375,13 @@
           "Wulato.UIKit.Tests.EditMode.DiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_TransactionsAreBuiltIn",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.DefaultServices_AreAvailableBeforeUserFactoriesAndCannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.FailedBuild_StopsDefaultsAndReleasesUserServicesInReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.ContextClose_RejectsForeignAndForgedSessionsWithoutClosingEitherContext",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.CachedReopen_ExposesNewSessionAndOldContextCloseCannotCloseIt"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
@@ -1793,7 +1811,9 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
           "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
-          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1859,9 +1879,13 @@
           "Wulato.UIKit.Tests.EditMode.BuilderTests.LegacyDriverInInputOnlyProject_IsRejected",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.FactoryReadsLifetimeAndRegistry_StopSignalPrecedesDispose",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_CancelsLifetimeBeforeDisposingCreatedServices",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_ExplicitTransactionsOnly",
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.ProductionBuilder_TransactionsAreBuiltIn",
           "Wulato.UIKit.Tests.EditMode.BuilderTests.BuiltInServices_CannotBeOverridden",
-          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot"
+          "Wulato.UIKit.Tests.EditMode.BuilderTests.BuildFailure_PreservesStopAndDisposeErrorsAndReleasesRoot",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.DefaultServices_AreAvailableBeforeUserFactoriesAndCannotBeOverridden",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.FailedBuild_StopsDefaultsAndReleasesUserServicesInReverseOrder",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.ContextClose_RejectsForeignAndForgedSessionsWithoutClosingEitherContext",
+          "Wulato.UIKit.Tests.EditMode.ContextApiTests.CachedReopen_ExposesNewSessionAndOldContextCloseCannotCloseIt"
         ],
         "editor": [
           "Wulato.UIKit.Tests.Editor.GeneratorTests.SecondGeneration_ProducesNoDiff",
