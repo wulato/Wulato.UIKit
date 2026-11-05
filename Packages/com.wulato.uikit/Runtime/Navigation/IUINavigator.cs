@@ -15,6 +15,13 @@ namespace Wulato.UIKit.Navigation
         IReadOnlyList<UIPageDescriptor> History { get; }
         /// <summary>Push a page through the type-erased registration bridge.</summary>
         UniTask<IUISession> PushAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default);
+        /// <summary>Replace only the current descriptor, or create the first page.</summary>
+        UniTask<IUISession> ReplaceAsync<TView>(CancellationToken cancellationToken=default) where TView:UIView;
+        UniTask<IUISession> ReplaceAsync<TView,TArgs>(TArgs arguments,CancellationToken cancellationToken=default) where TView:UIView<TArgs>;
+        UniTask<IUISession> ReplaceAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default);
+        /// <summary>Restore the nearest matching descriptor and its arguments; missing/current returns false.</summary>
+        UniTask<bool> PopToAsync<TView>(CancellationToken cancellationToken=default) where TView:UIViewBase;
+        UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken cancellationToken=default);
         /// <summary>Reconstruct the previous descriptor, or return false at the root.</summary>
         UniTask<bool> BackAsync(CancellationToken cancellationToken=default);
     }

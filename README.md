@@ -7,7 +7,7 @@
 - [接入指南](Packages/com.wulato.uikit/Documentation~/QuickStart.md) · [升级迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
 - [0.5 当前实施计划](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [0.4 历史计划与证据](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) · [验证入口](Verification/README.md)
 
-0.5 计划已批准，Phase 0 两项 PR 已合并，默认分支为 main。Phase 1 已合并，当前任务 2.1 收敛 Context 入口与默认装配；host.UI 为主入口，Registry 来源驱动默认加载。导航与 Dialog/Popup 便捷入口按后续阶段交付。
+0.5 计划已批准，Phase 0 两项 PR 已合并，默认分支为 main。Phase 1 已合并，2.1 已合并，当前任务 2.2 统一页面 Open/Push/Replace/PopTo；host.UI 为主入口。Back/Cancel 与 Dialog/Popup 便捷入口按后续阶段交付。
 
 开发采用简化 GitHub Flow：main 为稳定基线，独立任务使用 feat/*、fix/*、refactor/*、chore/* 短分支，专项验证后提交 PR，由用户确认合并。main 已要求通过 PR，禁止强推和删除，管理员同样受约束；暂不要求额外审批账号或远端 CI 状态，人工合并确认仍然必需。不清理 master、原开发分支及未提交工作区。每项依赖任务从更新的 main 开始，不自动合并。
 

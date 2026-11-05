@@ -226,7 +226,8 @@
         "flow-integration": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -416,7 +417,17 @@
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
-          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PageOpen_IsANewRootForTypedAndErasedCalls",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.Replace_ActsAsFirstPageOrOnlyReplacesTheTop",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PopTo_RestoresNearestTypedDescriptorAndSkipsIntermediateLifecycles",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.ModalOpen_DoesNotChangeHistoryOrCloseTheCurrentPage",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CurrentSingle_OpenPushAndReplaceFailWithoutPublishingHistory",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.FailedRootAndReplace_RestoreTheOldPageHistoryAndOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -725,7 +736,8 @@
         "flow-integration": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -920,7 +932,17 @@
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
-          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PageOpen_IsANewRootForTypedAndErasedCalls",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.Replace_ActsAsFirstPageOrOnlyReplacesTheTop",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PopTo_RestoresNearestTypedDescriptorAndSkipsIntermediateLifecycles",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.ModalOpen_DoesNotChangeHistoryOrCloseTheCurrentPage",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CurrentSingle_OpenPushAndReplaceFailWithoutPublishingHistory",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.FailedRootAndReplace_RestoreTheOldPageHistoryAndOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -1228,7 +1250,8 @@
         "flow-integration": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -1418,7 +1441,17 @@
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
-          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PageOpen_IsANewRootForTypedAndErasedCalls",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.Replace_ActsAsFirstPageOrOnlyReplacesTheTop",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PopTo_RestoresNearestTypedDescriptorAndSkipsIntermediateLifecycles",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.ModalOpen_DoesNotChangeHistoryOrCloseTheCurrentPage",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CurrentSingle_OpenPushAndReplaceFailWithoutPublishingHistory",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.FailedRootAndReplace_RestoreTheOldPageHistoryAndOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -1727,7 +1760,8 @@
         "flow-integration": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -1922,7 +1956,17 @@
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.MissingKey_IsInvalidRequestBeforeLoad",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.UnregisteredGeneric_ReturnsFaultedOperationWithoutSynchronousThrow",
           "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.OldPageCloseFailure_DoesNotUndoCommittedHistory",
-          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments"
+          "Wulato.UIKit.Navigation.Tests.NavigationFlowTests.BackAfterCacheEviction_RebuildsWithOriginalTypedArguments",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PageOpen_IsANewRootForTypedAndErasedCalls",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.Replace_ActsAsFirstPageOrOnlyReplacesTheTop",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PopTo_RestoresNearestTypedDescriptorAndSkipsIntermediateLifecycles",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.ModalOpen_DoesNotChangeHistoryOrCloseTheCurrentPage",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CurrentSingle_OpenPushAndReplaceFailWithoutPublishingHistory",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.FailedRootAndReplace_RestoreTheOldPageHistoryAndOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",

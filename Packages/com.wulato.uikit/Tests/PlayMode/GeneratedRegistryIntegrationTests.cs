@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UnityEditor;
 using Cysharp.Threading.Tasks;
+using Wulato.UIKit.Navigation;
 namespace Wulato.UIKit.Tests.PlayMode
 {
     [Category("generated_integration")]
@@ -30,13 +31,12 @@ namespace Wulato.UIKit.Tests.PlayMode
                 if(!Hold)return lease;Hold=false;Lease=lease;return await Completion.Task;
             }
         }
-        sealed class DeferredTransition:IUITransition
+        sealed class DeferredTransition:INavigationTransition
         {
             public readonly UniTaskCompletionSource Completion=new UniTaskCompletionSource();public bool Entered;public int Stopped;
-            public UITransitionWrites Writes=>UITransitionWrites.None;
-            public UniTask EnterAsync(UITransitionContext context,System.Threading.CancellationToken token){Entered=true;return Completion.Task;}
-            public UniTask ExitAsync(UITransitionContext context,System.Threading.CancellationToken token)=>UniTask.CompletedTask;
-            public void Stop(UITransitionContext context){Stopped++;Completion.TrySetCanceled();}public void Reset(UITransitionContext context){}
+            public UITransitionWrites FromWrites=>UITransitionWrites.None;public UITransitionWrites ToWrites=>UITransitionWrites.None;
+            public UniTask PlayAsync(UINavigationTransitionContext context,System.Threading.CancellationToken token){Entered=true;return Completion.Task;}
+            public void Stop(UINavigationTransitionContext context){Stopped++;Completion.TrySetCanceled();}public void Reset(UINavigationTransitionContext context){}
         }
         static void Trace(string name,string message)
         {
@@ -67,7 +67,7 @@ namespace Wulato.UIKit.Tests.PlayMode
             var events=IntegrationResetProbe.CreateEvents();IUIContext ui=null;var transition=new DeferredTransition();var observer=new Observer();var cancel=new System.Threading.CancellationTokenSource();
             try
             {
-                ui=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).WithTransition(transition).WithServiceFactory(_=>observer).Build();
+                ui=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).WithNavigationTransition(transition).WithServiceFactory(_=>observer).Build();
                 var opening=ui.OpenAsync(new UIViewTypeKey("generated-ViewA"),UIArguments.From(3),cancel.Token);
                 for(int i=0;i<10&&!transition.Entered;i++)await UniTask.NextFrame();Assert.That(transition.Entered,Is.True);cancel.Cancel();
                 bool canceled=false;try{await opening;}catch(OperationCanceledException){canceled=true;}Assert.That(canceled,Is.True);

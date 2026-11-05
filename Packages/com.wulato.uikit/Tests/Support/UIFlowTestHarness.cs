@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Wulato.UIKit.Navigation;
 namespace Wulato.UIKit.Tests.Support
 {
     /// <summary>Package-owned real core harness; no repository verification or optional backend dependencies.</summary>
     public sealed class UIFlowTestHarness : IDisposable,IUIViewLoader,IUILayoutReady,IUITransition,IUIErrorSink,IUISessionLifecycleObserver
     {
         public IUIContext UI { get; }
+        public readonly FakeInputArbiter Input=new FakeInputArbiter();
         public readonly ManualScheduler Clock=new ManualScheduler();
         public readonly List<UIException> Errors=new List<UIException>();
         public IUISessionLifecycleObserver Observer;
         public int Creates,Releases;
         public UIViewBase LastView;
         readonly UIRegistrySnapshot registry;
-        public UIFlowTestHarness(UIRegistrySnapshot registry)
+        public UIFlowTestHarness(UIRegistrySnapshot registry,INavigationTransition pair=null)
         {
             this.registry=registry;
-            var facade=new UIContextFacade(null,new UIServiceRegistry());
-            var engine=new UIContextEngine(facade.Id,new UIRuntimeDependencies(registry,new UIContextSettings().CopyValidated(),this,Clock,new FakeViewHostFactory(),this,this,new FakeInputArbiter(),this,new[]{this},null,true,lifetime:facade.Lifetime));
+            var services=new UIServiceRegistry();var facade=new UIContextFacade(null,services);
+            services.Values.Add(typeof(UIRegistrySnapshot),registry);services.Values.Add(typeof(IUIContextLifetime),facade.Lifetime);
+            var navigator=new UINavigator(facade,pair);services.Add(typeof(IUINavigator),navigator);
+            var engine=new UIContextEngine(facade.Id,new UIRuntimeDependencies(registry,new UIContextSettings().CopyValidated(),this,Clock,new FakeViewHostFactory(),this,this,Input,this,new IUISessionLifecycleObserver[]{this,navigator},services.Values,true,stopResources:services.Release,lifetime:facade.Lifetime));
             facade.Initialize(engine,null,null);UI=facade;
         }
         public UniTask<IUIViewLease> CreateAsync(UIViewAsset asset,Transform parent,CancellationToken ct)

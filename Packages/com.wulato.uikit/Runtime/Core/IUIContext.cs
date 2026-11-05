@@ -14,6 +14,15 @@ namespace Wulato.UIKit
         UniTask<IUISession<TView>> OpenAsync<TView>(CancellationToken cancellationToken = default) where TView : UIView;
         UniTask<IUISession<TView>> OpenAsync<TView,TArgs>(TArgs args, CancellationToken cancellationToken = default) where TView : UIView<TArgs>;
         UniTask<IUISession> OpenAsync(UIViewTypeKey type, UIArguments args, CancellationToken cancellationToken = default);
+        UniTask<IUISession> PushAsync<TView>(CancellationToken cancellationToken=default) where TView:UIView;
+        UniTask<IUISession> PushAsync<TView,TArgs>(TArgs arguments,CancellationToken cancellationToken=default) where TView:UIView<TArgs>;
+        UniTask<IUISession> PushAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default);
+        UniTask<IUISession> ReplaceAsync<TView>(CancellationToken cancellationToken=default) where TView:UIView;
+        UniTask<IUISession> ReplaceAsync<TView,TArgs>(TArgs arguments,CancellationToken cancellationToken=default) where TView:UIView<TArgs>;
+        UniTask<IUISession> ReplaceAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default);
+        UniTask<bool> PopToAsync<TView>(CancellationToken cancellationToken=default) where TView:UIViewBase;
+        UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken cancellationToken=default);
+        UniTask<bool> BackAsync(CancellationToken cancellationToken=default);
         UniTask<UIBatchCompletion> CloseAllAsync(UICloseReason reason = UICloseReason.Owner);
         UniTask<UIBatchCompletion> CloseAllOfTypeAsync<TView>(UICloseReason reason = UICloseReason.Owner) where TView : UIViewBase;
         UniTask ClearCacheAsync();

@@ -4,6 +4,13 @@ from pathlib import Path
 from unittest.mock import patch
 from ci_suites import select_suites
 class ModuleSelectionTests(unittest.TestCase):
+    def test_page_navigation_source_selects_navigation_and_real_flow(self):
+        import ci_suites
+        for path in ('Packages/com.wulato.uikit/Runtime/Navigation/UINavigator.cs',
+                     'Packages/com.wulato.uikit/Tests/Navigation/EditMode/PageNavigationTests.cs'):
+            for suffix in ('','.meta'):
+                chosen=ci_suites.plan([path+suffix]);self.assertEqual({'navigation','flow-integration'},{r['suite'] for r in chosen['tests']})
+                self.assertNotIn('all',{r['suite'] for r in chosen['tests']})
     def test_context_api_tests_select_both_owned_categories(self):
         import ci_suites
         for suffix in ('','.meta'):
