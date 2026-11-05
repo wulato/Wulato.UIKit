@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "com.unity.ugui": "1.0.0",
+    "com.unity.test-framework": "1.1.33",
+    "com.wulato.uikit.verification": "file:../../../Packages/com.wulato.uikit.verification",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.physics2d": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.wulato.uikit.verification.legacy": "file:../../../Packages/com.wulato.uikit.verification.legacy",
+    "com.wulato.uikit": "file:../../../../Packages/com.wulato.uikit",
+    "com.wulato.uikit.acceptance": "file:../../../Packages/com.wulato.uikit.acceptance",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11",
+    "com.wulato.uikit.addressables": "file:../../../../Packages/com.wulato.uikit.addressables",
+    "com.wulato.uikit.acceptance.flows": "file:../../../Packages/com.wulato.uikit.acceptance.flows",
+    "com.wulato.uikit.verification.addressables": "file:../../../Packages/com.wulato.uikit.verification.addressables",
+    "com.unity.addressables": "1.21.21",
+    "com.unity.scriptablebuildpipeline": "1.21.25",
+    "com.wulato.uikit.acceptance.samples": "file:../../../Packages/com.wulato.uikit.acceptance.samples"
+  },
+  "testables": [
+    "com.wulato.uikit.verification",
+    "com.wulato.uikit.verification.legacy",
+    "com.wulato.uikit",
+    "com.wulato.uikit.acceptance",
+    "com.wulato.uikit.addressables",
+    "com.wulato.uikit.acceptance.flows",
+    "com.wulato.uikit.verification.addressables",
+    "com.wulato.uikit.acceptance.samples"
+  ]
+}

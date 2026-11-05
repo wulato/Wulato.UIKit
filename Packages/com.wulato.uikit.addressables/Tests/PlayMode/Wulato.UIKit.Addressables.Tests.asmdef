@@ -1,0 +1,15 @@
+{
+  "name": "Wulato.UIKit.Addressables.Tests",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.Loading",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Addressables",
+    "UniTask",
+    "Unity.Addressables",
+    "Unity.ResourceManager"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

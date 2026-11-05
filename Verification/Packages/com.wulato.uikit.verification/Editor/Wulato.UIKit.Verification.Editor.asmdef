@@ -1,0 +1,10 @@
+{
+  "name": "Wulato.UIKit.Verification.Editor",
+  "references": [
+    "Wulato.UIKit.Verification",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Wulato.UIKit.Samples.BusinessFlow",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Navigation",
+    "Wulato.UIKit.Dialogs",
+    "Wulato.UIKit.PopupQueue",
+    "Wulato.UIKit.Presentation",
+    "UniTask",
+    "UnityEngine.UI"
+  ]
+}

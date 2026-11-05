@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "fingerprint": "c96d4e11a748cbbf880eb5be049f4b584153a16f965cdb527c38ccedc9ef811c",
+    "prefabs": [
+        "Assets/Samples/Wulato UIKit/0.3.0/QuickStart/SettingsView.prefab",
+        "Assets/WorkbenchValidation/WorkbenchCancelledView.prefab",
+        "Assets/WorkbenchValidation/WorkbenchProbeView.prefab"
+    ],
+    "files": [
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/Assembly.asmref",
+            "hash": "602f825dda194371e5c05c3aa8bbf33ca237061f11d5c40a2fc75d6ef30d1236"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/UIProvider_d2742a063140708b.cs",
+            "hash": "b3de405ed7ebccfb7366dc0b00e6ee8249b540b409a002497a8041e9696048f9"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Assemblies/bdced5a4224a4f3cb5de2675ed0e5839/f7330409dcd447cbb316f8d1656ce3b4.Bindings.cs",
+            "hash": "5163fa263d24fdc4ebede93a03f496ea06ed2ad0e7f24246b604ee179d5c11cc"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/633f9600fe4214612a8d87f4caef9a70.Bindings.cs",
+            "hash": "51a1cdf20d75a3e9b00a3565e67c447ca51170799b34667d23335ce3e854c33e"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/UIProvider_6d589e57b3871572.cs",
+            "hash": "80b442f528f732f44c74e11da8801b1276da55c14539fd6b59ede6f1c1f11c05"
+        },
+        {
+            "path": "Assets/Wulato.UIKit.Generated/Predefined/Assembly-CSharp/dab1abbffd4c347a5be2ed3743b21c43.Bindings.cs",
+            "hash": "ebde8ad32b8af5c74386ad6bb8197d6e6ee45bd8bb7624fb4a6a53603b8c6666"
+        }
+    ]
+}

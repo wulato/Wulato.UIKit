@@ -1,0 +1,57 @@
+name: UIKit mobile release gate
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        type: choice
+        options: [phase2, phase1]
+        default: phase2
+        description: Explicit acceptance contract
+      scope:
+        type: choice
+        options: [android, release]
+        default: release
+        description: Android merge gate or full eight-combination release gate
+permissions:
+  contents: read
+concurrency:
+  group: uikit-mobile
+  cancel-in-progress: false
+jobs:
+  mobile:
+    runs-on: [self-hosted, macOS, uikit-phase1-mobile]
+    timeout-minutes: 720
+    env:
+      UIKIT_IOS_TEAM: ${{ vars.UIKIT_IOS_TEAM }}
+      UIKIT_ANDROID_DEVICE: ${{ vars.UIKIT_ANDROID_DEVICE }}
+      UIKIT_IOS_DEVICE: ${{ vars.UIKIT_IOS_DEVICE }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stable-input full release acceptance
+        env:
+          UIKIT_ACCEPTANCE_PHASE: ${{ inputs.phase }}
+          UIKIT_RELEASE_SCOPE: ${{ inputs.scope }}
+        run: python3 Tools/Verification/release_ci.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uikit-mobile-evidence
+          path: |
+            Artifacts/uikit/**/matrix-report.json
+            Artifacts/uikit/**/summary.json
+            Artifacts/uikit/**/request.json
+            Artifacts/uikit/**/inventory.json
+            Artifacts/uikit/**/*.log
+            Artifacts/uikit/**/device/**
+            Artifacts/uikit/**/*report.json
+            Artifacts/uikit/**/dependency-snapshot.json
+            Artifacts/uikit/**/packages-lock.json
+            Artifacts/uikit/**/*.xml
+            Artifacts/uikit/**/evidence-index.json
+            Artifacts/uikit/**/*.trace.json
+            Artifacts/uikit/**/batch.json
+            Artifacts/uikit/**/run.json
+            Artifacts/uikit/**/host-snapshot.json
+            Artifacts/uikit/**/*.command.json
+            Artifacts/uikit/**/command.json
+            Artifacts/uikit/**/trace.json

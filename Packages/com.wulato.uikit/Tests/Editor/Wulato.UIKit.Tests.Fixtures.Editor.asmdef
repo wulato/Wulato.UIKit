@@ -1,0 +1,14 @@
+{
+  "name": "Wulato.UIKit.Tests.Fixtures.Editor",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.Tests.Support",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

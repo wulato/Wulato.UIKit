@@ -1,0 +1,8 @@
+{
+  "default": "2022.3.62f2",
+  "targets": ["2022.3.62f2"],
+  "profiles": {
+    "2022.3.62f2": {"host": "u2022", "ugui": "1.0.0", "testFramework": "1.1.33", "inputSystem": "1.17.0", "addressables": "1.21.21", "sbp": "1.21.25"},
+    "6000.3.22f1": {"host": "u6000", "ugui": "2.0.0", "testFramework": "1.6.0", "inputSystem": "1.17.0", "addressables": "2.9.1", "sbp": "2.6.1"}
+  }
+}

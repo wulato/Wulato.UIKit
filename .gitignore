@@ -99,3 +99,26 @@ beamable-export-*
 
 !AGENTS.md
 !CLAUDE.md
+
+# Isolated UIKit verification hosts and evidence
+/Verification/Projects/*/[Ll]ibrary/
+/Verification/Projects/*/[Tt]emp/
+/Verification/Projects/*/[Ll]ogs/
+/Verification/Projects/*/[Oo]bj/
+/Verification/Projects/*/[Uu]serSettings/
+/Artifacts/
+/.superpowers/
+**/__pycache__/
+
+# UIKit Addressables local build evidence and content-update state (regenerate per host)
+/Verification/Projects/*/AddressablesContent.json
+/Verification/Projects/*/Assets/AddressableAssetsData/OSX/
+/Verification/Projects/*/Assets/AddressableAssetsData/OSX.meta
+
+# UPM source folders must survive a machine-wide *~ ignore rule
+!/Packages/com.wulato.uikit.addressables/Samples~/
+!/Packages/com.wulato.uikit.addressables/Documentation~/
+
+# Integrated main-package samples and documentation are source, not editor backups
+!/Packages/com.wulato.uikit/Samples~/
+!/Packages/com.wulato.uikit/Documentation~/

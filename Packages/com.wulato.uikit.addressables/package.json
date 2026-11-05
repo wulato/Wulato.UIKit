@@ -1,0 +1,19 @@
+{
+  "name": "com.wulato.uikit.addressables",
+  "version": "0.2.0",
+  "displayName": "Wulato UIKit Addressables",
+  "unity": "2022.3",
+  "unityRelease": "62f2",
+  "dependencies": {
+    "com.wulato.uikit": "0.4.0",
+    "com.cysharp.unitask": "2.5.11",
+    "com.unity.addressables": "1.21.21"
+  },
+  "samples": [
+    {
+      "displayName": "LocalInventory",
+      "description": "Local Bundle loading, typed args, cache/release and cancellation.",
+      "path": "Samples~/LocalInventory"
+    }
+  ]
+}

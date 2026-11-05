@@ -1,0 +1,17 @@
+{
+  "name": "Wulato.UIKit.Tests.EditMode",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.Loading",
+    "Wulato.UIKit.UGUI",
+    "UniTask",
+    "Wulato.UIKit.Tests.Support",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

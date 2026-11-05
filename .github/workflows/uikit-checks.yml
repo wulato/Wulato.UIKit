@@ -1,0 +1,61 @@
+name: UIKit checks
+on:
+  pull_request:
+    paths: ['Packages/com.wulato.uikit/**', 'Packages/com.wulato.uikit.*/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
+  workflow_dispatch:
+    inputs:
+      full:
+        type: boolean
+        default: false
+        description: Run the explicit full Editor and Reload gate
+  workflow_call:
+    inputs:
+      full:
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: uikit-verification-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  editor:
+    runs-on: [self-hosted, macOS, uikit-phase1]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select affected modules
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+          UIKIT_CI_FULL: ${{ inputs.full || false }}
+        run: |
+          mkdir -p Artifacts/uikit/ci-selected
+          python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --write-plan Artifacts/uikit/ci-selected/selection.json --github-output "$GITHUB_OUTPUT" > Artifacts/uikit/ci-selected/selection.log 2>&1
+      - name: Python verifier regression
+        if: inputs.full || steps.scope.outputs.tools == 'true'
+        run: |
+          set +e
+          python3 -m unittest discover -s Tools/Verification -p 'test_*.py' > Artifacts/uikit/ci-selected/python.log 2>&1
+          uikit_python_exit=$?
+          printf '{"exit_code":%s}\n' "$uikit_python_exit" > Artifacts/uikit/ci-selected/python-status.json
+          exit "$uikit_python_exit"
+      - name: Prepare frozen consumers
+        if: steps.scope.outputs.count != '0'
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --prepare
+      - name: Run frozen suites and Reload checks
+        if: steps.scope.outputs.count != '0'
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json
+      - name: Check expected command evidence before upload
+        if: ${{ always() && steps.scope.outcome == 'success' }}
+        run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --check-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uikit-editor-evidence
+          if-no-files-found: error
+          path: |
+            Artifacts/uikit
+            !Artifacts/uikit/ci-selected/hosts/**

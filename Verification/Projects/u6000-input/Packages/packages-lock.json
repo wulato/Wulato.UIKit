@@ -1,0 +1,279 @@
+{
+  "dependencies": {
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.11",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "2e993ff18f28c931602a07292df0b0804eebef99"
+    },
+    "com.unity.addressables": {
+      "version": "2.9.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.profiling.core": "1.0.2",
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.scriptablebuildpipeline": "2.6.1",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.ext.nunit": {
+      "version": "2.0.5",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.inputsystem": {
+      "version": "1.17.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.profiling.core": {
+      "version": "1.0.3",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "2.6.1",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.test-framework": {
+      "version": "1.6.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.ext.nunit": "2.0.3",
+        "com.unity.modules.imgui": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0"
+      }
+    },
+    "com.unity.ugui": {
+      "version": "2.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0"
+      }
+    },
+    "com.wulato.uikit": {
+      "version": "file:../../../../Packages/com.wulato.uikit",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.acceptance": {
+      "version": "file:../../../Packages/com.wulato.uikit.acceptance",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0"
+      }
+    },
+    "com.wulato.uikit.acceptance.flows": {
+      "version": "file:../../../Packages/com.wulato.uikit.acceptance.flows",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.wulato.uikit.navigation": "0.1.0",
+        "com.wulato.uikit.dialogs": "0.1.0",
+        "com.wulato.uikit.presentation": "0.1.0",
+        "com.wulato.uikit.popup-queue": "0.1.0"
+      }
+    },
+    "com.wulato.uikit.acceptance.samples": {
+      "version": "file:../../../Packages/com.wulato.uikit.acceptance.samples",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.unity.ugui": "1.0.0"
+      }
+    },
+    "com.wulato.uikit.addressables": {
+      "version": "file:../../../../Packages/com.wulato.uikit.addressables",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11",
+        "com.unity.addressables": "1.21.21"
+      }
+    },
+    "com.wulato.uikit.dialogs": {
+      "version": "file:../../../../Packages/com.wulato.uikit.dialogs",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.input-system": {
+      "version": "file:../../../../Packages/com.wulato.uikit.input-system",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.unity.inputsystem": "1.17.0"
+      }
+    },
+    "com.wulato.uikit.navigation": {
+      "version": "file:../../../../Packages/com.wulato.uikit.navigation",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.popup-queue": {
+      "version": "file:../../../../Packages/com.wulato.uikit.popup-queue",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.presentation": {
+      "version": "file:../../../../Packages/com.wulato.uikit.presentation",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.cysharp.unitask": "2.5.11"
+      }
+    },
+    "com.wulato.uikit.verification": {
+      "version": "file:../../../Packages/com.wulato.uikit.verification",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      }
+    },
+    "com.wulato.uikit.verification.addressables": {
+      "version": "file:../../../Packages/com.wulato.uikit.verification.addressables",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.wulato.uikit": "0.3.0",
+        "com.unity.addressables": "1.21.21",
+        "com.cysharp.unitask": "2.5.11",
+        "com.wulato.uikit.navigation": "0.1.1",
+        "com.wulato.uikit.presentation": "0.1.1",
+        "com.wulato.uikit.dialogs": "0.1.1",
+        "com.wulato.uikit.popup-queue": "0.1.1",
+        "com.wulato.uikit.addressables": "0.1.0"
+      }
+    },
+    "com.wulato.uikit.verification.input-system": {
+      "version": "file:../../../Packages/com.wulato.uikit.verification.input-system",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.wulato.uikit.verification": "0.1.0",
+        "com.unity.inputsystem": "1.17.0"
+      }
+    },
+    "com.unity.modules.assetbundle": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.hierarchycore": {
+      "version": "1.0.0",
+      "depth": 2,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.imageconversion": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.imgui": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.jsonserialize": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.physics": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.physics2d": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.ui": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.uielements": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.ui": "1.0.0",
+        "com.unity.modules.imgui": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.hierarchycore": "1.0.0",
+        "com.unity.modules.physics": "1.0.0"
+      }
+    },
+    "com.unity.modules.unitywebrequest": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.unitywebrequestassetbundle": {
+      "version": "1.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0"
+      }
+    }
+  }
+}

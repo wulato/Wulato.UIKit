@@ -1,0 +1,19 @@
+{
+  "name": "Wulato.UIKit.Addressables.Tests.Editor",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Editor",
+    "Wulato.UIKit.Addressables.Editor",
+    "Unity.Addressables",
+    "Unity.Addressables.Editor",
+    "Unity.ResourceManager",
+    "Wulato.UIKit.Addressables.Tests"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

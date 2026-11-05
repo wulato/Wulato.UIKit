@@ -1,0 +1,13 @@
+{
+  "name": "Wulato.UIKit.Editor",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Loading",
+    "UniTask",
+    "UnityEngine.UI"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

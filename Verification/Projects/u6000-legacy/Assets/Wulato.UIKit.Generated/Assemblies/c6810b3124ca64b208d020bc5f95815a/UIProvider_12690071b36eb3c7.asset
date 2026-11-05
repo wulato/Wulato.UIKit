@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41d1f87dbc8404587ab97e3f4a3692cf, type: 3}
+  m_Name: UIProvider_12690071b36eb3c7
+  m_EditorClassIdentifier: UIKit.Codegen.A::Wulato.UIKit.Generated.UIProvider_12690071b36eb3c7
+  prefab0: {fileID: 1200774377382157184, guid: 66b7a850e6aa548d99cbfeb84cff13a9, type: 3}

@@ -1,0 +1,14 @@
+{
+  "name": "Wulato.UIKit.Acceptance.Editor",
+  "references": [
+    "Wulato.UIKit.Verification.Editor",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Editor",
+    "Wulato.UIKit.Loading",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}

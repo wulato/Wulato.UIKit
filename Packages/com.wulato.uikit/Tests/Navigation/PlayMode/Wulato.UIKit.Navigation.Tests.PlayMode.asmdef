@@ -1,0 +1,14 @@
+{
+  "name": "Wulato.UIKit.Navigation.Tests.PlayMode",
+  "references": [
+    "Wulato.UIKit.Navigation",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask"
+  ],
+  "includePlatforms": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

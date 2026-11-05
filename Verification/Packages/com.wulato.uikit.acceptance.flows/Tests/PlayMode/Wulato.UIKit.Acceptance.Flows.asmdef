@@ -1,0 +1,17 @@
+{
+  "name": "Wulato.UIKit.Acceptance.Flows",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Navigation",
+    "Wulato.UIKit.Dialogs",
+    "Wulato.UIKit.PopupQueue",
+    "Wulato.UIKit.Presentation",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

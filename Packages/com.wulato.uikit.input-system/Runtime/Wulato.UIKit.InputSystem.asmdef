@@ -1,0 +1,9 @@
+{
+  "name": "Wulato.UIKit.InputSystem",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "UnityEngine.UI",
+    "Unity.InputSystem"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Wulato.UIKit.Presentation.Tests.EditMode",
+  "references": [
+    "Wulato.UIKit.Presentation",
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Tests.Support",
+    "UniTask"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

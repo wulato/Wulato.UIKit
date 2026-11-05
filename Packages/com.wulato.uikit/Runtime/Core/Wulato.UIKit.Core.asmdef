@@ -1,0 +1,6 @@
+{
+  "name": "Wulato.UIKit.Core",
+  "references": [
+    "UniTask"
+  ]
+}

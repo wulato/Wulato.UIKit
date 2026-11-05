@@ -1,0 +1,15 @@
+{
+  "name": "Wulato.UIKit.InputSystem.Tests.PlayMode",
+  "references": [
+    "Wulato.UIKit.Core",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.InputSystem",
+    "Wulato.UIKit.Tests.PlayMode",
+    "UnityEngine.UI",
+    "Unity.InputSystem",
+    "Unity.InputSystem.TestFramework"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

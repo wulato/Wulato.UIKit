@@ -1,0 +1,20 @@
+{
+  "name": "Wulato.UIKit.Verification.Addressables.Tests",
+  "references": [
+    "Wulato.UIKit.Verification.Addressables",
+    "Wulato.UIKit.Core",
+    "UniTask",
+    "Unity.Addressables",
+    "Unity.ResourceManager",
+    "Wulato.UIKit.UGUI",
+    "Wulato.UIKit.Addressables",
+    "Wulato.UIKit.Navigation",
+    "Wulato.UIKit.Presentation",
+    "Wulato.UIKit.Dialogs",
+    "Wulato.UIKit.PopupQueue",
+    "UnityEngine.UI"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

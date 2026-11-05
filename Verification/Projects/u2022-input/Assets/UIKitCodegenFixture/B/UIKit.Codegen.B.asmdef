@@ -1,0 +1,8 @@
+{
+  "name": "UIKit.Codegen.B",
+  "references": [
+    "Wulato.UIKit.Core",
+    "UniTask"
+  ],
+  "autoReferenced": false
+}
