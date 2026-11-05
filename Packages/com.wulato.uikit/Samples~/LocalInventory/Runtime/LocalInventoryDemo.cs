@@ -12,7 +12,7 @@ namespace Wulato.UIKit.Samples.Addressables
         {
             try
             {
-                ui=new UIContextBuilder(root,registry).WithLoader(new AddressablesUIViewLoader()).Build();
+                ui=new UIContextBuilder(root,registry).Build();
                 var first=await ui.OpenAsync<AddressableInventoryView,int>(12,destroyCancellationToken);
                 await first.CloseAsync(); // CacheOne retains the instance and Addressables handle.
                 var reopened=await ui.OpenAsync<AddressableInventoryView,int>(24,destroyCancellationToken);

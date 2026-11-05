@@ -31,7 +31,7 @@
     },
     {
       "displayName": "LocalInventory",
-      "description": "Optional Addressables SDK: explicit loader, local Bundle, cache and cancellation.",
+      "description": "Optional Addressables SDK: Registry routing, local Bundle, cache and cancellation.",
       "path": "Samples~/LocalInventory"
     }
   ]

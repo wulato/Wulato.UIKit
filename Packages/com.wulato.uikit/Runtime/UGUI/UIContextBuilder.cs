@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -48,6 +47,7 @@ namespace Wulato.UIKit
             if(!root||!registry)throw new InvalidOperationException("Root and registry must remain alive.");
             UIContextFacade.AssertAvailable(root);root.ValidateConfiguration();
             var mapping=registry.CopyValidated();var config=settings.CopyValidated();
+            var resources=loader??new UIResourceResolver(mapping);
             var events=EventSystem.current;
             if(!events)throw new InvalidOperationException("An EventSystem is required.");
             BaseInputModule module=null;
@@ -75,7 +75,7 @@ namespace Wulato.UIKit
                     if(value is IUISessionLifecycleObserver observer&&!allObservers.Contains(observer))allObservers.Add(observer);
                 }
                 hosts=new UIViewHostFactory(root);
-                facade.Initialize(new UIContextEngine(facade.Id,new UIRuntimeDependencies(mapping,config,loader??new DefaultLoader(),
+                facade.Initialize(new UIContextEngine(facade.Id,new UIRuntimeDependencies(mapping,config,resources,
                     scheduler??new UniTaskUIAsyncScheduler(),hosts,layout??new UILayoutReady(),transition??new ImmediateUITransition(),
                     arbiter,sink??new UnityErrorSink(),allObservers,services.Values,enableTransactions:transactions,stopResources:facade.Release,lifetime:facade.Lifetime)),ownedDomain,ownedArbiter);
                 return facade;
@@ -91,16 +91,6 @@ namespace Wulato.UIKit
                 facade.Rollback();
                 if(errors.Count>1)throw new AggregateException(errors);
                 throw;
-            }
-        }
-        sealed class DefaultLoader:IUIViewLoader
-        {
-            readonly PrefabUIViewLoader prefab=new PrefabUIViewLoader();readonly ResourcesUIViewLoader resources=new ResourcesUIViewLoader();
-            public UniTask<IUIViewLease> CreateAsync(UIViewAsset asset,Transform parent,CancellationToken token)
-                {
-                if(asset!=null && asset.Kind==UIViewAssetKind.External)
-                    return UniTask.FromException<IUIViewLease>(new ArgumentException("External provider requires an explicitly injected loader: "+asset.ProviderId,nameof(asset)));
-                return asset!=null && asset.Kind==UIViewAssetKind.Prefab?prefab.CreateAsync(asset,parent,token):resources.CreateAsync(asset,parent,token);
             }
         }
         sealed class UnityErrorSink:IUIErrorSink { public void Report(UIException error)=>Debug.LogException(error); }

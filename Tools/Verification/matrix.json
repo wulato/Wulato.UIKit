@@ -259,7 +259,8 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
-          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RegistryRouting_MixesThreeSourcesWithoutLoaderInjection"
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
@@ -302,7 +303,14 @@
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
-          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_IsValidatedBeforeAnyFactoryRuns",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ContextSnapshots_CreateIndependentLoadersAndIgnoreLaterRegistration",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Snapshot_DoesNotGainProviderRegisteredAfterBuild",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
+          "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -383,7 +391,8 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
-          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalBackendAvailability_IsCheckedAtValidation"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -743,7 +752,8 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
-          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RegistryRouting_MixesThreeSourcesWithoutLoaderInjection"
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
@@ -786,7 +796,14 @@
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
-          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_IsValidatedBeforeAnyFactoryRuns",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ContextSnapshots_CreateIndependentLoadersAndIgnoreLaterRegistration",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Snapshot_DoesNotGainProviderRegisteredAfterBuild",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
+          "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -872,7 +889,8 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
-          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalBackendAvailability_IsCheckedAtValidation"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -1231,7 +1249,8 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
-          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RegistryRouting_MixesThreeSourcesWithoutLoaderInjection"
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
@@ -1274,7 +1293,14 @@
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
-          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_IsValidatedBeforeAnyFactoryRuns",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ContextSnapshots_CreateIndependentLoadersAndIgnoreLaterRegistration",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Snapshot_DoesNotGainProviderRegisteredAfterBuild",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
+          "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1355,7 +1381,8 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
-          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalBackendAvailability_IsCheckedAtValidation"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",
@@ -1715,7 +1742,8 @@
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.MultiAndContexts_KeepIndependentSessionLeases",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.SampleScene_RendersAfterCacheAndCancellation",
           "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterRoutesDirectAndResources_WithoutChangingInactiveContract",
-          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle"
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.AdapterGuidAtTimeScaleZero_LoadsAndReleasesRealBundle",
+          "Wulato.UIKit.Verification.Addressables.Tests.BundleIntegrationTests.RegistryRouting_MixesThreeSourcesWithoutLoaderInjection"
         ],
         "quickstart-only": [
           "Wulato.UIKit.Acceptance.QuickStart.Tests.QuickStartOnlyTests.VersionedQuickStartOnly_ButtonCloseAndReopen"
@@ -1758,7 +1786,14 @@
           "Wulato.UIKit.Tests.ExternalAssetContractTests.ExternalSnapshot_PreservesExactIdentifiersAndIsolation",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.External_InvalidIdentifiersAreRejectedBeforeRegistration",
           "Wulato.UIKit.Tests.ExternalAssetContractTests.DefaultLoaders_RejectExternalWithoutCreatingInstance",
-          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure"
+          "Wulato.UIKit.Tests.ContractTests.RuntimeAssembly_UnifiesModulesAndHidesTransactionInfrastructure",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_IsValidatedBeforeAnyFactoryRuns",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ContextSnapshots_CreateIndependentLoadersAndIgnoreLaterRegistration",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Snapshot_DoesNotGainProviderRegisteredAfterBuild",
+          "Wulato.UIKit.Tests.ResourceResolverTests.Routing_PreservesExactAssetParentAndCancellationToken",
+          "Wulato.UIKit.Tests.ResourceResolverTests.NullFactoryResult_IsRejectedBeforeContextAllocation",
+          "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
+          "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1844,7 +1879,8 @@
           "Wulato.UIKit.Tests.Editor.RegistryGenerationTests.UnchangedGeneration_CompletesWithoutAnotherDomainReload",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_GeneratesDescriptorWithoutPrefabField",
           "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRegistration_PartialOrBlankDescriptorFailsAtAsset",
-          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings"
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalRenameAndVariant_PreserveDescriptorAndBindings",
+          "Wulato.UIKit.Tests.Editor.GeneratorTests.ExternalBackendAvailability_IsCheckedAtValidation"
         ],
         "package-install": [
           "Wulato.UIKit.Acceptance.Tests.PackageInstallTests.ResolvedDependencies_MatchPinnedVersions",

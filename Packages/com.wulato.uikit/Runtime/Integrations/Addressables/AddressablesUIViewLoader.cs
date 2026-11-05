@@ -14,7 +14,7 @@ namespace Wulato.UIKit
     {
         readonly IAddressableOperations operations;
         readonly ResourcesUIViewLoader defaults = new ResourcesUIViewLoader();
-        /// <summary>Create the production loader. Inject through UIContextBuilder.WithLoader.</summary>
+        /// <summary>Create the production loader. Registry routing installs this per Context; explicit overrides remain supported.</summary>
         public AddressablesUIViewLoader() : this(new UnityAddressableOperations()) { }
         internal AddressablesUIViewLoader(IAddressableOperations operations)
         { this.operations=operations??throw new ArgumentNullException(nameof(operations)); }

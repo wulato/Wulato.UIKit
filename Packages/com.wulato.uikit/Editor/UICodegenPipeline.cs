@@ -189,7 +189,12 @@ namespace Wulato.UIKit.Editor
         public static void ValidateFor(string[] prefabs)
         {
             ValidateAdapterPackages();
-            var views=Inputs(prefabs);var files=Sources(views);var state=State(views,files);
+            var views=Inputs(prefabs);
+            // Descriptors can be generated without SDKs; validation/build require first-party backends.
+            // Custom providers may use an explicit WithLoader and remain the host's responsibility.
+            foreach(var view in views)
+                if(view.Marker.externalProviderId=="addressables")UIResourceResolver.RequireProvider("addressables");
+            var files=Sources(views);var state=State(views,files);
             if(File.Exists(Pending)||!File.Exists(Manifest))throw new InvalidOperationException("Bindings missing or pending; generate, compile and complete writeback before build.");
             var prior=JsonUtility.FromJson<CodegenState>(File.ReadAllText(Manifest));
             if(prior.fingerprint!=state.fingerprint || prior.files.Length!=state.files.Length)throw new InvalidOperationException("Stale fingerprint: regenerate bindings and registry.");

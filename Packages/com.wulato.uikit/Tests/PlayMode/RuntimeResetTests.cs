@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -94,6 +95,7 @@ namespace Wulato.UIKit.Tests.PlayMode
         public override void Populate(UIRegistryBuilder builder)=>builder.Add<Wulato.UIKit.Tests.Support.T4ProbeView>(new UIViewTypeKey("probe"),UIViewAsset.Resources("T4/Probe"));
     }
     // Called by the independent Editor play-mode controller, including across domain reloads.
+    public sealed class IntegrationRegistryView : UIView { }
     public static class IntegrationResetProbe
     {
         static int subscriptions;
@@ -117,6 +119,10 @@ namespace Wulato.UIKit.Tests.PlayMode
         }
         public static void Enter()
         {
+            var addressables=AppDomain.CurrentDomain.GetAssemblies().Any(a=>a.GetName().Name=="Wulato.UIKit.Addressables");
+            var route=new UIRegistryBuilder();route.Add<IntegrationRegistryView>(new UIViewTypeKey("reload-route"),UIViewAsset.External("addressables","unused-no-load"));
+            if(addressables)new UIResourceResolver(route.Build());
+            else Assert.Throws<InvalidOperationException>(()=>new UIResourceResolver(route.Build()));
             Assert.That(UIContextFacade.ActiveCount,Is.Zero,"old Context bridge");Assert.That(UnityEngine.Object.FindObjectsOfType<UIInputGate>().Length,Is.Zero,"old gate");
             if(service!=null)Assert.That(service.Disposed,Is.True,"old service subscription");
             root=new GameObject("T8ResetRoot",typeof(RectTransform),typeof(UIRoot));root.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;events=CreateEvents();registry=ScriptableObject.CreateInstance<UIRegistry>();
@@ -127,6 +133,10 @@ namespace Wulato.UIKit.Tests.PlayMode
         }
         public static void ArmExit()
         {
+            var addressables=AppDomain.CurrentDomain.GetAssemblies().Any(a=>a.GetName().Name=="Wulato.UIKit.Addressables");
+            var evidence=Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");
+            if(!string.IsNullOrEmpty(evidence))File.WriteAllText(Path.Combine(evidence,"resource-routing-"+Environment.GetEnvironmentVariable("UIKIT_RESET_CYCLE")+".trace.json"),"{\"status\":\"PASS\",\"addressables\":"+addressables.ToString().ToLowerInvariant()+"}");
+
             Assert.That(subscriptions,Is.EqualTo(1));
             events.AddComponent<IntegrationQuitCheck>().Check=VerifyAutomaticExit;
         }

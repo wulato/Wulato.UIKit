@@ -3,6 +3,7 @@
   "references": [
     "Wulato.UIKit",
     "Wulato.UIKit.Editor",
+    "Wulato.UIKit.Addressables",
     "Unity.Addressables",
     "Unity.Addressables.Editor",
     "Unity.ResourceManager"
