@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1/#2/#3 均已按用户确认合并，main 为受保护默认分支；任务 1.2 实现与专项验证完成，正在收尾创建 PR。任务 1.3 尚未开始。**
+**状态：2026-11-05 PR #1/#2/#3 均已按用户确认合并，main 为受保护默认分支；任务 1.2 实现与专项验证完成，PR #4 等待用户审核合并。任务 1.3 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -593,7 +593,8 @@ Ruling：专项增加 editor/package-install、配对事务 transitions/flow-int
 - [x] C1/C3 真实样例导入/生成/编译/写回/场景/验证各 9 步 PASS；各产出 2 个真实 StandaloneOSX Bundle（不是 Player 构建），内容源指纹及 5 个内容文件哈希分别复核 PASS。
 - [x] 最终各 suite 当前指纹、原始索引/XML/trace/文件哈希、4 组实际程序集开关、两个样例各 34 个原始文件哈希复核 PASS，汇总 [verification.json](../../Artifacts/uikit/phase1-2/verification.json)。保留 40 份迁移 .meta 原文，5 个适配 Runtime C# 文件内容不变。
 - [x] 集中作者自审：单 UIKit 包、独立条件程序集、无基础 SDK 反向依赖、无运行时算法修改；迁移说明/路径/引用、必需用例及 diff 空白检查通过。按用户要求不启子代理。
-- [ ] 集中差异审查、提交并创建 PR；不自动合并。
+- [x] 实现提交 `b8df5ff433972a9d10d9257ef1f66f1e10ced9b3` 已推送，创建 [任务 1.2 PR #4](https://github.com/wulato/Wulato.UIKit/pull/4)（main ← refactor/uikit-0.5-optional-adapters）；本次仅补执行记录，不自动合并。
+- [ ] 等待用户确认合并 PR #4 后，从更新 main 开始 1.3。
 
 Ruling：Version Defines 的表达式 Addressables `[1.21.21,3.0.0)`、Input System `[1.17.0,2.0.0)` 仅决定候选程序集启用范围；实际本轮验证仅 2022.3.62f2 + Addressables 1.21.21 / SBP 1.21.25 / Input System 1.17.0，不构成整个版本区间的兼容声明。无 SDK 时适配 Runtime/Editor/Tests 不参与编译；可选样例仍须 SDK。版本保持 0.5 Unreleased 开发检查点，最终提升在 6.1。
 
