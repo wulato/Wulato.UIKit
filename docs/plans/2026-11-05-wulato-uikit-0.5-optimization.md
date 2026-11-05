@@ -1,6 +1,6 @@
 # Wulato.UIKit 0.5 架构审查与分阶段优化计划
 
-**状态：2026-11-05 PR #1 已按用户确认合并；main 已成为默认分支并配置保护。Phase 0.2 工作流收尾材料待 PR 审核，下一项为 1.1；Phase 1 尚未开始。**
+**状态：2026-11-05 PR #1 已按用户确认合并；main 已成为默认分支并配置保护。Phase 0.2 收尾 PR #2 等待用户确认合并，下一项为 1.1；Phase 1 尚未开始。**
 
 **目标：** 交付一个以 uGUI 为基础、业务入口统一、生命周期可靠、只需安装一个 UIKit UPM Package 的内部框架。
 
@@ -539,7 +539,8 @@ GitHub 连接器创建分支返回 403（Resource not accessible by integration�
 - [x] 从更新后的 github/main 建立 `chore/uikit-0.5-github-flow`，复用当前干净 worktree，不新建工作区、不触碰原脏目录。
 - [x] 更新 AGENTS/README/验证入口与本计划，避免继续引用“PR #1 未合并/默认 master”的当前状态；历史记录保留。
 - [x] 文档/远端配置 L0 核验通过：[verification.json](../../Artifacts/uikit/phase0/github-flow/verification.json)；合并树与 7c1d9a8 完全一致，四份文档以外的生产树未改。
-- [ ] 提交收尾 PR，等待用户确认合并；不自动进入依赖任务 1.1。
+- [x] 提交 fc71fd4 并推送任务分支，创建 [收尾 PR #2](https://github.com/wulato/Wulato.UIKit/pull/2)（main ← chore/uikit-0.5-github-flow），等待用户确认合并；随后仅补本条 PR 记录，不改生产树。
+- [ ] 用户确认后合并 PR #2，再从最新 main 进入依赖任务 1.1；本次未自动合并。
 
 Ruling：保护规则强制 PR，但必需批准数为 0，不要求第二个 GitHub 账号为同账号代理创建的 PR 批准。用户明确的合并确认仍由会话工作流执行，零批准不是自动合并授权。Phase 6 前不新增 required CI checks，不修改或禁用历史 workflows。
 
