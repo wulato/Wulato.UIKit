@@ -20,3 +20,7 @@ python3 Tools/Verification/ci_suites.py --base HEAD --plan
 ```
 
 具体专项使用 `Tools/Verification/run.py`，默认只选相关 suite 与准确编辑器/后端。全量、远端与移动门禁按计划执行，不因版本号升级而宣称完成。
+
+6.1 验证用包快照（PR审核合并后用于消费；UniTask显式源见安装文档）：
+
+`https://github.com/wulato/Wulato.UIKit.git?path=Packages/com.wulato.uikit#59e3f3e2953106dc002d7552945325ea5c8ad829`

@@ -1023,7 +1023,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] [verification.json](../../Artifacts/uikit/phase6-1/verification.json) PASS：现有 evidence.verify(acceptance=True) 对全部必需用例、所有实际用例、当前绝对宿主snapshot/指纹、XML/逐例trace和索引/hash复核；现有 Git snapshot/phase3安装校验核对精确文件/包源/0.5.0身份/锁/实际程序集闭包。SDK只复用既有忽略宿主，由现有run.unity与T2HostProbe先稳定UPM元数据，再用原CLI专项测试；未下载安装或切换SDK符号。
 - [x] `build --prepare-only` 保留原始退出码1、Player状态BLOCKED及唯一原因 `prepare-only; no mobile Player built`；同时四组均 `install_status=PASS` / `generation_compiled=true`。它是安装通过/未构建Player，不能作为移动验收；没有伪造返回0或放宽原执行器。
 - [x] 集中审查改动：仅文档、缺失meta、主包版本、验证身份/本地声明及对应断言；基础Runtime/API/SDK版本/工作流/MC未改。历史phase2/phase3、Migration-0.4正文保留，现行README/Installation/Migration-0.5明确替代旧步骤；既有GUID不变。
-- [ ] 提交并创建6.1 PR，等待用户确认合并；不开始6.2，不创建发布tag/Release。
+- [x] 实现提交 `59e3f3e2953106dc002d7552945325ea5c8ad829`；`committed-package.json` PASS，实际Git提交含711个包文件，与四个安装快照逐文件完全一致，包含全部文档/九项样例/meta。根README提供此完整固定SHA地址，后续记录提交不改变该包快照。
+- [ ] 创建6.1 PR，等待用户确认合并；不开始6.2，不创建发布tag/Release。
 
 原始命令/日志/退出码：`Artifacts/uikit/phase6-1/commands.json`、`*.log`/`*.exit`、`verify-final.py`、`sdk-warm.json`；Git安装日志 `install-main.log` / `install-addressables.log`。本次没有代码/测试失败或自动修复（计数0），prepare-only的预期退出码按原安装字段明确解释。未运行其他编辑器、完整Suite/Reload、远端CI、Android/iOS Player/IL2CPP、真机/性能/Release Gate；6000 profile只同步本地包版本声明，不是支持验收。回退为不发布，消费保持旧审核提交，在消费项目迁移分支恢复其manifest/lock/生成文件，不自动回滚用户资产。
 
