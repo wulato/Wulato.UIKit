@@ -1,4 +1,6 @@
 using System;
+using Wulato.UIKit.Dialogs;
+using Wulato.UIKit.PopupQueue;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -24,6 +26,11 @@ namespace Wulato.UIKit
         UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken cancellationToken=default);
         /// <summary>FIFO Back: one local input popup first, otherwise the previous page; veto or root returns false.</summary>
         UniTask<bool> BackAsync(CancellationToken cancellationToken=default);
+        /// <summary>Open a registered dialog and publish its business result after Closed; caller cancellation covers the entire wait.</summary>
+        UniTask<DialogResult<TResult>> DialogAsync<TResult>(IDialogRequest<TResult> request,CancellationToken cancellationToken=default);
+        /// <summary>Queue a registered non-Page View; caller cancellation is independent and waits for rollback/Closed.</summary>
+        UniTask<PopupQueueResult> PopupAsync<TView>(int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default) where TView:UIView;
+        UniTask<PopupQueueResult> PopupAsync<TView,TArgs>(TArgs args,int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default) where TView:UIView<TArgs>;
         UniTask<UIBatchCompletion> CloseAllAsync(UICloseReason reason = UICloseReason.Owner);
         UniTask<UIBatchCompletion> CloseAllOfTypeAsync<TView>(UICloseReason reason = UICloseReason.Owner) where TView : UIViewBase;
         UniTask ClearCacheAsync();

@@ -4,6 +4,8 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Wulato.UIKit.Navigation;
+using Wulato.UIKit.Dialogs;
+using Wulato.UIKit.PopupQueue;
 namespace Wulato.UIKit
 {
     internal sealed class UIContextFacade : IUIContext
@@ -40,6 +42,10 @@ namespace Wulato.UIKit
         }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset()=>StopPlaySession();
+        // Token/responder callbacks may run inline inside a View hook. Keep the public command guard intact.
+        internal static UniTask WaitForCallbackExitAsync(IUIContext context)
+            =>context is UIContextFacade facade&&facade.engine!=null&&facade.engine.InCallback
+                ?UniTask.WaitUntil(()=>!facade.engine.InCallback):UniTask.CompletedTask;
         public UIContextId ContextId=>Id;
         public UniTask<UICompletion> CloseAsync(IUISession session,UICloseReason reason=UICloseReason.Owner)=>Ready().CloseAsync(session,reason);
         UIContextEngine Ready()=>engine??throw new InvalidOperationException("Only previously created service lookup is allowed during Build.");
@@ -80,6 +86,18 @@ namespace Wulato.UIKit
         public UniTask<bool> PopToAsync<TView>(CancellationToken token=default) where TView:UIViewBase=>Navigate(nav=>nav.PopToAsync<TView>(token));
         public UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken token=default)=>Navigate(nav=>nav.PopToAsync(type,token));
         public UniTask<bool> BackAsync(CancellationToken token=default)=>Navigate(nav=>nav.BackAsync(token));
+        public UniTask<DialogResult<TResult>> DialogAsync<TResult>(IDialogRequest<TResult> request,CancellationToken cancellationToken=default)
+        {
+            Ready();
+            try{return GetService<IUIDialogs>().ShowAsync(request,cancellationToken);}
+            catch(Exception error){return UniTask.FromException<DialogResult<TResult>>(error);}
+        }
+        public UniTask<PopupQueueResult> PopupAsync<TView>(int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default) where TView:UIView
+        {Ready();return Popup(typeof(TView),UIArguments.None,priority,deduplicationKey,cancellationToken);}
+        public UniTask<PopupQueueResult> PopupAsync<TView,TArgs>(TArgs args,int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default) where TView:UIView<TArgs>
+        {Ready();return Popup(typeof(TView),UIArguments.From(args),priority,deduplicationKey,cancellationToken);}
+        async UniTask<PopupQueueResult> Popup(Type type,UIArguments args,int priority,string key,CancellationToken token)
+            =>await GetService<IUIPopupQueue>().Enqueue(Key(type),args,priority,key,token);
         public UniTask<UIBatchCompletion> CloseAllAsync(UICloseReason reason=UICloseReason.Owner)=>Ready().CloseAllAsync(reason);
         public UniTask<UIBatchCompletion> CloseAllOfTypeAsync<TView>(UICloseReason reason=UICloseReason.Owner) where TView:UIViewBase =>Ready().CloseAllOfTypeAsync<TView>(reason);
         public UniTask ClearCacheAsync()=>Ready().ClearCacheAsync();

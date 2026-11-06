@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 0.5 tasks 1.1–2.3
+## Unreleased — 0.5 tasks 1.1–2.4
 
 - Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
 - Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
@@ -8,6 +8,7 @@
 - Make the facade the sole production IUIContext; expose host.UI and ContextId, validate Context-owned CloseAsync. Compose navigation/dialogs/popup queue before user factories; keep Presenter optional. Register dialog requests with their View through AddDialog and regenerate providers.
 - Route Page Open through the same Navigator FIFO as Push/Replace/PopTo. Publish new-root/replacement history atomically; retain precommit rollback and postcommit bounded cleanup. Other layers remain ordinary opens.
 - Unify Back/Cancel in the existing Context FIFO: non-page input owner first, CanClose veto without fallthrough, page restoration and root no-op. Bind input requests to their original owner; preserve fresh-edge gating, bounded closure, cancellation and Shutdown.
+- Add DialogAsync and typed PopupAsync on IUIContext, backed by the existing default services and unified Registry. Give popup items independent cancellation with rollback/Closed and deduplication barriers; marshal cancellation callbacks to the main thread. Popup scheduling rejects Page registrations.
 - See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
 
 ## 0.4.0

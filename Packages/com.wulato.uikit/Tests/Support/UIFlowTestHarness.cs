@@ -4,6 +4,8 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Wulato.UIKit.Navigation;
+using Wulato.UIKit.Dialogs;
+using Wulato.UIKit.PopupQueue;
 namespace Wulato.UIKit.Tests.Support
 {
     /// <summary>Package-owned real core harness; no repository verification or optional backend dependencies.</summary>
@@ -23,6 +25,7 @@ namespace Wulato.UIKit.Tests.Support
             var services=new UIServiceRegistry();var facade=new UIContextFacade(null,services);
             services.Values.Add(typeof(UIRegistrySnapshot),registry);services.Values.Add(typeof(IUIContextLifetime),facade.Lifetime);
             var navigator=new UINavigator(facade,pair);services.Add(typeof(IUINavigator),navigator);
+            services.Add(typeof(IUIDialogs),new UIDialogs(facade));services.Add(typeof(IUIPopupQueue),new UIPopupQueue(facade));
             var engine=new UIContextEngine(facade.Id,new UIRuntimeDependencies(registry,new UIContextSettings().CopyValidated(),this,Clock,new FakeViewHostFactory(),this,this,Input,this,new IUISessionLifecycleObserver[]{this,navigator},services.Values,true,stopResources:services.Release,lifetime:facade.Lifetime));
             facade.Initialize(engine,null,null);UI=facade;
         }

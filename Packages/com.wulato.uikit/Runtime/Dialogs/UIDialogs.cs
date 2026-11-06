@@ -40,6 +40,8 @@ namespace Wulato.UIKit.Dialogs
                     {return new DialogResult<TResult>(DialogStatus.ContextStopped,default,null);}
                     await UniTask.WhenAny(channel.Ready.Task,session.Closed.AsUniTask());
                     await UniTask.SwitchToMainThread();
+                    if(!lifetime.Stopping.IsCancellationRequested&&channel.HasIntent&&session.State==UIState.Open)
+                        await UIContextFacade.WaitForCallbackExitAsync(context);
                     UICompletion completion;
                     if(!lifetime.Stopping.IsCancellationRequested&&channel.HasIntent&&session.State==UIState.Open)
                         completion=await session.CloseAsync();

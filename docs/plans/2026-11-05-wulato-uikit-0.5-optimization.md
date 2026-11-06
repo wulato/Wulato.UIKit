@@ -711,7 +711,7 @@ Ruling：模块夹具增加默认 Navigator 与传入配对动画的选项，继
 - [x] 新增导航取消/迟到/隔离/Modal FIFO 用例、两后端共用真实输入场景及 Dialog 联合流程；补 matrix 必需用例，不扩大或放宽范围检查。
 - [x] 最终专项验证与原始证据审计：13 组 / 284 项 Unity、125 项 Python；[verification.json](../../Artifacts/uikit/phase2-3/verification.json) PASS。
 - [x] 实现提交 `aefb40c88bdb393c6a2720f13c21abcb48bfec29` 已推送，创建 [任务 2.3 PR #8](https://github.com/wulato/Wulato.UIKit/pull/8)（main ← refactor/uikit-0.5-back-cancel）。
-- [ ] 等待用户确认合并 PR #8；不开始 2.4。
+- [x] 用户确认后已合并 PR #8；2.4 从更新 main `f9df977f5c47ddceed23bd03d1b5c21c09a9585a` 开始。
 
 设计决定：只更改内置返回路径，不新增公共服务/协议；新增内部 RouteBack 步骤复用现有事务锁、资源所有权及关闭清理。显式 Back 保持 Context 本地；设备 Cancel 只作用于当前输入拥有者。UIBackAction.None 包括页面，阻止用户返回；Owner Close 不受此限制。非 Page 返回在没有页面历史时也有效。
 
@@ -737,3 +737,39 @@ Ruling：模块夹具增加默认 Navigator 与传入配对动画的选项，继
 集中审查确认没有新增依赖、第二套生命周期、默认 Context 或通用输入抽象；所有新增 Unity 脚本保留对应 meta，既有 GUID 未变。未改根 manifest/lock、ProjectSettings、CI 工作流或原用户脏目录。无未解决新失败；上述各原因修复均 1 轮，没有超限重试。历史 samples 分类问题仍留在独立后续维护范围。本次没有运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机；不把专项结果扩大为整体验收。2.4 仍须本 PR 由用户确认合并后从更新 main 开始。
 
 GitHub 交付：连接器创建 PR 返回 403 Resource not accessible by integration；使用本机已授权 gh 创建 PR #8 成功，不扩张凭据或安装工具。main 保持 `999d918e1d8779e2c411943e078da766ac3d184a`，本 PR 未合并。
+
+
+### 2026-11-06 任务 2.4 Dialog/Popup 入口与取消
+
+- [x] 用户确认合并 PR #8；精确 head 普通合并后，main 更新为 `f9df977f5c47ddceed23bd03d1b5c21c09a9585a`，复用干净 worktree 创建 `feat/uikit-0.5-dialog-popup`。
+- [x] IUIContext 增加 DialogAsync / 泛型 PopupAsync，复用默认 IUIDialogs / IUIPopupQueue 和统一 Registry。Harness 同步真实默认装配；没有新增生命周期或结果通道。
+- [x] Popup 逐项 token：等待移除、打开回滚/迟到隔离、显示 Owner 关闭；Closed 前不释放 key、不启动下一项；后台回调只标记取消并回到主线程。停止覆盖未完成取消，普通结果保留错误/未决清理。
+- [x] 新增 false/null、旧 responder、暂停/打开/显示取消、close hook、去重、其他请求推进、错误/PendingCleanup、Shutdown 及真实后台取消联合测试；补必需用例，保留既有精确集合检查。
+- [x] 最终专项验证、原始证据/指纹审计：13 组 / 233 项 Unity、125 项 Python，精确用例集合与当前指纹通过；[verification.json](../../Artifacts/uikit/phase2-4/verification.json)。
+- [ ] 提交并创建 PR；等待用户合并确认，不进入 Phase 3。
+
+Ruling：保留 IPopupRequest 高级描述符入口，普通业务使用泛型入口；新增 key/arguments 重载与逐项 token，避免为普通请求创建包装类。Popup 拒绝 Page 注册，防止队列隐式重建导航历史；业务页面仍用 Open/Push。队列取消采用标准 OperationCanceledException，不新增 Canceled 结果状态；Context/Queue Stop 覆盖未发布的取消。逻辑回滚/Closed 终结后可复用 key，迟到资源仍由原隔离清理拥有，不等待物理销毁。Dialog 既有取消通道无需重写，仅增加入口并补验证。
+
+RED/初验：`Artifacts/uikit/phase2-4/red-prepare.log/.exit` 对应 `20261106T015808711802-prepare-05eef8`，CS1061 证明确实缺少 DialogAsync/PopupAsync，属于预期编译 RED。实现后 popup-queue 首轮 20 项 PASS `20261106T020042338422-tests-fa44af`，真实联合流程 7 项 PASS `20261106T020230159210-tests-a7b289`，dialogs 15 项 PASS `20261106T020349220188-tests-138c06`。这些预备结果不重复计入最终验收。当前无非预期失败，修复次数 0；历史 samples 类别问题计数 1 保留，不运行该非必需专项或夹带原工作区修复。
+
+收尾审查补验：发现 CanClose 内取消会内联调用 Owner Close，可能触发 nested-command。新增 Dialog/Popup 两个真实回归后，`hook-red.log` / `20261106T020911333595-tests-ea50c5` 均复现该错误。依据实际栈，在现有 Facade 增加内部 callback-exit 等待，Engine 仅提供现有回调深度的只读属性；Dialog 仅在仍为 Open、需要关闭时等待，保留 closing hook 的同步结果行为。Popup 先切主线程，再等钩子退出；没有放宽公共 guard 或加入第二条队列。定向 `hook-fixed.log` / `20261106T021020781922-tests-ce59ef` 9/9 PASS。该原因修复 1 轮，未修改断言或隐藏日志。先前输入稳定时的专项通过不计为修复后的最终验收，最终在更新指纹下复验原范围。
+
+同一回调取消原因第 2 轮：最终 dialogs 发现 `Shutdown_EndsWaiterAsContextStopped` 不再同回合完成（`20261106T021149805594-tests-5861fa`），根因是等待条件过宽，Context 正停止且不需要提交 Owner Close 时也等待下一帧。收窄为“非 Stopping + 有终结意图 + Session 仍 Open”才等回调退出；等待后重新核对原条件再关闭。保留 Shutdown 原屏障与原断言，不修改测试。此原因已用第 2 次修复机会，若仍失败停止自动修复。
+
+
+最终验收（2.4）：
+
+| 宿主 | 专项 | 通过用例 |
+| --- | --- | --- |
+| 无 SDK / Legacy | dialogs / popup-queue EditMode | 15 / 21 |
+| 无 SDK / Legacy | flow-integration PlayMode | 9 |
+| 无 SDK / Legacy | navigation / contracts / integration / package-install EditMode | 28 / 29 / 24 / 4 |
+| 仅 Input System | dialogs / popup-queue EditMode | 15 / 21 |
+| 仅 Input System | flow-integration PlayMode | 9 |
+| 仅 Input System | contracts / integration / package-install EditMode | 29 / 25 / 4 |
+
+Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主，host-root 为 `Artifacts/uikit/ci-selected/hosts/phase2-4`、`.../phase2-4-sdk`。Addressables/输入驱动未改，不扩展该 SDK 或 input-runtime。实际命令、日志/退出码与原始 XML/trace/索引/hash 在 `Artifacts/uikit/phase2-4/`，`final-commands.sh` 保存最终范围；早期通过与 RED 不重复计数。最终源码、文档和 matrix 指纹一致，所有必需用例与实际集合精确相等。审计首轮计数预计 232，漏算 Input-only integration 的必需 LegacyDriverInInputOnlyProject_IsRejected；核对 matrix 后修正汇总为 233（计数原因修复 1 轮），保留 `audit-count-first.log/.exit`，没有改变选例或放宽集合/哈希断言。
+
+相关 Python 十个模块 125 项通过：results/evidence/integrity/integrated_package/runtime/package_test_boundary/ci_suites/contract_probe/runner/preflight。集中自审完成，按项目约定未启动代理。回调取消原因第 2 轮后 dialogs 15/15、flow-integration 9/9 均通过，并完成全部上述专项；未解决新失败 0。历史 samples 分类问题计数 1 原样保留，不处理该独立维护事项。
+
+没有新增依赖、程序集、Unity 资产或生成器规则；既有 meta/GUID 未变，没有修改 ProjectSettings、根 manifest/lock、CI 工作流或原用户脏目录。Engine 只增加只读回调深度，不修改队列、guard 或生命周期实现。未运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机。回退为整项 revert；Phase 3 必须等本 PR 经用户确认合并后再从更新 main 开始。

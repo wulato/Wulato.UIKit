@@ -23,11 +23,16 @@ namespace Wulato.UIKit.Acceptance.Flows
     public class Confirm:UIView<DialogArguments<Question,bool>>
     {
         internal static IDialogResponder<bool> Responder;
-        internal static bool AllowBack=true;
-        protected override bool CanClose(UICloseReason reason)=>reason!=UICloseReason.Back||AllowBack;
+        internal static bool AllowBack=true;internal static Action BackDecision;
+        protected override bool CanClose(UICloseReason reason){if(reason!=UICloseReason.Back)return true;BackDecision?.Invoke();return AllowBack;}
         protected override UniTask OnOpenAsync(DialogArguments<Question,bool> args,UISessionScope scope,CancellationToken ct){Responder=args.Responder;return UniTask.CompletedTask;}
     }
-    public class Reward:UIView{}
+    public class Reward:UIView
+    {
+        internal static UniTaskCompletionSource CloseGate;internal static Action BackDecision;
+        protected override bool CanClose(UICloseReason reason){BackDecision?.Invoke();return BackDecision==null;}
+        protected override UniTask OnCloseAsync(UICloseReason reason,CancellationToken ct)=>CloseGate?.Task??UniTask.CompletedTask;
+    }
     public class RegistryProvider:UIRegistryProvider
     {
         public GameObject Home,Settings,Confirm,Reward,Details;
@@ -57,7 +62,7 @@ namespace Wulato.UIKit.Acceptance.Flows
             readonly GameObject sources,root,events;readonly UIRegistry registry;readonly RegistryProvider provider;readonly EventSystem previous;
             public Fixture(INavigationTransition transition=null)
             {
-                Confirm.Responder=null;Confirm.AllowBack=true;previous=EventSystem.current;sources=new GameObject("flow sources");sources.SetActive(false);
+                Confirm.Responder=null;Confirm.AllowBack=true;Confirm.BackDecision=null;Reward.CloseGate=null;Reward.BackDecision=null;previous=EventSystem.current;sources=new GameObject("flow sources");sources.SetActive(false);
                 provider=ScriptableObject.CreateInstance<RegistryProvider>();provider.Home=Prefab<Home>();provider.Settings=Prefab<Settings>();provider.Confirm=Prefab<Confirm>();provider.Reward=Prefab<Reward>();provider.Details=Prefab<Details>();
                 registry=ScriptableObject.CreateInstance<UIRegistry>();typeof(UIRegistry).GetField("providers",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(registry,new List<UIRegistryProvider>{provider});
                 events=new GameObject("flow events",typeof(EventSystem));
@@ -80,6 +85,55 @@ namespace Wulato.UIKit.Acceptance.Flows
             }
         }
         static UniTask WaitFor(IUIContext ui,string key)=>UniTask.WaitUntil(()=>ui.GetDiagnostics().Sessions.Any(s=>s.Type.Value==key&&s.State==UIState.Open));
+        static async UniTask<bool> Canceled(UniTask<PopupQueueResult> operation)
+        {try{await operation;return false;}catch(OperationCanceledException){return true;}}
+        [UnityTest,Category("flow_integration")] public IEnumerator PopupCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();using(var caller=new CancellationTokenSource())try
+            {
+                var popup=f.UI.PopupAsync<Reward>(cancellationToken:caller.Token);await WaitFor(f.UI,"reward");Reward.BackDecision=()=>caller.Cancel();
+                Assert.That(await f.UI.BackAsync(),Is.False);Assert.That(await Canceled(popup).Timeout(TimeSpan.FromSeconds(3)),Is.True);Assert.That(f.UI.GetDiagnostics().Sessions,Is.Empty);
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("flow_integration")] public IEnumerator DialogCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();using(var caller=new CancellationTokenSource())try
+            {
+                var show=f.UI.DialogAsync(new Question(),caller.Token);await WaitFor(f.UI,"confirm");Confirm.AllowBack=false;Confirm.BackDecision=()=>caller.Cancel();
+                Assert.That(await f.UI.BackAsync(),Is.False);bool canceled=false;
+                try{await show.Timeout(TimeSpan.FromSeconds(3));}catch(OperationCanceledException){canceled=true;}
+                Assert.That(canceled,Is.True);Assert.That(f.UI.GetDiagnostics().Sessions,Is.Empty);
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("flow_integration")] public IEnumerator FacadeDialogAndPopup_UseDefaultServicesAndPreservePageHistory()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();try
+            {
+                await f.UI.OpenAsync<Home>();await f.UI.PushAsync<Settings>();var nav=f.UI.GetService<IUINavigator>();
+                var show=f.UI.DialogAsync(new Question());await WaitFor(f.UI,"confirm");Confirm.Responder.TrySubmit(false);
+                var result=await show;Assert.That(result.Status,Is.EqualTo(DialogStatus.Submitted));Assert.That(result.Value,Is.False);Assert.That(result.Completion,Is.Not.Null);
+                var popup=f.UI.PopupAsync<Reward>();await WaitFor(f.UI,"reward");Assert.That(nav.History.Count,Is.EqualTo(2));
+                await f.UI.ShutdownAsync();Assert.That((await popup).Status,Is.EqualTo(PopupQueueStatus.ContextStopped));
+                Assert.That(f.Presenters.Created,Is.EqualTo(f.Presenters.Released));Assert.That(f.UI.GetDiagnostics().ActiveLeaseCount,Is.Zero);Assert.That(f.UI.GetDiagnostics().InputLockCount,Is.Zero);
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("flow_integration")] public IEnumerator WorkerPopupCancellation_WaitsForClosedBeforeReusingKeyAndStartingNext()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();using(var caller=new CancellationTokenSource())try
+            {
+                var popup=f.UI.PopupAsync<Reward>(deduplicationKey:"active",cancellationToken:caller.Token);await WaitFor(f.UI,"reward");
+                var gate=new UniTaskCompletionSource();Reward.CloseGate=gate;var canceled=Canceled(popup);
+                var next=f.UI.PopupAsync<Reward>(deduplicationKey:"next");
+                await System.Threading.Tasks.Task.Run(()=>caller.Cancel());
+                await UniTask.WaitUntil(()=>f.UI.GetDiagnostics().Sessions.Any(s=>s.Type.Value=="reward"&&s.State==UIState.Closing)).Timeout(TimeSpan.FromSeconds(3));
+                Assert.That(canceled.Status.IsCompleted(),Is.False);Assert.That(next.Status.IsCompleted(),Is.False);
+                Assert.That((await f.UI.PopupAsync<Reward>(deduplicationKey:"active")).Status,Is.EqualTo(PopupQueueStatus.Duplicate));
+                Reward.CloseGate=null;gate.TrySetResult();Assert.That(await canceled,Is.True);await WaitFor(f.UI,"reward");
+                var reused=f.UI.PopupAsync<Reward>(deduplicationKey:"active");Assert.That(await f.UI.BackAsync(),Is.True);Assert.That((await next).Status,Is.EqualTo(PopupQueueStatus.Completed));
+                await WaitFor(f.UI,"reward");Assert.That(await f.UI.BackAsync(),Is.True);Assert.That((await reused).Status,Is.EqualTo(PopupQueueStatus.Completed));
+                await f.UI.ShutdownAsync();Assert.That(f.Presenters.Created,Is.EqualTo(f.Presenters.Released));Assert.That(f.UI.GetDiagnostics().ActiveLeaseCount,Is.Zero);
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest,Category("flow_integration")] public IEnumerator UnifiedBack_RespectsDialogVetoThenRestoresPageHistory()=>UniTask.ToCoroutine(async()=>
         {
             var f=new Fixture();try

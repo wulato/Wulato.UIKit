@@ -16,6 +16,12 @@ namespace Wulato.UIKit.Dialogs.Tests
         protected override UniTask OnCloseAsync(UICloseReason reason,CancellationToken ct){if(SubmitOnClose)Responder.TrySubmit(true);if(FailClose)throw new InvalidOperationException("close");return CloseGate?.Task??UniTask.CompletedTask;}
         public void Dismiss()=>RequestClose();
     }
+    public sealed class TextQuestion : IDialogRequest<string> { }
+    public sealed class TextDialog : UIView<DialogArguments<TextQuestion,string>>
+    {
+        internal static IDialogResponder<string> Responder;
+        protected override UniTask OnOpenAsync(DialogArguments<TextQuestion,string> args,UISessionScope scope,CancellationToken ct){Responder=args.Responder;return UniTask.CompletedTask;}
+    }
     [Category("dialogs")]
     public class DialogLifecycleTests
     {
@@ -26,6 +32,21 @@ namespace Wulato.UIKit.Dialogs.Tests
             return new UIFlowTestHarness(registry.Build());
         }
         UIDialogs Dialogs(UIFlowTestHarness fixture)=>new UIDialogs(fixture.UI);
+        [Test] public void FacadeDialog_UsesDefaultRegistrationAndInvalidatesCachedResponders()
+        {
+            using(var f=Fixture())
+            {
+                var first=f.UI.DialogAsync(new Confirm());var old=ConfirmView.Responder;Assert.That(old.TrySubmit(false),Is.True);
+                var result=first.GetAwaiter().GetResult();Assert.That(result.Status,Is.EqualTo(DialogStatus.Submitted));Assert.That(result.Value,Is.False);
+                var next=f.UI.DialogAsync(new Confirm());Assert.That(old.TrySubmit(true),Is.False);ConfirmView.Responder.TryCancel();Assert.That(next.GetAwaiter().GetResult().Status,Is.EqualTo(DialogStatus.UserCanceled));
+            }
+        }
+        [Test] public void FacadeDialog_SubmittedNullIsAValue()
+        {
+            var b=new UIRegistryBuilder();b.AddDialog<TextDialog,TextQuestion,string>(new UIViewTypeKey("text"),UIViewAsset.Resources("text"));
+            using(var f=new UIFlowTestHarness(b.Build()))
+            {var show=f.UI.DialogAsync(new TextQuestion());Assert.That(TextDialog.Responder.TrySubmit(null),Is.True);var result=show.GetAwaiter().GetResult();Assert.That(result.Status,Is.EqualTo(DialogStatus.Submitted));Assert.That(result.Value,Is.Null);}
+        }
         [Test] public void ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand()
         {
             using(var f=Fixture())
