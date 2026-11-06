@@ -18,6 +18,7 @@ namespace Wulato.UIKit.Acceptance.Flows
 {
     public class Home:UIView{}
     public class Settings:UIView{}
+    public class Details:UIView<int>{}
     public sealed class Question:IDialogRequest<bool>{}
     public class Confirm:UIView<DialogArguments<Question,bool>>
     {
@@ -27,10 +28,11 @@ namespace Wulato.UIKit.Acceptance.Flows
     public class Reward:UIView{}
     public class RegistryProvider:UIRegistryProvider
     {
-        public GameObject Home,Settings,Confirm,Reward;
+        public GameObject Home,Settings,Confirm,Reward,Details;
         public override void Populate(UIRegistryBuilder b)
         {
             b.Add<Home>(new UIViewTypeKey("home"),UIViewAsset.Direct(Home),closePolicy:UIClosePolicy.CacheOne);
+            b.Add<Details,int>(new UIViewTypeKey("details"),UIViewAsset.Direct(Details));
             b.Add<Settings>(new UIViewTypeKey("settings"),UIViewAsset.Direct(Settings));
             b.AddDialog<Confirm,Question,bool>(new UIViewTypeKey("confirm"),UIViewAsset.Direct(Confirm),UILayer.Modal);
             b.Add<Reward>(new UIViewTypeKey("reward"),UIViewAsset.Direct(Reward),UILayer.Modal);
@@ -54,7 +56,7 @@ namespace Wulato.UIKit.Acceptance.Flows
             public Fixture(INavigationTransition transition=null)
             {
                 Confirm.Responder=null;previous=EventSystem.current;sources=new GameObject("flow sources");sources.SetActive(false);
-                provider=ScriptableObject.CreateInstance<RegistryProvider>();provider.Home=Prefab<Home>();provider.Settings=Prefab<Settings>();provider.Confirm=Prefab<Confirm>();provider.Reward=Prefab<Reward>();
+                provider=ScriptableObject.CreateInstance<RegistryProvider>();provider.Home=Prefab<Home>();provider.Settings=Prefab<Settings>();provider.Confirm=Prefab<Confirm>();provider.Reward=Prefab<Reward>();provider.Details=Prefab<Details>();
                 registry=ScriptableObject.CreateInstance<UIRegistry>();typeof(UIRegistry).GetField("providers",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(registry,new List<UIRegistryProvider>{provider});
                 events=new GameObject("flow events",typeof(EventSystem));
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
@@ -76,6 +78,20 @@ namespace Wulato.UIKit.Acceptance.Flows
             }
         }
         static UniTask WaitFor(IUIContext ui,string key)=>UniTask.WaitUntil(()=>ui.GetDiagnostics().Sessions.Any(s=>s.Type.Value==key&&s.State==UIState.Open));
+        [UnityTest,Category("flow_integration")] public IEnumerator FacadePageOperations_KeepModalOwnershipAndOneHistory() => UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();try
+            {
+                var nav=f.UI.GetService<IUINavigator>();await f.UI.OpenAsync<Home>();await f.UI.PushAsync<Settings>();
+                var dialog=f.UI.GetService<IUIDialogs>().ShowAsync(new Question());await WaitFor(f.UI,"confirm");var modal=f.UI.GetDiagnostics().InputOwner.Value.SessionId;
+                await f.UI.ReplaceAsync<Details,int>(8);await f.UI.PushAsync<Settings>();Assert.That(await f.UI.PopToAsync<Details>(),Is.True);
+                Assert.That(nav.History.Select(p=>p.Type.Value),Is.EqualTo(new[]{"home","details"}));Assert.That(nav.History[1].Arguments.Get<int>(),Is.EqualTo(8));
+                Assert.That(f.UI.GetDiagnostics().InputOwner.Value.SessionId,Is.EqualTo(modal));await f.UI.OpenAsync<Home>();
+                Assert.That(nav.History.Count,Is.EqualTo(1));Assert.That(f.UI.GetDiagnostics().InputOwner.Value.SessionId,Is.EqualTo(modal));
+                Confirm.Responder.TrySubmit(false);Assert.That((await dialog).Value,Is.False);Assert.That(await f.UI.BackAsync(),Is.False);
+                await f.UI.ShutdownAsync();Assert.That(f.Presenters.Created,Is.EqualTo(f.Presenters.Released));Assert.That(f.UI.GetDiagnostics().ActiveLeaseCount,Is.Zero);Assert.That(f.UI.GetDiagnostics().InputLockCount,Is.Zero);
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest,Category("flow_integration")] public IEnumerator ModalRemainsOwnerAcrossPageReplacement() => UniTask.ToCoroutine(async()=>
         {
             var f=new Fixture();try

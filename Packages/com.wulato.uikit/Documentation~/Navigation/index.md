@@ -1,20 +1,24 @@
 # Navigation
 
-内置主包 0.4.0，保留 Wulato.UIKit.Navigation 程序集；无需旧 Navigation 包。开发默认 Unity 2022.3.62f2，其他兼容目标显式验证，UniTask 2.5.11。
+主包默认装配 Navigator，与基础模块共用 `Wulato.UIKit` 程序集。开发默认 Unity 2022.3.62f2、UniTask 2.5.11；其他目标须显式验证。
 
 ```csharp
-using Wulato.UIKit.Navigation;
 var ui = new UIContextBuilder(root, registry).Build();
-var nav = ui.GetService<IUINavigator>();
-await nav.PushAsync<HomeView>(ct);
-await nav.PushAsync<SettingsView, SettingsArgs>(args, ct);
-bool moved = await nav.BackAsync(ct);
+var home = await ui.OpenAsync<HomeView>(ct); // 新根历史
+await ui.PushAsync<InventoryView, InventoryArgs>(args, ct);
+await ui.ReplaceAsync<SettingsView>(ct);    // 只替换顶项
+bool moved = await ui.PopToAsync<HomeView>(ct);
+bool backed = await ui.BackAsync(ct);
 ```
 
-仅导航 UILayer.Page；Modal 不入历史。历史包含当前页面，只保存 key 与调用方保证不可变的参数。CacheOne 不是展示状态持久化；外部 Model 由项目保存。首页 Back=false；Single 同类型重复 Push 报 AlreadyOpen。
+Open 的泛型/类型擦除入口均按 Registry Layer 分流：Page 建立新根，其他层走普通打开，不改变历史或关闭导航页。Push/Replace 只接受 Page；Replace 在空历史中等价首开。三者尝试打开当前仍存活的同一 Single 时返回 AlreadyOpen，不隐式重载。
 
-请求按 Context FIFO，普通 Open/Close 不插入切换。提交前取消/失败恢复原页；提交后调用方取消不撤销切换，等待旧页有界关闭。关闭错误进入 UICompletion/错误接收器，不能据此重试已提交的 Push。Shutdown 仍可从队列外停止。当前页被外部关闭后历史清空。
+PopTo 恢复最近匹配历史项及其原参数，裁掉后续描述；只重建目标，不重放中间页面生命周期。当前已匹配或无匹配（包括未注册目标）返回 false。历史只保存 key 和调用方保证不可变的参数；CacheOne 不等于展示状态持久化。高级历史查询仍可用 `ui.GetService<IUINavigator>().History`，其快照不可修改。
 
-自定义 INavigationTransition 只修改声明的动画写集；Stop 同步终止写入并完成活跃操作，Reset 幂等复位。默认无动画，NavigationSettings 的超时默认2秒并在组合时复制。不得在生命周期或转场回调中同步等待同 Context 命令；外部完成源会同步执行续体，应在回调之外提交流程。
+所有历史读取与拟议修改在同一 Context FIFO 中执行，沿用 Prepare/AnimatePair/CommitReplacement：准备或提交前取消/失败恢复旧页、历史与输入；提交后才关闭旧页，旧页关闭错误不撤销已提交历史，caller 取消也不撤销提交。Shutdown 仍可接管有界关闭；不合作动画按既有隔离/迟到清理协议处理，不复活仍被动画写入的对象。
 
-组合样例 BusinessFlow 从主包导入；导入后使用菜单 Wulato/UIKit/Prepare Business Flow Sample，再打开 BusinessFlowScene。Author 只补缺失资源，不覆盖已存在消费场景。
+`ui.CloseAsync(session)` 或 Session 自己关闭当前页时清空历史；关闭旧句柄不影响新会话。显式 Open/Push/Replace/PopTo 不调用用户返回确认。当前 BackAsync 仍只处理页面历史；Modal 优先及 CanClose/输入 Cancel 的统一路由按 2.3 交付，不改变本阶段输入驱动。
+
+通过 `WithNavigationTransition(pair, settings)` 配置页面配对动画，默认立即完成；普通非 Page 界面继续使用 IUITransition。Stop 必须同步停止写入并终结活跃操作，Reset 幂等恢复声明写集。禁止在生命周期/转场回调中同步等待同 Context 公共命令。
+
+组合样例 BusinessFlow 从主包导入，运行菜单 Wulato/UIKit/Prepare Business Flow Sample，再打开 BusinessFlowScene；Author 只补缺失资源，不覆盖已存在消费场景。

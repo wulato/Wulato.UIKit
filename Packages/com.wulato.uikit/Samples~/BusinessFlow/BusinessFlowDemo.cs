@@ -20,11 +20,11 @@ namespace Wulato.UIKit.Samples.BusinessFlow
             if(ui!=null)throw new InvalidOperationException("A Context already exists.");
             ui=new UIContextBuilder(root,registry)
                 .UsePresentation(presenters).Build();
-            actions=new FlowActions(()=>ui.GetService<IUINavigator>().PushAsync<SettingsPage,FlowActions>(actions).Forget(Debug.LogException),
-                ()=>ui.GetService<IUINavigator>().BackAsync().Forget(Debug.LogException),()=>ConfirmAsync().Forget(Debug.LogException),QueueRewards);
+            actions=new FlowActions(()=>ui.PushAsync<SettingsPage,FlowActions>(actions).Forget(Debug.LogException),
+                ()=>ui.BackAsync().Forget(Debug.LogException),()=>ConfirmAsync().Forget(Debug.LogException),QueueRewards);
             return ui;
         }
-        async void Start(){try{CreateContext();await ui.GetService<IUINavigator>().PushAsync<HomePage,FlowActions>(actions);}catch(Exception error){Debug.LogException(error);}}
+        async void Start(){try{CreateContext();await ui.PushAsync<HomePage,FlowActions>(actions);}catch(Exception error){Debug.LogException(error);}}
         async UniTask ConfirmAsync(){var result=await ui.GetService<IUIDialogs>().ShowAsync(new ConfirmRequest());Debug.Log("Dialog: "+result.Status);}
         void QueueRewards()
         {

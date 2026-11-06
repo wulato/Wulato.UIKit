@@ -34,34 +34,65 @@ namespace Wulato.UIKit.Navigation
         /// <inheritdoc/>
         public async UniTask<IUISession> PushAsync<TView,TArgs>(TArgs arguments,CancellationToken cancellationToken=default) where TView:UIView<TArgs>
             =>await PushAsync(Key(typeof(TView)),UIArguments.From(arguments),cancellationToken);
+        internal UniTask<IUISession> OpenRootAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken token=default)
+            =>Navigate(new UIPageDescriptor(type,arguments),Move.Root,token);
         /// <inheritdoc/>
         public UniTask<IUISession> PushAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default)
-            =>Navigate(new UIPageDescriptor(type,arguments),false,cancellationToken);
+            =>Navigate(new UIPageDescriptor(type,arguments),Move.Push,cancellationToken);
+        /// <inheritdoc/>
+        public async UniTask<IUISession> ReplaceAsync<TView>(CancellationToken token=default) where TView:UIView
+            =>await ReplaceAsync(Key(typeof(TView)),UIArguments.None,token);
+        /// <inheritdoc/>
+        public async UniTask<IUISession> ReplaceAsync<TView,TArgs>(TArgs args,CancellationToken token=default) where TView:UIView<TArgs>
+            =>await ReplaceAsync(Key(typeof(TView)),UIArguments.From(args),token);
+        /// <inheritdoc/>
+        public UniTask<IUISession> ReplaceAsync(UIViewTypeKey type,UIArguments args,CancellationToken token=default)
+            =>Navigate(new UIPageDescriptor(type,args),Move.Replace,token);
+        /// <inheritdoc/>
+        public async UniTask<bool> PopToAsync<TView>(CancellationToken token=default) where TView:UIViewBase
+            =>await Navigate(null,Move.PopTo,token,typeof(TView))!=null;
+        /// <inheritdoc/>
+        public async UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken token=default)
+            =>await Navigate(new UIPageDescriptor(type,UIArguments.None),Move.PopTo,token)!=null;
         /// <inheritdoc/>
         public async UniTask<bool> BackAsync(CancellationToken cancellationToken=default)
-            =>await Navigate(null,true,cancellationToken)!=null;
-        async UniTask<IUISession> Navigate(UIPageDescriptor page,bool back,CancellationToken caller)
+            =>await Navigate(null,Move.Back,cancellationToken)!=null;
+        enum Move { Root,Push,Replace,Back,PopTo }
+        async UniTask<IUISession> Navigate(UIPageDescriptor page,Move move,CancellationToken caller,Type popType=null)
         {
-            if(stopped)throw new UIException(UIErrorCode.ContextStopped,"navigation",default);
+            if(stopped)throw new UIException(UIErrorCode.ContextStopped,"navigation",context.ContextId);
             IUISession result=null;
             await context.GetService<IUIPageTransactionAccess>().ExecuteAsync(async(steps,ct)=>
             {
-                if(stopped)throw new UIException(UIErrorCode.ContextStopped,"navigation",default);
-                if(back&&history.Count<2)return;
-                var target=back?history[history.Count-2]:page;
+                if(stopped)throw new UIException(UIErrorCode.ContextStopped,"navigation",context.ContextId);
+                // Every history read and proposed edit belongs to this FIFO turn.
+                int destination=-1;
+                if(move==Move.Back)
+                {if(history.Count<2)return;destination=history.Count-2;}
+                else if(move==Move.PopTo)
+                {
+                    bool Matches(UIPageDescriptor item)=>popType!=null?registry.Get(item.Type).ViewType==popType:item.Type==page.Type;
+                    if(history.Count==0||Matches(history[history.Count-1]))return;
+                    for(int i=history.Count-2;i>=0;i--)if(Matches(history[i])){destination=i;break;}
+                    if(destination<0)return;
+                }
+                var target=destination>=0?history[destination]:page;
                 UIRegistration registration;
                 try{registration=registry.Get(target.Type);}
-                catch(ArgumentException error){throw new UIException(UIErrorCode.InvalidRequest,"navigation-key",context.GetDiagnostics().ContextId,null,error);}
+                catch(ArgumentException error){throw new UIException(UIErrorCode.InvalidRequest,"navigation-key",context.ContextId,null,error);}
                 if(registration.Layer!=UILayer.Page||!registration.Accepts(target.Arguments))
-                    throw new UIException(UIErrorCode.InvalidRequest,"navigation-arguments",default);
-                var nextHistory=new List<UIPageDescriptor>(history);
-                if(back)nextHistory.RemoveAt(nextHistory.Count-1);else nextHistory.Add(target);
+                    throw new UIException(UIErrorCode.InvalidRequest,"navigation-arguments",context.ContextId);
+                var nextHistory=move==Move.Root?new List<UIPageDescriptor>():new List<UIPageDescriptor>(history);
+                if(destination>=0)nextHistory.RemoveRange(destination+1,nextHistory.Count-destination-1);
+                else if(move==Move.Replace&&nextHistory.Count>0)nextHistory[nextHistory.Count-1]=target;
+                else nextHistory.Add(target);
                 var old=current;
                 var next=await steps.PrepareAsync(target.Type,target.Arguments,UITransitionOwner.External,ct);
                 await steps.AnimatePairAsync(old,next,transition,ct);
                 steps.CommitReplacement(old,next,new Publication(this,next,Array.AsReadOnly(nextHistory.ToArray())));
                 result=next;
-                if(old!=null&&old.State==UIState.Open)await steps.CloseAsync(old,UITransitionOwner.External,back?UICloseReason.Back:UICloseReason.Owner);
+                if(old!=null&&old.State==UIState.Open)
+                    await steps.CloseAsync(old,UITransitionOwner.External,destination>=0?UICloseReason.Back:UICloseReason.Owner);
             },timeout,caller);
             return result;
         }
