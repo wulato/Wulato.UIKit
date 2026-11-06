@@ -11,6 +11,10 @@ using UnityEngine.SceneManagement;
 using Wulato.UIKit.Tests.Support;
 namespace Wulato.UIKit.Tests.Editor
 {
+    public sealed class AuthoringTransitionPreset:UITransitionPreset
+    {public override IUITransition CreateTransition()=>throw new NotSupportedException("Editor fixture only");}
+    public sealed class AuthoringNavigationPreset:UINavigationTransitionPreset
+    {public override INavigationTransition CreateTransition()=>throw new NotSupportedException("Editor fixture only");}
     [Category("authoring")]
     public class AuthoringTests
     {
@@ -95,6 +99,83 @@ namespace Wulato.UIKit.Tests.Editor
             var instance=(GameObject)PrefabUtility.InstantiatePrefab(prefab);
             try{PrefabUtility.SaveAsPrefabAsset(instance,Folder+"/Variant.prefab");}finally{UnityEngine.Object.DestroyImmediate(instance);}
             Assert.Throws<ArgumentException>(()=>Call("UIViewAuthoring","Configure",Folder+"/Variant.prefab",MonoScript.FromMonoBehaviour(prefab.GetComponent<CodegenTestView>())));
+        }
+        [TestCase(0)] [TestCase(1)] [TestCase(2)]
+        public void NewTemplatePolicy_AppliesOnlyToNewMarkers(int template)
+        {
+            var path=Folder+"/Template.prefab";var go=new GameObject("Template",typeof(RectTransform),typeof(CodegenTestView));
+            var script=MonoScript.FromMonoBehaviour(go.GetComponent<CodegenTestView>());
+            try{PrefabUtility.SaveAsPrefabAsset(go,path);}finally{UnityEngine.Object.DestroyImmediate(go);}
+            var guid=AssetDatabase.AssetPathToGUID(path);Call("UIViewAuthoring","ConfigureNew",path,script,template);
+            var marker=AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<UIBindingMarker>();
+            Assert.That(marker.layer,Is.EqualTo(template==0?UILayer.Page:UILayer.Modal));Assert.That(marker.multiplicity,Is.EqualTo(template==0?UIMultiplicity.Single:UIMultiplicity.Multi));Assert.That(marker.closePolicy,Is.EqualTo(UIClosePolicy.Release));
+            marker.layer=UILayer.Modal;marker.multiplicity=UIMultiplicity.Single;marker.closePolicy=UIClosePolicy.CacheOne;EditorUtility.SetDirty(marker);AssetDatabase.SaveAssets();
+            Call("UIViewAuthoring","Configure",path,script);Assert.That(AssetDatabase.AssetPathToGUID(path),Is.EqualTo(guid));
+            marker=AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<UIBindingMarker>();Assert.That(marker.closePolicy,Is.EqualTo(UIClosePolicy.CacheOne));Assert.That(marker.multiplicity,Is.EqualTo(UIMultiplicity.Single));
+        }
+        [Test] public void TemplateSources_KeepDialogAndPresenterOptInAndProtectCompanions()
+        {
+            var path=Folder+"/Confirm.txt";Call("UIViewAuthoring","WriteTemplate",path,"Game.UI","Confirm",null,2,false);
+            Assert.That(File.ReadAllText(path),Does.Contain("DialogArguments<ConfirmRequest,bool>").And.Contain("scope.IsCurrent").And.Contain("TrySubmit"));
+            Assert.That(File.Exists(Folder+"/ConfirmPresenter.cs"),Is.False);
+            File.WriteAllText(Folder+"/PagePresenter.cs","// user-owned");
+            Assert.Throws<IOException>(()=>Call("UIViewAuthoring","WriteTemplate",Folder+"/Page.txt","","Page",null,0,true));
+            Assert.That(File.Exists(Folder+"/Page.txt"),Is.False);Assert.That(File.ReadAllText(Folder+"/PagePresenter.cs"),Is.EqualTo("// user-owned"));
+        }
+        [Test] public void SourceSelection_ValidatesBeforeWriteAndSupportsUndo()
+        {
+            var path=Folder+"/Source.prefab";var go=new GameObject("Source",typeof(RectTransform),typeof(CodegenTestView));var script=MonoScript.FromMonoBehaviour(go.GetComponent<CodegenTestView>());
+            try{PrefabUtility.SaveAsPrefabAsset(go,path);}finally{UnityEngine.Object.DestroyImmediate(go);}
+            Call("UIViewAuthoring","Configure",path,script);var before=File.ReadAllBytes(path);var guid=AssetDatabase.AssetPathToGUID(path);
+            Assert.Throws<ArgumentException>(()=>Call("UIAssetSourceAuthoring","Apply",path,2,"","invalid"));Assert.That(File.ReadAllBytes(path),Is.EqualTo(before));
+            Assert.Throws<InvalidOperationException>(()=>Call("UIAssetSourceAuthoring","Apply",path,1,"","missing-entry"));Assert.That(File.ReadAllBytes(path),Is.EqualTo(before));
+            Call("UIAssetSourceAuthoring","Apply",path,2,"business","item");var marker=AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<UIBindingMarker>();Assert.That(marker.externalProviderId,Is.EqualTo("business"));
+            Call("UIAssetSourceAuthoring","Apply",path,0,"ignored","ignored");Assert.That(marker.externalProviderId,Is.Empty);Assert.That(AssetDatabase.AssetPathToGUID(path),Is.EqualTo(guid));
+            Undo.PerformUndo();Assert.That(marker.externalProviderId,Is.EqualTo("business"));
+        }
+        [Test] public void DefaultDriver_UsesEnabledBackendWithoutSdkGuessing()
+        {
+#if ENABLE_INPUT_SYSTEM && ENABLE_LEGACY_INPUT_MANAGER
+            Assert.Throws<InvalidOperationException>(()=>Call("UISceneAuthoring","DefaultDriver"));
+#else
+            Assert.That(Call("UISceneAuthoring","DefaultDriver"),Is.EqualTo(Driver));
+#endif
+        }
+        [Test] public void SceneInitialization_InstallsDefaultHostAtomicallyAndRejectsRegistryConflict()
+        {
+            var root=(UIRoot)Call("UISceneAuthoring","InstallHost",scene,null,registry,null,Driver,null,null);var host=root.GetComponent<UIContextHost>();Assert.That(host,Is.Not.Null);
+            Assert.That(new SerializedObject(host).FindProperty("registry").objectReferenceValue,Is.EqualTo(registry));
+            Assert.That(Call("UISceneAuthoring","InstallHost",scene,root,registry,null,Driver,null,null),Is.SameAs(root));
+            var other=ScriptableObject.CreateInstance<UIRegistry>();try{Assert.Throws<InvalidOperationException>(()=>Call("UISceneAuthoring","InstallHost",scene,root,other,null,Driver,null,null));}finally{UnityEngine.Object.DestroyImmediate(other);}
+            Assert.That(scene.GetRootGameObjects().Length,Is.EqualTo(2));Undo.PerformUndo();Undo.PerformUndo();Assert.That(scene.GetRootGameObjects(),Is.Empty);
+        }
+        [Test] public void HostPresets_AreUndoableAndPreserveOtherSettings()
+        {
+            var root=(UIRoot)Call("UISceneAuthoring","Apply",scene,null,registry,null,Driver);var host=(UIContextHost)Call("UIContextHostAuthoring","Apply",root,registry);
+            var transition=ScriptableObject.CreateInstance<AuthoringTransitionPreset>();var navigation=ScriptableObject.CreateInstance<AuthoringNavigationPreset>();
+            try
+            {
+                var so=new SerializedObject(host);so.FindProperty("settings.loadTimeout").doubleValue=17;so.ApplyModifiedPropertiesWithoutUndo();
+                Call("UIContextHostAuthoring","ApplyPresets",root,registry,transition,navigation);so.Update();
+                Assert.That(so.FindProperty("transitionPreset").objectReferenceValue,Is.EqualTo(transition));Assert.That(so.FindProperty("navigationPreset").objectReferenceValue,Is.EqualTo(navigation));Assert.That(so.FindProperty("settings.loadTimeout").doubleValue,Is.EqualTo(17));
+                Undo.PerformUndo();so.Update();Assert.That(so.FindProperty("transitionPreset").objectReferenceValue,Is.Null);Assert.That(so.FindProperty("settings.loadTimeout").doubleValue,Is.EqualTo(17));
+                Undo.PerformRedo();Call("UIContextHostAuthoring","Apply",root,registry);so.Update();Assert.That(so.FindProperty("transitionPreset").objectReferenceValue,Is.EqualTo(transition));
+            }finally{UnityEngine.Object.DestroyImmediate(transition);UnityEngine.Object.DestroyImmediate(navigation);}
+        }
+        [Test] public void Resume_RejectsUserCreatedPrefabBeforeSavingIt()
+        {
+            var probe=new GameObject("Probe",typeof(RectTransform),typeof(CodegenTestView));var script=MonoScript.FromMonoBehaviour(probe.GetComponent<CodegenTestView>());
+            var path=Folder+"/User.prefab";try{PrefabUtility.SaveAsPrefabAsset(probe,path);}finally{UnityEngine.Object.DestroyImmediate(probe);}
+            var before=File.ReadAllBytes(path);Call("UIAuthoringOperation","Reset");Call("UIAuthoringOperation","TryBegin","view");
+            try
+            {
+                var op=AppDomain.CurrentDomain.GetAssemblies().Select(a=>a.GetType("Wulato.UIKit.Editor.Authoring.UIAuthoringOperation")).First(t=>t!=null);
+                var state=op.GetProperty("Current",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);var type=state.GetType();var source=AssetDatabase.GetAssetPath(script);
+                type.GetField("script").SetValue(state,source);type.GetField("prefab").SetValue(state,path);
+                var pipeline=op.Assembly.GetType("Wulato.UIKit.Editor.UICodegenPipeline");type.GetField("sourceHash").SetValue(state,pipeline.GetMethod("Hash",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{File.ReadAllText(source)}));
+                UnityEngine.TestTools.LogAssert.Expect(LogType.Exception,new System.Text.RegularExpressions.Regex("IOException: Prefab appeared or changed"));
+                Call("UIAuthoringOperation","Advance");Assert.That(Call("UIAuthoringOperation","Describe").ToString(),Does.StartWith("失败"));Assert.That(File.ReadAllBytes(path),Is.EqualTo(before));
+            }finally{Call("UIAuthoringOperation","Reset");}
         }
         [Test] public void SampleDirectoryResolution_RequiresExplicitChoiceWhenAmbiguous()
         {

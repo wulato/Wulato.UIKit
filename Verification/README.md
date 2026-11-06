@@ -295,3 +295,9 @@ python3 Tools/Verification/run.py prepare-samples --editor all --backend all --q
 `fancy-list` 为七例 PlayMode，只在 `WULATO_UIKIT_FANCY_SCROLL` 启用时进入适用集合；显式请求缺 SDK/示例应失败，不计跳过。`controls-input` 为真实 ScrollRect / Modal 的输入专项，分别 legacy / input，各一个必需用例，不要求 Fancy SDK。两者均使用原始 XML、当前指纹、每例 trace 与 index/hash 验收。
 
 SDK 安装另行授权：`python3 Tools/Verification/fancy_sdk.py --archive <官方v1.9.0归档> --host Artifacts/uikit/ci-selected/hosts/<任务>/u2022-legacy`；固定 SHA，仅复制原样 Runtime 到忽略宿主，无下载/全局安装，`--disabled` 关闭符号保留 SDK。先 prepare 稳定导入/自动 meta，再从根目录调用 `run.py tests --editor 2022.3.62f2 --backend legacy --mode PlayMode --suite fancy-list --host-root <任务宿主根>`。验证无 SDK/已装但关闭/启用三组合的 package-install。局部性能 trace 只用于该 Editor 跳转测量，不代替 Player/移动性能回归。
+
+## Workbench 4.1 专项
+
+新模板在既有 codegen 夹具中使用实际 UIViewAuthoring.WriteTemplate / ConfigureNew，跨三种业务程序集编译 Page、Modal、Dialog 与可选 Presenter，并经历重复生成及目录/程序集重命名；不只比较模板字符串。`authoring` 验证新策略仅作用于新 Marker、来源预检/Undo、驱动选择、一键 Host、Preset/Settings 保留及等待期间资产冲突保护。`editor` / `generated-integration` 保留原文件所有权、指纹、路由及运行时回归。
+
+按批准范围选择 Unity 2022.3.62f2 的 legacy / input 两配置运行上述专项。独立 QuickStart 仍使用 `prepare-samples --quickstart-only` 跨八次 Editor 重启与重复配置，自动跑并复核 `quickstart-only` 原始证据。改动 Addressables Editor 预检时，另在已装 SDK 的宿主验证 `addressables` EditMode；按现有 `prepare --phase addressables` 准备稳定设置和真实本地内容，Bundle 构建不等于 Player 构建。不扩展全部 Suite、其他版本、Reload 或移动门禁。

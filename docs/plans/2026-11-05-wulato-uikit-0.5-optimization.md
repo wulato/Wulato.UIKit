@@ -887,10 +887,45 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 - [x] 记录局部测量：384 高度 6 Cell，768 高度 12 Cell；300 次同步跳转 6.4231ms，GC.GetTotalMemory(false) 前后差 +352256 字节。仅该机器/Editor 的函数调用测量，不含帧渲染/网络，不代表分配总量、零 GC 或 Player 帧预算，不设跨机器阈值。
 - [x] 无生产 Runtime/Editor/API、必需依赖、版本、已有资产 GUID、ProjectSettings 或 MC 变更；新增 Prefab 限于 Samples~/FancyScrollView，SDK viewport 正常序列化绑定。UI Extensions 仅接入指南，未安装/编译，不宣称兼容性验收。SDK/原始证据/临时生成器不提交，临时生成器已从宿主移除。
 - [x] 实现提交 `79a05650ad4a33f10004a5e4f405094e84516f0a` 已推送，创建 [任务 3.3 PR #12](https://github.com/wulato/Wulato.UIKit/pull/12)（main ← feat/uikit-0.5-fancy-scroll-sample）。
-- [ ] 等待用户确认合并 PR #12；不启动 4.1。
+- [x] 用户确认后正常合并 PR #12；main=`2eb77520321671487e065cd65a3e11f742350217`，从更新 main 开始 4.1。
 
 命令及全部退出码/日志：`Artifacts/uikit/phase3-3/final-commands.sh`、`input-legacy-repair1.log`、`python-final.log`、`verify-final.py`。最终原始证据：fancy-list `20261106T054912398608-tests-f43e48`；controls-input Legacy `20261106T054736767542-tests-4b2cd2`、Input `20261106T055029129211-tests-e2129c`；package-install 无/关闭/启用 SDK `20261106T055039762358-tests-0224aa`、`20261106T055049922780-tests-887840`、`20261106T055100032695-tests-245be5`。prepare 及原始失败保留在本地，均不作为额外通过计数；无同原因超过两轮修复。
 
 所有宿主未安装 DOTween/R3/Addressables，只有 Input 宿主安装 Input System 1.17.0。未运行 suite all、其他编辑器、Both 输入、Reload、远端 CI、Player/IL2CPP、真机或移动性能。回退整项 revert 示例/指南/专项，继续原 ScrollRect，不卸载用户 SDK；不扩展后续 Workbench 或高级列表范围。
 
 L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 YAML 字段保留行尾空格，首次 staged diff-check 因此退出2、未提交。保留引擎序列化原样，逐行确认仅 m_Name/m_EditorClassIdentifier/userData/assetBundleName/assetBundleVariant 的空值字段；这三份资产仅豁免 blank-at-eol，其余 diff-check 项及其他文件全部正常检查。无生产输入变化、无行为测试断言或证据校验放宽。
+
+
+### 4.1 执行记录（2026-11-06）
+
+- PR #12 固定 head `87b591fd3e1bf0c339a7a9b23400a3b735257d75` / CLEAN 后按用户确认普通合并。基线 `2eb77520321671487e065cd65a3e11f742350217`，分支 `feat/uikit-0.5-authoring-templates`；复用当前干净 worktree，无子代理/新增工作区。
+- smart-development STANDARD / L2 + executing-plans，沿用现有 Workbench、续跑、生成与业务 asmref 路由，不新建编辑器/生命周期，不改 Runtime 或强制 MVC/MVP/MVVM。
+- 新模板：Page Single/Release，Modal/Dialog Multi/Release，Dialog 自带独立 Request/bool 与当前 Session Submit/Cancel；Presenter/Factory 是可选用户文件，不自动注册或拥有业务 Model。Factory 示例为单 View，业务可自行在统一 Factory 分派多个 View，不重复装配 Observer。旧 Configure 保留现有 Marker 策略。
+- 续跑保存 View/Presenter 内容 hash 与创建后 Prefab GUID/hash；等待期间用户改源码或创建/修改目标资产则明确失败保留文件，不覆盖。来源选择 Direct / Addressables / 自定义，Addressables 调用主包内可选 SDK Editor 预检，校验后才保存 Marker，保留 GUID / Undo / 业务策略，不创建 SDK 设置或条目。
+- 一键场景/Host：输入依据启用后端，Both 要求明确选择；先处理 Root / EventSystem / Host Registry 归属冲突，再统一 Undo，保留 Host Settings，可显式选择已有 Preset；不安装 SDK或修改 ProjectSettings。
+- 首轮无 SDK Legacy prepare / authoring 40 项 PASS：`20261106T060700661220-prepare-c82276`、`20261106T060738414714-tests-b214ec`。后续补充 Preset/Settings 专项，旧输入不作为最终验收。
+- 真实 codegen 首轮模板实际编译、生成、写回、重复校验 PASS；07-reroute 发现新增验收夹具硬编码业务旧目录，`20261106T061051267663-codegen-388897`。改为按 MonoScript 实际路径定位（同原因1轮），`20261106T061331128366-codegen-1e184d` 九阶段全部 PASS，覆盖原业务程序集（含 autoReferenced=false）、Presenter、Dialog 注册、目录/程序集重命名，生产路由未修改。
+- 验证范围固定：两输入 authoring/editor/generated-integration/独立 quickstart-only；Input 宿主另有现有 Unity Addressables 1.21.21 / SBP 1.21.25 验证受影响 Editor 预检（含有效条目和失败不落盘）。源输入稳定后集中执行，不跑 suite all / 额外编辑器 / Reload / Player。
+- 相关八个 Python 模块 90 项 PASS，原始 `Artifacts/uikit/phase4-1/python-final.log`；完整命令/退出码与进行中输出 `final-commands.sh`、`final-batch.log`。最终证据如下，等待用户审核交付 PR。
+
+
+4.1 最终验收（Unity 2022.3.62f2）：
+
+| 环境 | 实际专项 | 结果 |
+| --- | --- | --- |
+| Legacy，无可选 SDK | authoring 41 / editor 17 / generated-integration 3 | 61/61 PASS |
+| Input System 1.17.0 + Addressables 1.21.21 / SBP 1.21.25 | authoring 41 / editor 17 / generated-integration 3 / addressables 5 | 66/66 PASS |
+| 两个独立、仅导入 QuickStart 的干净消费者 | 八阶段续跑/重复配置每后端各一轮；quickstart-only 各1 | 2/2 PASS；无 Modals/Inventory 程序集 |
+
+- [x] 合计九组 129/129 Unity 用例 PASS；相关 Python 八模块 90/90 PASS。每后端的 authoring 必需集合30项之外，原命令还匹配已有 Preview authoring 7项、Host duration 参数化4项；最终按明确的41项实际集合核对，未将这些 Editor 用例扩大为4.2预览验收。
+- [x] 两输入各九阶段 codegen PASS，包含三个实际新模板与 Presenter 在各自原业务程序集中的编译、Dialog注册、重复生成无差异、目录/程序集重命名及用户文件保护。追加当前输入的 check-generated 两配置只读 PASS，重新执行模板编译/注册断言并验证指纹不变。未因之后仅验收夹具计数修正而重复整套九阶段。
+- [x] 独立 QuickStart 两后端各八次准备阶段 PASS；重复配置前后指纹相同，生成/编译/写回由既有 Workbench Operation 完成，真实 PlayMode 两例与原始证据复核 PASS。主宿主 SDK 本地 Bundle prepare/current content hash 通过；只证明 Editor 本地内容，不代表 Player 构建。
+- [x] [verification.json](../../Artifacts/uikit/phase4-1/verification.json) PASS：当前 Snapshot/指纹、实际及必需用例集合、原始 XML/逐例 trace、run/batch/index/hash、九阶段原始文件hash、当前只读模板状态及独立消费者幂等性。原始日志/退出码/命令见 `Artifacts/uikit/phase4-1/` 的 `final-commands.sh`、`remaining-commands.sh`、`verify-final.py` 和逐条输出。
+- [x] 集中自审：基础 Runtime、必需依赖、版本、场景/Prefab、已有资产 GUID、ProjectSettings、MC 均无变更；仅扩展现有 Editor 工作流、文档与直接专项。SDK 缺席的基础 Editor 无 SDK 程序集引用，Preset 使用已有基础抽象。撤回工具不删除已创建用户文件。
+- [ ] 提交并创建任务 PR，等待用户确认合并；不开始 4.2。
+
+失败及修复：首次 editor 17例中16 PASS，旧断言仍要求3个 Codegen Prefab，实际已包含3个原夹具和3个模板，`20261106T061912087195-tests-7cf1e2`。改为六个具体名称的严格集合（不删除原夹具、不放宽为最小数量），一次修复后 `20261106T062136541338-tests-151f51` 17/17 PASS；其余相关专项在最终输入上运行。此后未修改生产源或模板。首个聚合审计脚本把authoring最低必需集合误当完整集合、且只读校验使用相对路径算hash：按已观察的明确11项既有附加用例及 Snapshot 绝对宿主路径修正一次后 PASS，原始证据、runner/evidence 校验器均未修改。
+
+最终原始索引：Legacy authoring `20261106T062311037854-tests-a2d0b2`、editor `20261106T062136541338-tests-151f51`、generated `20261106T062325549785-tests-232257`；Input authoring `20261106T062337257556-tests-b508be`、editor `20261106T062350657867-tests-a9252b`、generated `20261106T062400634541-tests-f7315d`、addressables `20261106T062410736357-tests-c6ecf6`；只读生成 `20261106T062420863756-check-generated-d7063c`；Input九阶段 `20261106T061717076257-codegen-19153f`；SDK内容准备 `20261106T061846342919-prepare-3f01ec`；独立消费者 `20261106T062438085496-quickstart-consumers-6080db`，其测试 `20261106T062646736928-tests-28a3fd`。均为本地忽略材料，不冒充远端 artifact。
+
+未运行全 Suite、其他编辑器、Both 专门组合、Preview/runtime/context-host 全专项或独立 Reload 矩阵、远端 CI、Player/IL2CPP、真机。4.1 没有改运行时生命周期、预览流程或静态重置；对应4.2/发布门禁保留。回退整项 revert 工具/专项，不自动更改已生成用户模板；新建策略与现有手工策略的区别见 Authoring-0.5 / Migration-0.5。

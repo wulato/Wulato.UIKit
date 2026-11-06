@@ -43,6 +43,14 @@ namespace Wulato.UIKit.AddressablesTests.Editor
         [Test] public void ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings()
         {
             Register();var count=settings.groups.Count;
+            marker.externalProviderId="";marker.externalAssetId="";EditorUtility.SetDirty(marker);AssetDatabase.SaveAssetIfDirty(marker);
+            AddressablesUIValidator.ValidateSource(prefab,"validation/probe");Assert.That(marker.externalProviderId,Is.Empty,"Preflight must be read-only.");
+            var coreEditor=AppDomain.CurrentDomain.GetAssemblies().Single(a=>a.GetName().Name=="Wulato.UIKit.Editor");
+            var apply=coreEditor.GetType("Wulato.UIKit.Editor.Authoring.UIAssetSourceAuthoring",true).GetMethod("Apply",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.Public);
+            apply.Invoke(null,new object[]{AssetDatabase.GetAssetPath(prefab),1,"","validation/probe"});Assert.That(marker.externalProviderId,Is.EqualTo("addressables"));
+            var bytes=File.ReadAllBytes(AssetDatabase.GetAssetPath(prefab));
+            Assert.That(Assert.Throws<System.Reflection.TargetInvocationException>(()=>apply.Invoke(null,new object[]{AssetDatabase.GetAssetPath(prefab),1,"","wrong"})).InnerException,Is.TypeOf<InvalidOperationException>());
+            Assert.That(File.ReadAllBytes(AssetDatabase.GetAssetPath(prefab)),Is.EqualTo(bytes));
             AddressablesUIValidator.ValidatePrefab(prefab);marker.externalAssetId=guid;AddressablesUIValidator.ValidatePrefab(prefab);
             Assert.That(settings.groups.Count,Is.EqualTo(count));Assert.That(settings.FindAssetEntry(guid).address,Is.EqualTo("validation/probe"));
         }

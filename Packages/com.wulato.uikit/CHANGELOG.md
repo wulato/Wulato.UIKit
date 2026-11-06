@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 0.5 tasks 1.1–3.3
+## Unreleased — 0.5 tasks 1.1–4.1
 
 - Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
 - Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
@@ -12,6 +12,7 @@
 - Add SDK-independent Host preset factories and an opt-in DOTween 1.3.045 adapter/sample with Fade/Scale/Slide and paired sequences. Remove UITransitionRunner; retain the custom transition contracts and SDK-free Immediate default.
 - Add an optional R3 1.3.1 Counter sample using native uGUI helpers and Session.Track; keep business model ownership external and guard queued notifications after main-thread dispatch. No core R3 dependency or binding API.
 - Add an optional FancyScrollView 1.9.0 fixed-size catalog sample with native pooling/Scroller, per-cell cancellation and session/ticket guards. Document direct control integration boundaries.
+- Extend Workbench with Page/Modal/Dialog and optional Presenter templates, guarded source selection, explicit input selection and atomic scene/Host initialization with existing presets. Preserve existing policies, user partials and assembly routes.
 - See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
 
 ## 0.4.0

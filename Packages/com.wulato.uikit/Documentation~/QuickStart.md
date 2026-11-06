@@ -82,3 +82,5 @@ Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Di
 需要响应式状态时，可选导入 [R3 Session Binding](Integrations/R3.md)；每次打开的订阅由 Session.Track 管理，业务持有 Model。简单界面无需引入 R3。
 
 大数据固定尺寸列表可选导入 FancyScrollView Catalog；普通列表继续使用 ScrollRect。安装、输入与资源边界见 [Controls](Integrations/Controls.md)。
+
+0.5 Workbench 可创建 Page / Modal / Dialog 与可选 Presenter，配置 Prefab / Addressables 来源，并一键安装默认 Host。详见 [模板与初始化](Authoring-0.5.md)。

@@ -557,7 +557,16 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
-          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(0)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(1)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(2)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TemplateSources_KeepDialogAndPresenterOptInAndProtectCompanions",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SourceSelection_ValidatesBeforeWriteAndSupportsUndo",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DefaultDriver_UsesEnabledBackendWithoutSdkGuessing",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneInitialization_InstallsDefaultHostAtomicallyAndRejectsRegistryConflict",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Resume_RejectsUserCreatedPrefabBeforeSavingIt",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.HostPresets_AreUndoableAndPreserveOtherSettings"
         ],
         "preview-authoring": [
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
@@ -1135,7 +1144,16 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
-          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(0)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(1)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(2)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TemplateSources_KeepDialogAndPresenterOptInAndProtectCompanions",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SourceSelection_ValidatesBeforeWriteAndSupportsUndo",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DefaultDriver_UsesEnabledBackendWithoutSdkGuessing",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneInitialization_InstallsDefaultHostAtomicallyAndRejectsRegistryConflict",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Resume_RejectsUserCreatedPrefabBeforeSavingIt",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.HostPresets_AreUndoableAndPreserveOtherSettings"
         ],
         "preview-authoring": [
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
@@ -1707,7 +1725,16 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
-          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(0)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(1)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(2)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TemplateSources_KeepDialogAndPresenterOptInAndProtectCompanions",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SourceSelection_ValidatesBeforeWriteAndSupportsUndo",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DefaultDriver_UsesEnabledBackendWithoutSdkGuessing",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneInitialization_InstallsDefaultHostAtomicallyAndRejectsRegistryConflict",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Resume_RejectsUserCreatedPrefabBeforeSavingIt",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.HostPresets_AreUndoableAndPreserveOtherSettings"
         ],
         "preview-authoring": [
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",
@@ -2285,7 +2312,16 @@
           "Wulato.UIKit.Tests.Editor.AuthoringTests.CompilerFailure_PreservesSampleTargetForRetry",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.SamplePreviewCamera_IsIdempotentAndPreservesAuthoredCamera",
           "Wulato.UIKit.Tests.Editor.AuthoringTests.WorkbenchPrefabSelection_BackfillsScriptAndClearsStaleSelection",
-          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner"
+          "Wulato.UIKit.Tests.Editor.ContextHostAuthoringTests.HostInstallation_IsUndoable_AndRejectsAnotherOwner",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(0)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(1)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.NewTemplatePolicy_AppliesOnlyToNewMarkers(2)",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.TemplateSources_KeepDialogAndPresenterOptInAndProtectCompanions",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SourceSelection_ValidatesBeforeWriteAndSupportsUndo",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.DefaultDriver_UsesEnabledBackendWithoutSdkGuessing",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.SceneInitialization_InstallsDefaultHostAtomicallyAndRejectsRegistryConflict",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.Resume_RejectsUserCreatedPrefabBeforeSavingIt",
+          "Wulato.UIKit.Tests.Editor.AuthoringTests.HostPresets_AreUndoableAndPreserveOtherSettings"
         ],
         "preview-authoring": [
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Profile_RejectsMissingRegistry_WithoutMutatingScene",

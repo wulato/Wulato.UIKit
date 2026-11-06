@@ -17,6 +17,18 @@ namespace Wulato.UIKit.Acceptance.Editor
             Debug.Log("UIKIT_CODEGEN_OK");
         }
         static MonoScript Script(string name)=>AssetDatabase.FindAssets(name+" t:MonoScript",new[]{Folder}).Select(AssetDatabase.GUIDToAssetPath).Where(p=>Path.GetFileName(p)==name+".cs").Select(AssetDatabase.LoadAssetAtPath<MonoScript>).Single();
+        static object Author(string service,string method,params object[] args)
+        {
+            var type=typeof(UICodegenPipeline).Assembly.GetType("Wulato.UIKit.Editor.Authoring."+service,true);
+            try{return type.GetMethod(method,BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.Static).Invoke(null,args);}
+            catch(TargetInvocationException error){throw error.InnerException;}
+        }
+        static string TemplatePath(int template)
+        {
+            var relative=new[]{"A/TemplatePage","B/TemplateModal","Default/TemplateDialog"}[template];var name=Path.GetFileName(relative);
+            var script=AssetDatabase.FindAssets(name+" t:MonoScript",new[]{Folder}).Select(AssetDatabase.GUIDToAssetPath).SingleOrDefault(p=>Path.GetFileName(p)==name+".cs");
+            return script==null?Folder+"/"+relative:Path.ChangeExtension(script,null);
+        }
         public static void Prepare()
         {
             foreach(var name in new[]{"ViewA","ViewB","DefaultView"})
@@ -51,13 +63,40 @@ namespace Wulato.UIKit.Acceptance.Editor
                 }
                 finally {UnityEngine.Object.DestroyImmediate(instance);}
             }
+            for(int i=0;i<3;i++)
+            {
+                var path=TemplatePath(i)+".cs";
+                if(!File.Exists(path))Author("UIViewAuthoring","WriteTemplate",path,i==0?"Codegen.A":i==1?"Codegen.B":"",Path.GetFileNameWithoutExtension(path),null,i,true);
+            }
             ReportChecks("FixtureBaseCompilation");
         }
-        public static void Generate(){UICodegenPipeline.Generate();ReportChecks("GenerationRequested");}
+        public static void Generate()
+        {
+            for(int i=0;i<3;i++)
+            {
+                var path=TemplatePath(i)+".prefab";
+                if(!File.Exists(path))
+                {
+                    Author("UIViewAuthoring","CreatePrefab",path);
+                    Author("UIViewAuthoring","ConfigureNew",path,AssetDatabase.LoadAssetAtPath<MonoScript>(TemplatePath(i)+".cs"),i);
+                }
+            }
+            UICodegenPipeline.Generate();ReportChecks("GenerationRequested");
+        }
         public static void Complete(){UICodegenPipeline.Complete();UICodegenPipeline.Validate();ReportChecks("BindingsPartial_CompilesInOriginalAssembly","SerializedBindings_NonNull");}
         public static void Verify()
         {
             UICodegenPipeline.Validate();
+            for(int i=0;i<3;i++)
+            {
+                var script=AssetDatabase.LoadAssetAtPath<MonoScript>(TemplatePath(i)+".cs");var type=script.GetClass();
+                if(type==null||type.Assembly.GetName().Name!=UIBindingAssemblyRouter.Resolve(TemplatePath(i)+".cs").Assembly)throw new InvalidOperationException("Template left its business assembly.");
+                var presenter=type.Assembly.GetType(string.IsNullOrEmpty(type.Namespace)?type.Name+"Presenter":type.Namespace+"."+type.Name+"Presenter",true);
+                if(!typeof(Wulato.UIKit.Presentation.IUIPresenter).IsAssignableFrom(presenter))throw new InvalidOperationException("Presenter template did not compile.");
+                var entry=AssetDatabase.LoadAssetAtPath<UIRegistry>(UICodegenPipeline.RegistryPath).CopyValidated().Entries.Single(e=>e.ViewType==type);
+                if(entry.Layer!=(i==0?UILayer.Page:UILayer.Modal)||entry.Multiplicity!=(i==0?UIMultiplicity.Single:UIMultiplicity.Multi)||entry.ClosePolicy!=UIClosePolicy.Release)throw new InvalidOperationException("Template registration policy mismatch.");
+                if(i==2&&type.BaseType.GetGenericArguments()[0].GetGenericTypeDefinition()!=typeof(Wulato.UIKit.Dialogs.DialogArguments<,>))throw new InvalidOperationException("Dialog request mapping missing.");
+            }
             foreach(var name in new[]{"ViewA","ViewB","DefaultView"})
             {
                 var type=Script(name).GetClass();var route=UIBindingAssemblyRouter.Resolve(AssetDatabase.GetAssetPath(Script(name)));
