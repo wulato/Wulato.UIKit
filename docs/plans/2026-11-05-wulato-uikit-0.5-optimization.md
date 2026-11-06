@@ -989,7 +989,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 
 - [x] 合计10组30/30 Unity 用例 PASS，零跳过/零缺失；[verification.json](../../Artifacts/uikit/phase5-1/verification.json) 为 PASS。`verify-final.py` 逐组执行现有 evidence.verify(acceptance=True)，核对当前绝对宿主 snapshot/指纹、命令/索引/hash、原始 XML/逐例 trace、所有实际用例和官方 SDK 源码及实际依赖闭包。原始命令/退出码见 `Artifacts/uikit/phase5-1/final-commands.json`、`*-final.log`、`*-final.exit`、Python和verify输出。均为本地忽略材料，不冒充远端 artifact。
 - [x] 集中审查差异、元文件/GUID、主包必需依赖、两个可选 asmdef 与生命周期所有权；`git diff --check` PASS。远端 main 仍为本次基线，目标远端分支不存在。
-- [ ] 提交本任务并创建 PR，等待用户审核合并；不开始6.1。
+- [x] 实现提交 `2c564f3` 已推送，创建 [任务5.1 PR #15](https://github.com/wulato/Wulato.UIKit/pull/15)（main ← feat/uikit-0.5-localization-focus-guides）。
+- [ ] 等待用户确认合并 PR #15；不开始6.1。
 
 失败与修复记录（均未删除测试或放宽 runner/生产断言，同因最多一次修复）：初次 prepare 的测试限定名误写为 UnityEngine.UnityEngine，修复1轮；SDK宿主脚本误定位第一个 Standalone 字段，限定到 scriptingDefineSymbols，并加包含其他 Standalone 字段的回归，修复1轮；测试数据库误当 ScriptableObject 创建，按真实 SDK 普通类型修复1轮；测试 UIRoot 未设 Overlay，按既有夹具修复1轮。SDK首次解析更新 packages-lock、Input首次导入生成样例父目录meta，各轮用例通过但 runner 正确拒绝输入变化，稳定后各补跑1轮。原始失败分别保留 `20261106T075019627733-prepare-e5ae4c`、`20261106T075507489771-tests-3885a2`、`20261106T075627436229-tests-51a6ba`、`20261106T075711618560-tests-717ac3`、`20261106T075435300257-tests-c5beaf`、`20261106T080011929785-tests-00057d`（以各 pilot/repair 日志中 EVIDENCE 为准）。聚合审计初将 SDK package.json 的 Newtonsoft3.0.2 要求误当实际解析版本，检查两份 lock 与官方包依赖后按实际 registry3.2.1核对；未改 lock/runner，无需重跑 Unity。Python首次模块调用路径及退出码脚本使用 zsh只读变量各作一次调用修正；最终保留正确退出码0与93项证据。没有未解决失败，原有历史失败计数继续保留。
 
