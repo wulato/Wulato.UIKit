@@ -10,7 +10,8 @@ namespace Wulato.UIKit.Editor.Authoring
     [Serializable] internal sealed class UIAuthoringState
     {
         public string status="空闲",kind,stage,error,asset,script,prefab,sampleName,sampleDirectory,driver;
-        public int phase;
+        public int phase,template=-1;
+        public string sourceHash,presenterHash,prefabGuid,prefabHash;
         public SceneSetup[] scenes;
     }
     [InitializeOnLoad]
@@ -48,11 +49,21 @@ namespace Wulato.UIKit.Editor.Authoring
         internal static void ObserveWriteback(){if(state.kind=="generate"&&Busy)Finish();}
         internal static void Create(string script,string prefab,string ns,string name,Type args)
         {
+            BeginCreate(script,prefab,ns,name,args,-1,false);
+        }
+        internal static void CreateTemplate(string script,string prefab,string ns,string name,Type args,int template,bool presenter)
+            =>BeginCreate(script,prefab,ns,name,args,template,presenter);
+        static void BeginCreate(string script,string prefab,string ns,string name,Type args,int template,bool presenter)
+        {
             if(Busy)throw new InvalidOperationException("请等待当前操作完成或取消。");
             UIViewAuthoring.ValidateNames(ns,name);
+            if(!prefab.StartsWith("Assets/",StringComparison.Ordinal)||prefab.Split('/').ContainsDotDot()||!prefab.EndsWith(".prefab",StringComparison.Ordinal))throw new ArgumentException("Prefab 必须位于 Assets 下。");
             if(File.Exists(script)||File.Exists(prefab))throw new IOException("目标脚本或 Prefab 已存在；已有资产请使用已有模式。");
-            UIViewAuthoring.WriteSource(script,ns,name,args);
-            TryBegin("view");state.script=script;state.prefab=prefab;state.phase=0;state.status="等待编译";Save();AssetDatabase.Refresh();
+            if(template<0)UIViewAuthoring.WriteSource(script,ns,name,args);else UIViewAuthoring.WriteTemplate(script,ns,name,args,template,presenter);
+            TryBegin("view");state.script=script;state.prefab=prefab;state.template=template;
+            state.sourceHash=UICodegenPipeline.Hash(File.ReadAllText(script));
+            if(presenter)state.presenterHash=UICodegenPipeline.Hash(File.ReadAllText(Path.Combine(Path.GetDirectoryName(script),name+"Presenter.cs")));
+            state.phase=0;state.status="等待编译";Save();AssetDatabase.Refresh();
         }
         internal static void Configure(string prefab,MonoScript script)
         {
@@ -109,8 +120,22 @@ namespace Wulato.UIKit.Editor.Authoring
                 {
                     state.stage="create-prefab";var script=AssetDatabase.LoadAssetAtPath<MonoScript>(state.script);
                     if(script==null||script.GetClass()==null){state.status="等待编译";Save();return;}
-                    if(!File.Exists(state.prefab))UIViewAuthoring.CreatePrefab(state.prefab);
-                    UIViewAuthoring.Configure(state.prefab,script);state.phase=1;Save();
+                    if(string.IsNullOrEmpty(state.sourceHash)||!File.Exists(state.script)||UICodegenPipeline.Hash(File.ReadAllText(state.script))!=state.sourceHash)throw new IOException("View source changed while waiting; preserve it and configure as an existing asset.");
+                    if(!string.IsNullOrEmpty(state.presenterHash))
+                    {
+                        var companion=Path.Combine(Path.GetDirectoryName(state.script),Path.GetFileNameWithoutExtension(state.script)+"Presenter.cs");
+                        if(!File.Exists(companion)||UICodegenPipeline.Hash(File.ReadAllText(companion))!=state.presenterHash)throw new IOException("Presenter source changed while waiting; preserve user edits.");
+                    }
+                    if(File.Exists(state.prefab))
+                    {
+                        if(string.IsNullOrEmpty(state.prefabGuid)||AssetDatabase.AssetPathToGUID(state.prefab)!=state.prefabGuid||UICodegenPipeline.Hash(File.ReadAllText(state.prefab))!=state.prefabHash)throw new IOException("Prefab appeared or changed while waiting; refusing to overwrite it.");
+                    }
+                    else
+                    {
+                        UIViewAuthoring.CreatePrefab(state.prefab);state.prefabGuid=AssetDatabase.AssetPathToGUID(state.prefab);state.prefabHash=UICodegenPipeline.Hash(File.ReadAllText(state.prefab));Save();
+                    }
+                    if(state.template<0)UIViewAuthoring.Configure(state.prefab,script);else UIViewAuthoring.ConfigureNew(state.prefab,script,state.template);
+                    state.phase=1;Save();
                 }
                 if(state.phase<=1)
                 {

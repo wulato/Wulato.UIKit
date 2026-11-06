@@ -43,7 +43,8 @@ namespace Wulato.UIKit.Tests.Editor
                     Assert.That(new SerializedObject(view).FindProperty(field).objectReferenceValue,Is.EqualTo(binding.FindPropertyRelative("target").objectReferenceValue),prefab+" / "+field);
                 }
             }
-            Assert.That(manifest.prefabs.Count(p=>p.StartsWith("Assets/UIKitCodegenFixture/",StringComparison.Ordinal)),Is.EqualTo(3));
+            CollectionAssert.AreEquivalent(new[]{"ViewA","ViewB","DefaultView","TemplatePage","TemplateModal","TemplateDialog"},
+                manifest.prefabs.Where(p=>p.StartsWith("Assets/UIKitCodegenFixture/",StringComparison.Ordinal)).Select(Path.GetFileNameWithoutExtension),"Every original and Workbench template fixture must be generated exactly once.");
         }
         [Serializable] class FileEntry { public string path; }
         [Serializable] class Manifest { public string[] prefabs;public FileEntry[] files; }

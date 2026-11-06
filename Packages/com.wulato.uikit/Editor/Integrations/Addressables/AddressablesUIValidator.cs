@@ -15,12 +15,18 @@ namespace Wulato.UIKit.Editor
         /// <summary>Validate a marker against the host's existing local Addressables settings.</summary>
         public static void ValidatePrefab(GameObject prefab)
         {
-            var path=AssetDatabase.GetAssetPath(prefab);
-            void Fail(string message) => throw new InvalidOperationException(path+": "+message);
             if(!prefab)throw new ArgumentNullException(nameof(prefab));
             var marker=prefab.GetComponent<UIBindingMarker>();
             if(!marker || !marker.includeInRegistry || marker.externalProviderId!="addressables")return;
-            if(string.IsNullOrWhiteSpace(marker.externalAssetId))Fail("Addressables identifier is required.");
+            ValidateSource(prefab,marker.externalAssetId);
+        }
+        /// <summary>Preflight a proposed source without changing the existing marker or SDK entry.</summary>
+        public static void ValidateSource(GameObject prefab,string id)
+        {
+            if(!prefab)throw new ArgumentNullException(nameof(prefab));
+            var path=AssetDatabase.GetAssetPath(prefab);
+            void Fail(string message) => throw new InvalidOperationException(path+": "+message);
+            if(string.IsNullOrWhiteSpace(id))Fail("Addressables identifier is required.");
             var views=prefab.GetComponents<UIViewBase>();
             if(!prefab.activeSelf || !(prefab.transform is RectTransform) || views.Length!=1 || !views[0].enabled)
                 Fail("Addressable Prefab requires an active RectTransform root and one enabled UIView.");
@@ -31,7 +37,6 @@ namespace Wulato.UIKit.Editor
             if(entry==null || !entry.parentGroup)Fail("Prefab must be an explicit Addressables entry.");
             var schema=entry.parentGroup.GetSchema<BundledAssetGroupSchema>();
             if(!schema || !schema.IncludeInBuild)Fail("Prefab must be included in an AssetBundle group.");
-            var id=marker.externalAssetId;
             if(string.Equals(id,guid,StringComparison.Ordinal))
             {
                 if(!schema.IncludeGUIDInCatalog)Fail("Enable Include GUIDs in Catalog for a GUID registration.");

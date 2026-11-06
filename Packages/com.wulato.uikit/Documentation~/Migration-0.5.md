@@ -72,3 +72,7 @@ Popup 只接受非 Page，避免队列意外改变导航根。等待取消移除
 ## R3 示例（3.2）
 
 无核心 API Breaking Changes。可选导入 R3 Session Binding，按 [R3 集成文档](Integrations/R3.md) 安装 SDK 并显式启用符号。订阅从 GameObject 生命周期移到每次 Session.Track；业务继续持有并释放 Model。
+
+## Workbench（4.1）
+
+新模板 Page 使用 Single/Release，Modal/Dialog 使用 Multi/Release；已有资产不自动迁移。新增 Dialog/可选 Presenter 源码是用户所有文件，撤回工具不删除它们。来源、输入和 Host 初始化见 [Authoring-0.5](Authoring-0.5.md)。

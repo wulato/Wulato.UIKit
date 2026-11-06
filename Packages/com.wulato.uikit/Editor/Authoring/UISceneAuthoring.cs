@@ -9,12 +9,44 @@ namespace Wulato.UIKit.Editor.Authoring
 {
     internal static class UISceneAuthoring
     {
+        public static Type DefaultDriver()
+        {
+#if ENABLE_INPUT_SYSTEM && ENABLE_LEGACY_INPUT_MANAGER
+            throw new InvalidOperationException("Both 输入配置必须明确选择 Legacy 或 Input System。");
+#elif ENABLE_INPUT_SYSTEM
+            return Type.GetType("Wulato.UIKit.InputSystem.InputSystemUIInputDriver, Wulato.UIKit.InputSystem",true);
+#else
+            return typeof(LegacyUIInputDriver);
+#endif
+        }
+        public static UIRoot InstallHost(Scene scene,UIRoot root,UIRegistry registry,EventSystem events,Type driver,UITransitionPreset transition,UINavigationTransitionPreset navigation)
+        {
+            if(!scene.IsValid()||!scene.isLoaded)throw new ArgumentException("请选择已加载场景。");
+            if(!root)
+            {
+                var roots=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<UIRoot>(true)).ToArray();
+                if(roots.Length>1)throw new InvalidOperationException("存在多个 UIRoot，请明确选择。");
+                root=roots.SingleOrDefault();
+            }
+            if(root)UIContextHostAuthoring.Validate(root,registry);
+            Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("Initialize UIKit scene and Host");
+            try
+            {
+                root=Apply(scene,root,registry,events,driver);
+                UIContextHostAuthoring.ApplyPresets(root,registry,transition,navigation);
+                Undo.CollapseUndoOperations(group);return root;
+            }
+            catch{Undo.RevertAllDownToGroup(group);throw;}
+        }
         public static void ValidateDriver(Type driver)
         {
             if(driver==null||driver.IsAbstract||driver.ContainsGenericParameters||!typeof(BaseInputModule).IsAssignableFrom(driver)||!typeof(IUIInputDriver).IsAssignableFrom(driver))
                 throw new ArgumentException("请选择实现 IUIInputDriver 的具体 BaseInputModule 脚本。");
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
             if(typeof(LegacyUIInputDriver).IsAssignableFrom(driver))throw new ArgumentException("当前项目仅启用 Input System，请明确选择已安装的 InputSystemUIInputDriver 脚本。");
+#endif
+#if ENABLE_LEGACY_INPUT_MANAGER && !ENABLE_INPUT_SYSTEM
+            if(driver.FullName=="Wulato.UIKit.InputSystem.InputSystemUIInputDriver")throw new ArgumentException("当前项目仅启用 Legacy 输入。请显式调整项目输入设置后再选择 Input System 驱动。");
 #endif
         }
         public static UIRoot Apply(Scene scene,UIRoot root,UIRegistry registry,EventSystem events,Type driver)
