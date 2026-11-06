@@ -1,6 +1,6 @@
 # UIKit verification
 
-当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0/1 已合并；2.1–2.3 已合并；当前 2.4 验证 Dialog/Popup 入口、逐项取消、Closed/key 屏障、迟到清理与 Shutdown，两个输入宿主运行联合流程；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0/1 已合并；Phase 2 已合并；当前 3.1 验证 DOTween 显式可选隔离、真实 SDK 转场/重入/停止、Preset Host 配置与实际 Reload；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
 
 1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界，不反向依赖可选 SDK。1.2 将 Addressables/Input System 适配迁入主包 Integrations 条件程序集；主包为唯一 UIKit 包，验证入口在启动 Unity 前拒绝旧适配包 manifest/lock 引用。
 
@@ -279,3 +279,7 @@ python3 Tools/Verification/run.py prepare-samples --editor all --backend all --q
 ```
 
 `--quickstart-only` creates fresh consumers under `Artifacts/uikit`, imports only QuickStart into the Package Manager versioned directory, and uses the workbench's operation service across real compiler/editor restarts. Two complete configuration passes must leave identical input fingerprints. It explicitly selects the host driver, checks absence of Modals/Inventory assemblies, runs `quickstart-only` PlayMode through the existing registered test runner, and revalidates raw XML/traces/inventory/hashes/current snapshots. Preparation logs, command records, source fingerprints and summaries are retained. This is an Editor installation/authoring acceptance path, not a Player build or release gate. Do not combine this mode with `--red` or `--check-only`; standard sample preparation and its canonical paths remain compatible.
+
+3.1：`dotween` 为显式 SDK 专项。安装须另行授权，`dotween_sdk.py --archive <官方 1.3.045 ZIP> --host <Artifacts/uikit/ci-selected/hosts/...>` 固定哈希并仅写隔离宿主；`--disabled` 验证 DLL 已有但适配未启用。默认 all 不要求此可选 SDK，显式 suite 缺符号时拒绝。Host Reload 沿用现有入口与证据协议，启用时额外核验 dotween-exit-0/1.json；不安装 SDK Editor 工具或覆盖其他项目。
+
+新的 PlayMode 专项须从首轮起输出每个必需用例对应的 `CaseName.trace.json`（或 CaseName- 前缀），并由 runner 密封原始索引。SDK 版本汇总不能替代逐用例记录；evidence.verify 会拒绝缺失，禁止事后补造已执行批次的 trace。

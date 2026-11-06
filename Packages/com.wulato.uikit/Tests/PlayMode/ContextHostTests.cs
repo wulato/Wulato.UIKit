@@ -8,6 +8,22 @@ using UnityEngine;
 using UnityEngine.TestTools;
 namespace Wulato.UIKit.Tests.PlayMode
 {
+    public sealed class HostSinglePreset:UITransitionPreset
+    {
+        public int Creates;
+        public override IUITransition CreateTransition(){Creates++;return new ImmediateUITransition();}
+    }
+    public sealed class HostPairPreset:UINavigationTransitionPreset
+    {
+        public int Creates;
+        sealed class Pair:INavigationTransition
+        {
+            public UITransitionWrites FromWrites=>UITransitionWrites.None;public UITransitionWrites ToWrites=>UITransitionWrites.None;
+            public UniTask PlayAsync(UINavigationTransitionContext context,System.Threading.CancellationToken token)=>UniTask.CompletedTask;
+            public void Stop(UINavigationTransitionContext context){}public void Reset(UINavigationTransitionContext context){}
+        }
+        public override INavigationTransition CreateTransition(){Creates++;return new Pair();}
+    }
     [Category("context_host")]
     public class ContextHostTests
     {
@@ -27,6 +43,12 @@ namespace Wulato.UIKit.Tests.PlayMode
         }
         UniTask<UIShutdownCompletion> Stop()=>(UniTask<UIShutdownCompletion>)HostType.GetMethod("ShutdownAsync").Invoke(host,null);
         IUIContext Context=>(IUIContext)HostType.GetProperty("UI").GetValue(host);
+        [UnityTest] public IEnumerator Presets_CreatePerHostOwnersOnceBeforeConfigure()=>UniTask.ToCoroutine(async()=>{
+            var single=ScriptableObject.CreateInstance<HostSinglePreset>();var pair=ScriptableObject.CreateInstance<HostPairPreset>();
+            try{Set("transitionPreset",single);Set("navigationPreset",pair);var ui=Init(b=>{Assert.That(single.Creates,Is.EqualTo(1));Assert.That(pair.Creates,Is.EqualTo(1));b.WithTransition(new ImmediateUITransition());});
+                Assert.That(Init(),Is.SameAs(ui));Assert.That(single.Creates,Is.EqualTo(1));Assert.That(pair.Creates,Is.EqualTo(1));await Stop();}
+            finally{UnityEngine.Object.DestroyImmediate(single);UnityEngine.Object.DestroyImmediate(pair);}
+        });
         [UnityTest] public IEnumerator ShutdownDuringInitialization_DoesNotPublishLiveContext()=>UniTask.ToCoroutine(async()=>{
             UniTask<UIShutdownCompletion> stopping=default;
             Assert.Throws<InvalidOperationException>(()=>Init(b=>{stopping=Stop();}));

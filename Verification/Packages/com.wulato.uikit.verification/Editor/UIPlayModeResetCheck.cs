@@ -35,6 +35,8 @@ namespace Wulato.UIKit.Verification.Editor
             var name=SessionState.GetString(Key+"scope","integration")=="context-host"?"ContextHostResetProbe":"IntegrationResetProbe";
             var type=Type.GetType("Wulato.UIKit.Tests.PlayMode."+name+", Wulato.UIKit.Tests.PlayMode",true);
             type.GetMethod(method,BindingFlags.Public|BindingFlags.Static).Invoke(null,null);
+            if(SessionState.GetString(Key+"scope","")=="context-host")
+                Type.GetType("Wulato.UIKit.DOTween.Tests.DOTweenReloadProbe, Wulato.UIKit.DOTween.Tests",false)?.GetMethod(method).Invoke(null,null);
         }
         static void HostFixture(string method)=>Type.GetType("Wulato.UIKit.Tests.Preview.ContextHostResetFixture, Wulato.UIKit.Tests.Preview",true).GetMethod(method).Invoke(null,null);
         static bool Ready()
@@ -72,6 +74,7 @@ namespace Wulato.UIKit.Verification.Editor
             EditorSettings.enterPlayModeOptions=(EnterPlayModeOptions)SessionState.GetInt(Key+"originalOptions",0);
         }
         [Serializable] sealed class ExitEvidence {public string status;public int activeContexts,oldLocks,subscriptions;}
+        [Serializable] sealed class TweenExit {public string status,version;public int activePlaybacks;}
         static void Finish()
         {
             int option=int.Parse(SessionState.GetString(Key+"option","0"));
@@ -79,6 +82,11 @@ namespace Wulato.UIKit.Verification.Editor
             {
                 var path=Path.Combine(SessionState.GetString(Key+"out",""),"automatic-exit-"+i+".json");
                 var exit=JsonUtility.FromJson<ExitEvidence>(File.ReadAllText(path));
+                if(SessionState.GetString(Key+"scope","")=="context-host"&&Type.GetType("Wulato.UIKit.DOTween.Tests.DOTweenReloadProbe, Wulato.UIKit.DOTween.Tests",false)!=null)
+                {
+                    var tween=JsonUtility.FromJson<TweenExit>(File.ReadAllText(Path.Combine(SessionState.GetString(Key+"out",""),"dotween-exit-"+i+".json")));
+                    if(tween.status!="PASS"||tween.version!="1.3.045"||tween.activePlaybacks!=0)throw new Exception("DOTween automatic exit failed");
+                }
                 if(exit.status!="PASS"||exit.activeContexts!=0||exit.oldLocks!=0||exit.subscriptions!=0)throw new Exception("Automatic exit evidence failed: "+path);
             }
             var evidence=new Evidence{completed=2,domainReload=(option&1)==0,sceneReload=(option&2)==0,status="PASS"};
