@@ -77,7 +77,7 @@ class RuntimePreparationTests(unittest.TestCase):
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
         package={'name':'com.wulato.uikit','version':'0.4.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
-        assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI'],'Wulato.UIKit.Addressables':['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'],'Wulato.UIKit.InputSystem':['Wulato.UIKit','UnityEngine.UI','Unity.InputSystem']}
+        assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI'],'Wulato.UIKit.Addressables':['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'],'Wulato.UIKit.InputSystem':['Wulato.UIKit','UnityEngine.UI','Unity.InputSystem'],'Wulato.UIKit.DOTween':['Wulato.UIKit','UniTask']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
         self.assertTrue(validate_main_package(package,assemblies))

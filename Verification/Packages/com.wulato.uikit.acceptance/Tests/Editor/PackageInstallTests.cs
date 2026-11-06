@@ -27,13 +27,15 @@ namespace Wulato.UIKit.Acceptance.Tests
             var runtime=CompilationPipeline.GetAssemblies(AssembliesType.Player).Select(a=>a.name).ToArray();
             var editor=CompilationPipeline.GetAssemblies(AssembliesType.Editor).Select(a=>a.name).ToArray();
             var addressables=packages.Any(p=>p.name=="com.unity.addressables");
+            bool tween=UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(UnityEditor.BuildTargetGroup.Standalone).Split(';').Contains("WULATO_UIKIT_DOTWEEN");
+            Assert.That(runtime.Contains("Wulato.UIKit.DOTween"),Is.EqualTo(tween));
             var input=packages.Any(p=>p.name=="com.unity.inputsystem");
             Assert.That(runtime.Contains("Wulato.UIKit.Addressables"),Is.EqualTo(addressables));
             Assert.That(editor.Contains("Wulato.UIKit.Addressables.Editor"),Is.EqualTo(addressables));
             Assert.That(runtime.Contains("Wulato.UIKit.InputSystem"),Is.EqualTo(input));
             var folder=System.Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");
             if(!string.IsNullOrEmpty(folder))System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"optional-integrations.trace.json"),
-                "{\"addressables\":"+addressables.ToString().ToLowerInvariant()+",\"inputSystem\":"+input.ToString().ToLowerInvariant()+",\"runtimeAssemblies\":["+string.Join(",",runtime.Select(n=>"\""+n+"\""))+"]}");
+                "{\"addressables\":"+addressables.ToString().ToLowerInvariant()+",\"inputSystem\":"+input.ToString().ToLowerInvariant()+",\"dotween\":"+tween.ToString().ToLowerInvariant()+",\"runtimeAssemblies\":["+string.Join(",",runtime.Select(n=>"\""+n+"\""))+"]}");
         }
         [Test] public void ResolvedDependencies_MatchPinnedVersions()
         {
@@ -46,6 +48,7 @@ namespace Wulato.UIKit.Acceptance.Tests
         {
             Assert.That(typeof(IUIContext).Assembly.GetName().Name,Is.EqualTo("Wulato.UIKit"));
             var names=typeof(IUIContext).Assembly.GetReferencedAssemblies().Select(a=>a.Name).ToArray();
+            Assert.That(names,Does.Not.Contain("DOTween"));Assert.That(names,Does.Not.Contain("DOTween.Modules"));Assert.That(names,Does.Not.Contain("Wulato.UIKit.DOTween"));
             Assert.That(names,Does.Not.Contain("Unity.InputSystem"));Assert.That(names,Does.Not.Contain("Unity.TextMeshPro"));
             Assert.That(names.Any(n=>n.StartsWith("UnityEditor")||n.Contains("Verification")||n.Contains("Acceptance")||n.Contains("Test")),Is.False);
         }

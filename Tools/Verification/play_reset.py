@@ -27,7 +27,7 @@ def seal_reset(out):
     seal(out)
     index=out/'evidence-index.json'
     manifest=json.loads(index.read_text())
-    for name in ('play-reset.json','automatic-exit-0.json','automatic-exit-1.json','save-cancel.json'):
+    for name in ('play-reset.json','automatic-exit-0.json','automatic-exit-1.json','save-cancel.json','dotween-exit-0.json','dotween-exit-1.json'):
         if (out/name).is_file():manifest['files'][name]=sha256(out/name)
     index.write_text(json.dumps(manifest,indent=2)+'\n')
     return sha256(index)

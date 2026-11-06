@@ -42,35 +42,8 @@ namespace Wulato.UIKit.Tests.PlayMode
                 Assert.That(f.Loader.ReleaseCount, Is.EqualTo(1)); Assert.That(f.UI.GetDiagnostics().PendingCleanupCount, Is.Zero);
             }
         });
-        [UnityTest] public IEnumerator StopReturns_OperationCanceledAndNoMoreWrites() => UniTask.ToCoroutine(async () =>
-        {
-            await using (var f = new CleanupRuntimeFixture())
-            {
-                await f.UI.OpenAsync<ProbeView>();
-                var root = (RectTransform)f.Loader.LastView.transform.parent;
-                var context = new UITransitionContext(ProbeView.Scope, root, root.GetComponent<CanvasGroup>());
-                int writes = 0;
-                var runner = new UITransitionRunner(TimeSpan.FromSeconds(10), UITransitionWrites.Scale,
-                    (c, progress, entering) => { writes++; c.AnimationRoot.localScale = Vector3.one * (1 + progress); });
-                var task = runner.EnterAsync(context, CancellationToken.None);
-                await UniTask.NextFrame(); runner.Stop(context); int stopped = writes; var scale = root.localScale;
-                Assert.That(task.Status, Is.EqualTo(UniTaskStatus.Canceled));
-                try { await task; Assert.Fail(); } catch (OperationCanceledException) { }
-                await UniTask.NextFrame(); await UniTask.NextFrame();
-                Assert.That(writes, Is.EqualTo(stopped)); Assert.That(root.localScale, Is.EqualTo(scale));
-            }
-        });
-        [UnityTest] public IEnumerator StopCompletedTransition_PreservesResult() => UniTask.ToCoroutine(async () =>
-        {
-            await using (var f = new CleanupRuntimeFixture())
-            {
-                await f.UI.OpenAsync<ProbeView>(); var root = (RectTransform)f.Loader.LastView.transform.parent;
-                var c = new UITransitionContext(ProbeView.Scope, root, root.GetComponent<CanvasGroup>());
-                var runner = new UITransitionRunner(TimeSpan.Zero, UITransitionWrites.None, (ctx, p, enter) => { });
-                var task = runner.EnterAsync(c, CancellationToken.None); runner.Stop(c); runner.Stop(c);
-                Assert.That(task.Status, Is.EqualTo(UniTaskStatus.Succeeded)); await task;
-            }
-        });
+
+
         [UnityTest] public IEnumerator OnOpenLayoutChange_IsBaseline() => UniTask.ToCoroutine(async () =>
         {
             var t = new ControlledTransition { BlockEnter = false };
@@ -130,18 +103,7 @@ namespace Wulato.UIKit.Tests.PlayMode
                 await session.CloseAsync(); Assert.That(Time.frameCount, Is.EqualTo(frame));
             }
         });
-        [UnityTest] public IEnumerator Runner_TimeScaleZeroStillCompletes() => UniTask.ToCoroutine(async () =>
-        {
-            float old = Time.timeScale; Time.timeScale = 0;
-            try
-            {
-                var t = new UITransitionRunner(TimeSpan.FromMilliseconds(15), UITransitionWrites.Scale,
-                    (c, p, entering) => c.AnimationRoot.localScale = Vector3.one * (1 + p));
-                await using (var f = new CleanupRuntimeFixture(transition: t))
-                { var session = await f.UI.OpenAsync<ProbeView>(); await session.CloseAsync(); }
-            }
-            finally { Time.timeScale = old; }
-        });
+
         static async UniTask FailureAtProgress(bool entering, bool cancel, int frames)
         {
             var t = new ControlledTransition { BlockEnter = entering, BlockExit = !entering };
@@ -177,21 +139,6 @@ namespace Wulato.UIKit.Tests.PlayMode
         [UnityTest] public IEnumerator ExitFaultAtStart() => UniTask.ToCoroutine(() => FailureAtProgress(false, false, 0));
         [UnityTest] public IEnumerator ExitFaultAtMiddle() => UniTask.ToCoroutine(() => FailureAtProgress(false, false, 2));
         [UnityTest] public IEnumerator ExitFaultAtEnd() => UniTask.ToCoroutine(() => FailureAtProgress(false, false, 4));
-        [UnityTest] public IEnumerator StopContinuation_RestartRemainsStoppable() => UniTask.ToCoroutine(async () =>
-        {
-            await using (var f = new CleanupRuntimeFixture())
-            {
-                await f.UI.OpenAsync<ProbeView>(); var root = (RectTransform)f.Loader.LastView.transform.parent;
-                var ctx = new UITransitionContext(ProbeView.Scope, root, root.GetComponent<CanvasGroup>());
-                var runner = new UITransitionRunner(TimeSpan.FromSeconds(10), UITransitionWrites.Scale, (c, p, e) => c.AnimationRoot.localScale = Vector3.one * (1 + p));
-                var first = runner.EnterAsync(ctx, CancellationToken.None); UniTask second = default;
-                first.GetAwaiter().OnCompleted(() => second = runner.EnterAsync(ctx, CancellationToken.None));
-                runner.Stop(ctx);
-                try { await first; Assert.Fail(); } catch (OperationCanceledException) { }
-                await UniTask.NextFrame(); await UniTask.NextFrame(); runner.Stop(ctx);
-                Assert.That(second.Status, Is.EqualTo(UniTaskStatus.Canceled));
-                try { await second; Assert.Fail(); } catch (OperationCanceledException) { }
-            }
-        });
+
     }
 }

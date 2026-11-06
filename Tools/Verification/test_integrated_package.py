@@ -6,7 +6,7 @@ class IntegratedPackageTests(unittest.TestCase):
     def test_business_assemblies_ship_in_main_without_new_runtime_dependencies(self):
         root=ROOT/'Packages/com.wulato.uikit'
         definitions=list((root/'Runtime').rglob('*.asmdef'))
-        self.assertEqual({'Wulato.UIKit','Wulato.UIKit.Addressables','Wulato.UIKit.InputSystem'},{json.loads(p.read_text())['name'] for p in definitions})
+        self.assertEqual({'Wulato.UIKit','Wulato.UIKit.Addressables','Wulato.UIKit.InputSystem','Wulato.UIKit.DOTween'},{json.loads(p.read_text())['name'] for p in definitions})
         definition=json.loads((root/'Runtime/Wulato.UIKit.asmdef').read_text())
         self.assertEqual('Wulato.UIKit',definition['name'])
         self.assertEqual({'UniTask','UnityEngine.UI'},set(definition['references']))

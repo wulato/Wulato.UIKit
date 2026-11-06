@@ -33,6 +33,11 @@
       "displayName": "LocalInventory",
       "description": "Optional Addressables SDK: Registry routing, local Bundle, cache and cancellation.",
       "path": "Samples~/LocalInventory"
+    },
+    {
+      "displayName": "DOTween",
+      "description": "Optional DOTween SDK: Fade/Scale/Slide and paired Host presets; SDK installation is separate.",
+      "path": "Samples~/DOTween"
     }
   ]
 }

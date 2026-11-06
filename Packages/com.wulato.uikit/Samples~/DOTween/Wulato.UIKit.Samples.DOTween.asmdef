@@ -1,0 +1,7 @@
+{
+  "name": "Wulato.UIKit.Samples.DOTween",
+  "references": ["Wulato.UIKit", "Wulato.UIKit.DOTween", "UniTask"],
+  "overrideReferences": true,
+  "precompiledReferences": ["DOTween.dll"],
+  "defineConstraints": ["WULATO_UIKIT_DOTWEEN"]
+}

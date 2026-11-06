@@ -11,6 +11,8 @@ namespace Wulato.UIKit
         [SerializeField] UIRegistry registry;
         [SerializeField] bool initializeOnStart=true;
         [SerializeField] UIContextHostSettings settings=new UIContextHostSettings();
+        [SerializeField] UITransitionPreset transitionPreset;
+        [SerializeField] UINavigationTransitionPreset navigationPreset;
         bool shutdownRequested,starting,autoAttempted,shutdownStarted;
         static int playGeneration;
         UniTaskCompletionSource<UIShutdownCompletion> shutdown;
@@ -31,6 +33,8 @@ namespace Wulato.UIKit
             try
             {
                 var builder=new UIContextBuilder(root,registry).WithSettings((settings??new UIContextHostSettings()).ToSettings());
+                if(transitionPreset)builder.WithTransition(transitionPreset.CreateTransition());
+                if(navigationPreset)builder.WithNavigationTransition(navigationPreset.CreateTransition());
                 configure?.Invoke(builder);
                 if(shutdownRequested)throw new InvalidOperationException("Shutdown was requested during initialization.");
                 UI=builder.Build();

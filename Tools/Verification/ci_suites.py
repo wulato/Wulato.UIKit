@@ -25,6 +25,8 @@ def select_suites(paths):
         for section in ('Runtime','Editor','Tests'):
             for folder,package in (('Addressables','addressables'),('InputSystem','input-system')):
                 path=path.replace(f'Packages/com.wulato.uikit/{section}/Integrations/{folder}/',f'Packages/com.wulato.uikit.{package}/{section}/')
+        if ('/Integrations/DOTween' in path or '/Samples~/DOTween' in path) and not path.endswith('.md'):
+            add('PlayMode','dotween','legacy');add('EditMode','package-install','legacy');continue
         if '/Samples~/LocalInventory/' in path:path=path.replace('Packages/com.wulato.uikit/','Packages/com.wulato.uikit.addressables/',1)
         if path.removesuffix('.meta')=='Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef':
             for suite in ('contracts','integration','editor','package-install',*MODULES):add('EditMode',suite)
@@ -234,7 +236,7 @@ def command_evidence(row,log,chosen):
             if row['command']=='tests':
                 if (record.get('mode'),record.get('suite'))!=(row['mode'],row['suite']):raise ValueError('test-command-scope')
                 snap=run.snapshot(row['editor'],row['backend'],host)
-                matrix=run.applicable_suites(json.loads((run.C/'matrix.json').read_text())[row['editor']][row['backend']][row['mode']],snap['manifest'])
+                matrix=run.applicable_suites(json.loads((run.C/'matrix.json').read_text())[row['editor']][row['backend']][row['mode']],snap['manifest'],dotween=__import__('dotween_sdk').integration_enabled(host))
                 required=sum(matrix.values(),[]) if row['suite']=='all' else matrix[row['suite']]
                 errors+=verify(record,folder,required,snap,acceptance=True)['errors']
             if row['command']=='play-reset':

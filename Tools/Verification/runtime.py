@@ -79,7 +79,8 @@ def validate_main_package(package,assemblies):
     if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
     expected_graph={'Wulato.UIKit':{'UniTask','UnityEngine.UI'},
         'Wulato.UIKit.Addressables':{'Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'},
-        'Wulato.UIKit.InputSystem':{'Wulato.UIKit','UnityEngine.UI','Unity.InputSystem'}}
+        'Wulato.UIKit.InputSystem':{'Wulato.UIKit','UnityEngine.UI','Unity.InputSystem'},
+        'Wulato.UIKit.DOTween':{'Wulato.UIKit','UniTask'}}
     if set(assemblies)!=set(expected_graph) or any(set(assemblies.get(n,[]))!=refs for n,refs in expected_graph.items()):
         errors.append('runtime-assembly-boundary:Wulato.UIKit')
     return errors

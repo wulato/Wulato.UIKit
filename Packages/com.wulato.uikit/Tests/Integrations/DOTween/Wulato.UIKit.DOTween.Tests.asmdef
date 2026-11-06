@@ -1,0 +1,8 @@
+{
+  "name": "Wulato.UIKit.DOTween.Tests",
+  "references": ["Wulato.UIKit", "Wulato.UIKit.DOTween", "UniTask", "Wulato.UIKit.Tests.Support", "UnityEngine.UI"],
+  "overrideReferences": true,
+  "precompiledReferences": ["DOTween.dll"],
+  "defineConstraints": ["WULATO_UIKIT_DOTWEEN"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

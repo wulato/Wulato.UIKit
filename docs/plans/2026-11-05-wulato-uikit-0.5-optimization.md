@@ -747,7 +747,7 @@ GitHub 交付：连接器创建 PR 返回 403 Resource not accessible by integra
 - [x] 新增 false/null、旧 responder、暂停/打开/显示取消、close hook、去重、其他请求推进、错误/PendingCleanup、Shutdown 及真实后台取消联合测试；补必需用例，保留既有精确集合检查。
 - [x] 最终专项验证、原始证据/指纹审计：13 组 / 233 项 Unity、125 项 Python，精确用例集合与当前指纹通过；[verification.json](../../Artifacts/uikit/phase2-4/verification.json)。
 - [x] 实现提交 `0f918f5def8c0ab7b5d382387bbd0d69848ec206` 已推送，创建 [任务 2.4 PR #9](https://github.com/wulato/Wulato.UIKit/pull/9)（main ← feat/uikit-0.5-dialog-popup）。
-- [ ] 等待用户确认合并 PR #9；不进入 Phase 3。
+- [x] 用户确认后已合并 PR #9，3.1 从更新 main `78a9523137a31061a714acb6b6d5eee9f462d6ab` 开始。
 
 Ruling：保留 IPopupRequest 高级描述符入口，普通业务使用泛型入口；新增 key/arguments 重载与逐项 token，避免为普通请求创建包装类。Popup 拒绝 Page 注册，防止队列隐式重建导航历史；业务页面仍用 Open/Push。队列取消采用标准 OperationCanceledException，不新增 Canceled 结果状态；Context/Queue Stop 覆盖未发布的取消。逻辑回滚/Closed 终结后可复用 key，迟到资源仍由原隔离清理拥有，不等待物理销毁。Dialog 既有取消通道无需重写，仅增加入口并补验证。
 
@@ -776,3 +776,49 @@ Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主
 没有新增依赖、程序集、Unity 资产或生成器规则；既有 meta/GUID 未变，没有修改 ProjectSettings、根 manifest/lock、CI 工作流或原用户脏目录。Engine 只增加只读回调深度，不修改队列、guard 或生命周期实现。未运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机。回退为整项 revert；Phase 3 必须等本 PR 经用户确认合并后再从更新 main 开始。
 
 交付状态：PR #9 已创建；沿用本机已授权 gh（连接器先前创建 PR 返回 403，不重复尝试该权限阻塞），未扩张凭据。main 保持 `f9df977f5c47ddceed23bd03d1b5c21c09a9585a`，本 PR 未合并。
+
+
+### 2026-11-06 任务 3.1 DOTween 与 Presets（PR #10 待审）
+
+- [x] 精确 head 合并 PR #9；从最新 main `78a9523137a31061a714acb6b6d5eee9f462d6ab` 创建 `feat/uikit-0.5-dotween-presets`，复用原干净工作区。
+- [x] 用户单独授权从官方下载 DOTween 1.3.045，仅用于本任务隔离宿主；不提交 SDK，不修改 MC 项目。官方 ZIP SHA256 `32eba5c48520a541775d00cb396e18975b83587ba79175dbb878d753725ba5d9`，DLL SHA256 `c51b065925bb37c308f9a05a776cdf09f49a97a6f7c2393b4fb3b3f01c045232`，实际版本由专项断言。
+- [x] 新增基础 ScriptableObject Preset 与 Host 单界面/配对字段，默认 null 保持 Immediate；configure 可覆盖。DOTween 在主包独立 asmdef，以 WULATO_UIKIT_DOTWEEN + 显式 DOTween.dll 引用隔离，基础程序集不依赖 SDK。
+- [x] 实现 Fade/Scale/Slide、配对并行 Sequence、默认非缩放 Update、播放身份、同步 Stop/Kill(false)、声明属性复位；不调用 KillAll 或修改 SDK 全局设置。
+- [x] 移除通用生产 UITransitionRunner；其 Stop、完成、timeScale=0、重入四项验收迁往实际 DOTween 专项，基础 ControlledTransition 合约测试保留，不以测试代码替换生产通用引擎。
+- [x] 完成 Preset/Host 真实资产、示例、静态状态 Reload 与依赖组合；最终 18 组 / 307 项 Unity、6 组 / 12 次实际 Play、151 项 Python 通过，严格审计 PASS。
+- [x] 集中自审完成，实现提交 `b10f62f8c44496b136c479ded10a83b1a7816f92` 已推送，创建 [任务 3.1 PR #10](https://github.com/wulato/Wulato.UIKit/pull/10)（main ← feat/uikit-0.5-dotween-presets）。
+- [ ] 等待用户确认合并 PR #10；不推进 3.2。
+
+执行证据集中在 `Artifacts/uikit/phase3-1/`。Preset API 编译 RED `20261106T022811624946-prepare-5636ca`；无 SDK 首轮 prepare PASS `20261106T023042681697-prepare-c8a298`。SDK 启用脚本最初匹配了另一个 Standalone YAML 字段，实际 define 未启用，专项零匹配（不算通过）；改为只编辑 scriptingDefineSymbols（该原因修复 1 轮）。自动枚举误收 IDisposable.Dispose 已移出必需集合，不放宽用例断言。启用真实 SDK 后 `20261106T023554217497-tests-9f5127` 验出缺 runtime Modules 和零时长成功被 Kill 回调覆盖；零时长原因修复 1 轮。SDK runtime Modules 完整性第 1 轮仅加入官方 Utils，编译证实其依赖 Physics/Physics2D；第 2 轮补齐这两个官方文件，未改 SDK 源码。当时 `sdk-complete-prepare` / `dotween-complete` 正在执行；第 2 轮随后实际通过（`20261106T023942759186-prepare-c2bc14`、`20261106T023958773893-tests-0c63ca`），未继续同因修复。所有日志/退出码与失败保留。历史 samples 类别问题计数 1 原样保留。
+
+Ruling：使用官方核心 DLL 和其必须的运行时模块，不引入 Pro 或 SDK Editor 安装器；验证安装器仅接受忽略的 verification host 路径，记录 ZIP/DLL/模块哈希。适配只用核心 DOTween.To/Sequence，不依赖 UI 快捷模块；消费项目仍按官方安装完整 SDK。可选集成必须显式开启，不根据宽泛 DOTWEEN 全局符号猜测引用可用性。
+
+中期验证：真实 DOTween 10 项与首次 SDK Host reload 两次 Play 均 PASS（`dotween-complete.log`、`reload-first.log`）。随后补了真实 Core 配对取消/超时、Host factory 顺序、可选 suite 过滤、三种依赖状态与样例注册。验证工具同步中，runtime 边界夹具遗漏新程序集（修复 1 轮）；ci_suites 初次未映射 DOTween 分类，补映射时误及 plan 作用域，依据 UnboundLocalError 定位并修正（同因 2 轮）；各定向复验均通过。一次命令用了 Tools/Verification 工作目录却仍写仓库相对路径，FileNotFound 且未修改文件，纠正后完成；该自动化目录原因 1 轮。Python 13 个相关模块 151 项通过。
+
+收尾所有权回归：首个完整候选的 17 组 / 302 项 Unity、6 组 / 12 次实际 Reload Play 通过，作为中期证据保留。追加业务 defaultAutoKill=false 的实际用例后，`20261106T030055986080-tests-4ffe65` 确认完成 Sequence 残留（预期 0、实际 1）。仅在自有 Sequence 设置 SetAutoKill(true)，不修改全局默认，修复该原因 1 轮；最终须按更新指纹复验，不将旧候选计为最终通过。
+
+证据审计发现新 DOTween 类未沿用逐用例 trace 约定：13 项 XML 通过且有版本汇总，但严格 evidence.verify 拒绝 missing-case-trace。原 `audit.log`/exit=1 及诊断保留，其他 16 组和 Reload 的索引/指纹已独立通过诊断；未生成最终验收 JSON。修复新增专项的 TearDown，在实际每例执行后写真实版本、用例名、结果和 activeSequences，runner 原样密封；不事后补造旧批次，不修改 evidence.verify。该接入遗漏修复 1 轮；按最终指纹重跑原专项与 Reload 后再审计。
+
+
+最终验收（3.1）：
+
+| 配置（均 Unity 2022.3.62f2） | 专项 | 通过用例 |
+| --- | --- | --- |
+| 无 SDK / Legacy | contracts / package-install / navigation EditMode | 30 / 4 / 28 |
+| 无 SDK / Legacy | transitions / context-host / flow-integration PlayMode | 36 / 11 / 9 |
+| DOTween 启用 / Legacy | dotween / transitions / context-host / flow-integration PlayMode | 13 / 36 / 11 / 9 |
+| DOTween 启用 / Legacy | navigation / contracts / package-install EditMode | 28 / 30 / 4 |
+| DOTween 已安装但适配未启用 / Input System | contracts / package-install EditMode、context-host / flow-integration PlayMode | 30 / 4 / 11 / 9 |
+| DOTween 与 Input System 两适配同时启用 | package-install EditMode，实际程序集及 IL 隔离编译 | 4 |
+
+源码/SDK 输入稳定后，补齐逐例 trace 的最终原范围 17 组共 303 项通过；另补两个适配同时启用的编译组合 4 项，不扩展其生命周期/Reload 矩阵，合计 18 组 / 307 项。Host Reload：启用 DOTween 的 Legacy 四种选项 0/1/2/3，未启用适配的 Input 默认/双禁用 0/3，每种连续实际进入/退出两次，共 6 组 / 12 次 Play。SDK 八份 dotween-exit 报告均为真实 SDK 1.3.045 / activePlaybacks=0；共同 Context/锁/订阅清理报告均通过。
+
+命令保留于 `Artifacts/uikit/phase3-1/final-commands.sh`、`both-commands.sh`，对应 host-root 为 `.../ci-selected/hosts/phase3-1`、`phase3-1-sdk`、`phase3-1-input`、`phase3-1-both`；仅 Input 宿主安装 Input System 1.17.0。完整命令/日志/退出码、初始 RED 与修复、原始 XML/每例 trace、索引/hash、SDK ZIP/DLL/模块 receipt 均在 `Artifacts/uikit/phase3-1/`。[verification.json](../../Artifacts/uikit/phase3-1/verification.json) 最终 PASS：严格校验当前指纹、实际/必需用例精确集合、原始文件索引/哈希、SDK 实际版本与字节、示例六文件一致性、可选程序集开关、六组 Reload 与退出文件；缺 trace 的旧候选不计验收，不补造证据或修改校验器。
+
+Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_package/runtime/play_reset/ci_suites/results/evidence/integrity/runner/preflight/package_test_boundary/contract_probe/release_gate）。AutoKill 与逐例 trace 接入均各 1 轮修复后通过；SDK runtime Modules 完整性及分类选择原因各用 2 轮后通过，未超限；无未解决新失败。历史 samples 分类问题计数 1 保留，本次不运行该非必需专项。
+
+集中自审：适配只拥有每次 Sequence，Stop 在结果发布前同步 Kill，Complete/Kill 重入由播放身份隔离；自有 AutoKill/非回收/unscaled 配置不改变 SDK 全局设置；单界面用一个 Settings 的反向出场，配对可分别配置 Incoming/Outgoing。基础 Host 的两个抽象 factory 不引用 SDK，空字段 Immediate，configure 最后执行。新 Unity 文件均有独立 meta，既有 GUID 仅随明确移除的非 MonoBehaviour Runner 脚本删除；未改 Scene/Prefab、根 ProjectSettings/manifest/lock、CI workflow 或 MC 项目；SDK/ZIP/官方模块不提交。package.json 只新增可选示例条目，依赖和版本不变。
+
+当前只验证官方 DLL 形式 DOTween 1.3.045，不宣称 Pro/其他 SDK 格式/其他版本已兼容。Addressables 未改，不额外扩展该 SDK 组合；未运行完整 Suite、额外编辑器、远端 CI、Player/IL2CPP、真机或移动性能门禁。CI 选择/证据规则已支持可选专项，但不会自动安装 SDK，远端 SDK provisioning/发布仍留 Phase 6。3.2 必须等待本 PR 经用户确认合并后再从更新 main 开始；回退整项 revert，不动用户 SDK 或全局 Tween。
+
+交付状态：PR #10 已创建，SDK 二进制与归档均留在本地忽略目录；main 保持 `78a9523137a31061a714acb6b6d5eee9f462d6ab`，本 PR 未合并。沿用本机已授权 gh，未重复尝试连接器既有的写入 403 限制，未扩张凭据。

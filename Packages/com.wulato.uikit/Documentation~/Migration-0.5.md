@@ -1,4 +1,4 @@
-# 0.5 开发迁移：任务 1.1–2.4
+# 0.5 开发迁移：任务 1.1–3.1
 
 当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。本检查点已收敛 Context 入口与默认装配；页面 Open/Push/Replace/PopTo 已统一；后续 Back/Cancel、Dialog/Popup 便捷入口及版本升级继续按计划交付。
 
@@ -64,3 +64,7 @@ Page 的 `OpenAsync` 现在经默认 Navigator 建立新根：成功提交后替
 普通调用改为 `ui.DialogAsync(request, ct)`、`ui.PopupAsync<TView>(cancellationToken: ct)` 或 `ui.PopupAsync<TView,TArgs>(args, priority: 0, deduplicationKey: key, cancellationToken: ct)`。使用既有统一 UIRegistry / AddDialog 注册；无需 IPopupRequest、单独 DialogRegistry 或 Use*。高级 IUIDialogs / IUIPopupQueue 入口保留，后者增加 key/arguments 重载及逐项 token。
 
 Popup 只接受非 Page，避免队列意外改变导航根。等待取消移除本项；打开取消回滚；显示取消等待 Closed 后抛取消，key 在逻辑终结屏障后释放，其他请求继续推进。停止覆盖未完成取消；错误和未决隔离仍沿用原结果/Diagnostics。新增 IUIContext 成员及 IUIPopupQueue 签名属于 Breaking Changes；维护自定义接口实现或反射调用时应同步更新。Dialog 的 Submitted/UserCanceled/ContextStopped、false/null、旧 responder 与取消语义保持原契约。
+
+## 转场（3.1）
+
+移除 UITransitionRunner；原自定义 IUITransition / INavigationTransition 可继续使用，默认 Immediate 不需要 SDK。Host 新增单界面/页面配对 Preset 字段，configure 可覆盖；DOTween 使用主包内显式启用的可选程序集，参见 [DOTween](Integrations/DOTween.md)。原 Runner 的四项专项迁往实际 DOTween 验证，未保留通用帧动画引擎。

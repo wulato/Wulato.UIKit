@@ -26,7 +26,15 @@ namespace Wulato.UIKit.Tests.Preview
 #else
             events.AddComponent<LegacyUIInputDriver>();
 #endif
-            var host=root.AddComponent<UIContextHost>();var so=new SerializedObject(host);so.FindProperty("root").objectReferenceValue=root.GetComponent<UIRoot>();so.FindProperty("registry").objectReferenceValue=registry;so.ApplyModifiedPropertiesWithoutUndo();
+            var host=root.AddComponent<UIContextHost>();var so=new SerializedObject(host);so.FindProperty("root").objectReferenceValue=root.GetComponent<UIRoot>();so.FindProperty("registry").objectReferenceValue=registry;
+            foreach(var entry in new[]{new[]{"transitionPreset","DOTweenTransitionPreset"},new[]{"navigationPreset","DOTweenNavigationPreset"}})
+            {
+                var type=Type.GetType("Wulato.UIKit.Integrations.DOTween."+entry[1]+", Wulato.UIKit.DOTween",false);
+                if(type==null)continue;
+                var preset=ScriptableObject.CreateInstance(type);AssetDatabase.CreateAsset(preset,Folder+"/"+entry[1]+".asset");
+                so.FindProperty(entry[0]).objectReferenceValue=preset;
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
             EditorSceneManager.SaveScene(scene,Folder+"/Host.unity");
         }
         public static void Restore()

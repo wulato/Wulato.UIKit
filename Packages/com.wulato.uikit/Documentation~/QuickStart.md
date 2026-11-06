@@ -76,3 +76,5 @@ Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Di
 2.2 起，Open(Page) 创建新根历史；追加页面请用 PushAsync，替换顶项用 ReplaceAsync，PopToAsync 恢复最近匹配历史项及原参数。Modal 等其他层 Open 不入历史。2.3 起 BackAsync 与输入 Cancel 统一处理本 Context 弹窗优先及页面返回；尊重 CanClose，根页 no-op。详见 [Navigation](Navigation/index.md)。
 
 2.4 起普通弹窗可用 `await ui.DialogAsync(request, ct)`；排队弹窗用 `await ui.PopupAsync<NoticeView>(cancellationToken: ct)` 或带参数重载。View 在统一 Registry 注册为非 Page，取消仅作用于该请求。见 [Dialogs](Dialogs/index.md) 与 [Popup Queue](PopupQueue/index.md)。
+
+3.1 起 Host 可配置单界面与页面配对 Preset；空字段仍使用 Immediate。可选 [DOTween](Integrations/DOTween.md) 提供 Fade/Scale/Slide，使用者按需安装 SDK 并显式启用。

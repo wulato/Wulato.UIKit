@@ -74,7 +74,7 @@ def release(root,phase="phase1"):
                             errors+=registration.get('registration_errors',[])
                             try:
                                 record=json.loads((folder/'summary.json').read_text())
-                                required=set(sum(run.applicable_suites(matrix[ver][backend][mode],snap['manifest']).values(),[]))
+                                required=set(sum(run.applicable_suites(matrix[ver][backend][mode],snap['manifest'],dotween=__import__('dotween_sdk').integration_enabled(run.V/'Projects'/f'{short}-{backend}')).values(),[]))
                                 errors+=verify(record,folder,required,snap,acceptance=True)['errors']
                             except (OSError,ValueError,KeyError) as e:errors.append(str(e))
                         items.append(dict(kind='Editor',editor=ver,backend=backend,mode=mode,status='FAIL' if errors else 'PASS',errors=errors,evidence=str(folder)))

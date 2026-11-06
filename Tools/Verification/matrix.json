@@ -112,13 +112,10 @@
         ],
         "transitions": [
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.TransitionCancel_DoesNotWaitTwoSecondLimit",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopCompletedTransition_PreservesResult",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.OnOpenLayoutChange_IsBaseline",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.UnstoppableTransition_IsHiddenAndIsolated",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitTimeout_StopsAndReleasesWithoutPendingCleanup",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ImmediateTransition_HasNoFrameDelay",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.Runner_TimeScaleZeroStillCompletes",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtEnd",
@@ -131,7 +128,6 @@
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtEnd",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopContinuation_RestartRemainsStoppable",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalOwner_DoesNotPlayDefaultTransition",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Rollback_RestoresOldVisibilityAndInput",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Transaction_HoldsQueueUntilRollback",
@@ -284,11 +280,27 @@
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
-          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Presets_CreatePerHostOwnersOnceBeforeConfigure"
         ],
         "preview-runtime": [
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
+        ],
+        "dotween": [
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.SdkIdentityAndPresetFactories_AreExplicitAndContextLocal",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.ZeroDuration_CompletesBeforeReturnAndStopPreservesSuccess",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.FadeScaleSlide_RestoreOnlyDeclaredBaselines",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.TimeScaleZero_UsesUnscaledUpdate",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopContinuation_RestartRemainsStoppable",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.LateWorkerCancellation_DoesNotKillAReplacementPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairStop_CancelsBothSurfacesAndKeepsOtherContextAndTweenAlive",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairCompletion_UsesTheLongestParallelDuration",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CompletionContinuation_AutoKillCannotCancelTheNewPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
         ]
       },
       "EditMode": {
@@ -321,7 +333,8 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
           "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
           "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
-          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView",
+          "Wulato.UIKit.Tests.EditMode.TransitionPresetTests.HostPresets_AreOptionalAndSdkIndependent"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -647,13 +660,10 @@
         ],
         "transitions": [
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.TransitionCancel_DoesNotWaitTwoSecondLimit",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopCompletedTransition_PreservesResult",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.OnOpenLayoutChange_IsBaseline",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.UnstoppableTransition_IsHiddenAndIsolated",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitTimeout_StopsAndReleasesWithoutPendingCleanup",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ImmediateTransition_HasNoFrameDelay",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.Runner_TimeScaleZeroStillCompletes",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtEnd",
@@ -666,7 +676,6 @@
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtEnd",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopContinuation_RestartRemainsStoppable",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalOwner_DoesNotPlayDefaultTransition",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Rollback_RestoresOldVisibilityAndInput",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Transaction_HoldsQueueUntilRollback",
@@ -821,11 +830,27 @@
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
-          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Presets_CreatePerHostOwnersOnceBeforeConfigure"
         ],
         "preview-runtime": [
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
+        ],
+        "dotween": [
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.SdkIdentityAndPresetFactories_AreExplicitAndContextLocal",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.ZeroDuration_CompletesBeforeReturnAndStopPreservesSuccess",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.FadeScaleSlide_RestoreOnlyDeclaredBaselines",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.TimeScaleZero_UsesUnscaledUpdate",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopContinuation_RestartRemainsStoppable",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.LateWorkerCancellation_DoesNotKillAReplacementPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairStop_CancelsBothSurfacesAndKeepsOtherContextAndTweenAlive",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairCompletion_UsesTheLongestParallelDuration",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CompletionContinuation_AutoKillCannotCancelTheNewPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
         ]
       },
       "EditMode": {
@@ -858,7 +883,8 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
           "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
           "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
-          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView",
+          "Wulato.UIKit.Tests.EditMode.TransitionPresetTests.HostPresets_AreOptionalAndSdkIndependent"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1190,13 +1216,10 @@
         ],
         "transitions": [
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.TransitionCancel_DoesNotWaitTwoSecondLimit",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopCompletedTransition_PreservesResult",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.OnOpenLayoutChange_IsBaseline",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.UnstoppableTransition_IsHiddenAndIsolated",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitTimeout_StopsAndReleasesWithoutPendingCleanup",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ImmediateTransition_HasNoFrameDelay",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.Runner_TimeScaleZeroStillCompletes",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtEnd",
@@ -1209,7 +1232,6 @@
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtEnd",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopContinuation_RestartRemainsStoppable",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalOwner_DoesNotPlayDefaultTransition",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Rollback_RestoresOldVisibilityAndInput",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Transaction_HoldsQueueUntilRollback",
@@ -1362,11 +1384,27 @@
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
-          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Presets_CreatePerHostOwnersOnceBeforeConfigure"
         ],
         "preview-runtime": [
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
+        ],
+        "dotween": [
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.SdkIdentityAndPresetFactories_AreExplicitAndContextLocal",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.ZeroDuration_CompletesBeforeReturnAndStopPreservesSuccess",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.FadeScaleSlide_RestoreOnlyDeclaredBaselines",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.TimeScaleZero_UsesUnscaledUpdate",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopContinuation_RestartRemainsStoppable",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.LateWorkerCancellation_DoesNotKillAReplacementPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairStop_CancelsBothSurfacesAndKeepsOtherContextAndTweenAlive",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairCompletion_UsesTheLongestParallelDuration",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CompletionContinuation_AutoKillCannotCancelTheNewPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
         ]
       },
       "EditMode": {
@@ -1399,7 +1437,8 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
           "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
           "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
-          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView",
+          "Wulato.UIKit.Tests.EditMode.TransitionPresetTests.HostPresets_AreOptionalAndSdkIndependent"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
@@ -1725,13 +1764,10 @@
         ],
         "transitions": [
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.TransitionCancel_DoesNotWaitTwoSecondLimit",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopCompletedTransition_PreservesResult",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.OnOpenLayoutChange_IsBaseline",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.UnstoppableTransition_IsHiddenAndIsolated",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitTimeout_StopsAndReleasesWithoutPendingCleanup",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ImmediateTransition_HasNoFrameDelay",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.Runner_TimeScaleZeroStillCompletes",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.EnterCancelAtEnd",
@@ -1744,7 +1780,6 @@
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtStart",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtMiddle",
           "Wulato.UIKit.Tests.PlayMode.TransitionTests.ExitFaultAtEnd",
-          "Wulato.UIKit.Tests.PlayMode.TransitionTests.StopContinuation_RestartRemainsStoppable",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.ExternalOwner_DoesNotPlayDefaultTransition",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Rollback_RestoresOldVisibilityAndInput",
           "Wulato.UIKit.Tests.PlayMode.TransactionBoundaryTests.Transaction_HoldsQueueUntilRollback",
@@ -1899,11 +1934,27 @@
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Initialize_RejectsWorkerThread",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.AutomaticBuildFailure_RequiresExplicitRetry",
           "Wulato.UIKit.Tests.PlayMode.ContextHostTests.DestroyDuringLoad_CancelsOpen_AndReleasesLateLease",
-          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext"
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.ShutdownDuringInitialization_DoesNotPublishLiveContext",
+          "Wulato.UIKit.Tests.PlayMode.ContextHostTests.Presets_CreatePerHostOwnersOnceBeforeConfigure"
         ],
         "preview-runtime": [
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Runtime_ClosesAndReopensWithNewSession",
           "Wulato.UIKit.Tests.Preview.PreviewRuntimeTests.Adapter_TypedNullMismatchAndConfigureFailure_ReleaseOnce"
+        ],
+        "dotween": [
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.SdkIdentityAndPresetFactories_AreExplicitAndContextLocal",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.ZeroDuration_CompletesBeforeReturnAndStopPreservesSuccess",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopReturns_OperationCanceledAndNoMoreWrites",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.FadeScaleSlide_RestoreOnlyDeclaredBaselines",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.TimeScaleZero_UsesUnscaledUpdate",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.StopContinuation_RestartRemainsStoppable",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.LateWorkerCancellation_DoesNotKillAReplacementPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairStop_CancelsBothSurfacesAndKeepsOtherContextAndTweenAlive",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.PairCompletion_UsesTheLongestParallelDuration",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CompletionContinuation_AutoKillCannotCancelTheNewPlayback",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
+          "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
         ]
       },
       "EditMode": {
@@ -1936,7 +1987,8 @@
           "Wulato.UIKit.Tests.ResourceResolverTests.MissingBackend_BuildDoesNotAllocateHierarchyOrRunServices",
           "Wulato.UIKit.Tests.ResourceResolverTests.ExplicitLoader_RemainsAvailableForCustomBackends",
           "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.Facade_IsTheOnlyProductionContextImplementation",
-          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView"
+          "Wulato.UIKit.Tests.EditMode.ContextApiContractTests.DialogMapping_IsRegisteredAndValidatedWithTheView",
+          "Wulato.UIKit.Tests.EditMode.TransitionPresetTests.HostPresets_AreOptionalAndSdkIndependent"
         ],
         "sessions": [
           "Wulato.UIKit.Tests.QueueTests.DiagnosticsAreSnapshots_AndServicesRejectAfterStop",
