@@ -229,9 +229,26 @@ class CoverageAndPreparationTests(unittest.TestCase):
         self.assertEqual(set(TARGETS),{r['editor'] for r in p['tests']});self.assertIsNone(p['host_root'])
         self.assertEqual({'integration','context-host','preview'},{r['scope'] for r in p['reload']})
         self.assertEqual('gate',ci_suites.commands(p,False)[-1]['command'])
+        self.assertTrue(p['tools'])
     def test_workflow_freezes_once_and_uploads_failure_evidence_without_host_libraries(self):
         text=(Path(__file__).resolve().parents[2]/'.github/workflows/uikit-checks.yml').read_text()
         self.assertEqual(1,text.count('--write-plan'))
         self.assertEqual(3,text.count('--read-plan'))
-        for required in ('--check-evidence','python.log','python-status.json','if-no-files-found: error','!Artifacts/uikit/ci-selected/hosts/**','if: always()'):
+        for required in ('--check-evidence','python.log','python-status.json','if-no-files-found: error','ci_artifact.py export','if: always()'):
             self.assertIn(required,text)
+
+class HostedPlannerTests(unittest.TestCase):
+    def test_python_only_changes_do_not_require_a_native_runner(self):
+        text=(Path(__file__).resolve().parents[2]/'.github/workflows/uikit-checks.yml').read_text()
+        self.assertIn('runs-on: ubuntu-latest',text)
+        self.assertIn("needs.plan.outputs.count != '0'",text)
+        self.assertIn('uikit-05-editor',text)
+        self.assertIn('github.event.pull_request.head.repo.full_name == github.repository',text)
+        self.assertIn('persist-credentials: false',text)
+        self.assertIn('ref: ${{ github.sha }}',text)
+    def test_smoke_uses_actual_api_contract_scope(self):
+        import ci_suites
+        chosen=ci_suites.plan(['Packages/com.wulato.uikit/Tests/EditMode/ContextApiTests.cs'])
+        self.assertEqual({'contracts','integration'},{r['suite'] for r in chosen['tests']})
+        self.assertEqual({'legacy'},{r['backend'] for r in chosen['tests']})
+        self.assertFalse(chosen['full'])

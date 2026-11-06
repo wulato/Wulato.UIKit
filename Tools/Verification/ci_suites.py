@@ -86,7 +86,7 @@ def changed_paths(base,root=R):
 def plan(paths,editor=None,backend='auto',full=False):
     from editor_targets import DEFAULT,editors
     versions=editors(editor or ('all' if full else DEFAULT))
-    tests={};warnings=[];tools=False
+    tests={};warnings=[];tools=full
     for original in paths:
         path=original
         for section in ('Runtime','Editor','Tests'):
@@ -288,11 +288,14 @@ def main():
     group=parser.add_mutually_exclusive_group();group.add_argument('--write-plan',type=Path);group.add_argument('--read-plan',type=Path)
     parser.add_argument('--full',action='store_true',default=os.environ.get('UIKIT_CI_FULL')=='true')
     parser.add_argument('--check-evidence',action='store_true')
+    parser.add_argument('--smoke',action='store_true',default=os.environ.get('UIKIT_CI_SMOKE')=='true')
     args=parser.parse_args()
     try:
         if args.read_plan:chosen=load_plan(args.read_plan)
         else:
-            chosen=plan(changed_paths(args.base),('all' if args.full and args.editor==DEFAULT else args.editor),args.backend,args.full)
+            if args.smoke and args.full:parser.error('--smoke and --full are mutually exclusive')
+            paths=['Packages/com.wulato.uikit/Tests/EditMode/ContextApiTests.cs','Tools/Verification/ci_suites.py'] if args.smoke else changed_paths(args.base)
+            chosen=plan(paths,('all' if args.full and args.editor==DEFAULT else args.editor),args.backend,args.full)
             if args.write_plan:freeze(chosen,args.write_plan,args.base)
     except (OSError,ValueError,KeyError,subprocess.CalledProcessError) as e:parser.error(str(e))
     if args.check_evidence:

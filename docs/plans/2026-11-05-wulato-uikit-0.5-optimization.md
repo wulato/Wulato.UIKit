@@ -1025,8 +1025,17 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 集中审查改动：仅文档、缺失meta、主包版本、验证身份/本地声明及对应断言；基础Runtime/API/SDK版本/工作流/MC未改。历史phase2/phase3、Migration-0.4正文保留，现行README/Installation/Migration-0.5明确替代旧步骤；既有GUID不变。
 - [x] 实现提交 `59e3f3e2953106dc002d7552945325ea5c8ad829`；`committed-package.json` PASS，实际Git提交含711个包文件，与四个安装快照逐文件完全一致，包含全部文档/九项样例/meta。根README提供此完整固定SHA地址，后续记录提交不改变该包快照。
 - [x] 已推送任务分支，创建 [任务6.1 PR #16](https://github.com/wulato/Wulato.UIKit/pull/16)（main ← chore/uikit-0.5-release-documentation）。
-- [ ] 等待用户确认合并PR #16；不开始6.2，不创建发布tag/Release。
+- [x] 按用户确认普通合并PR #16，merge commit `abc8ded418f29b11a94adfcbb7d6929e91c5160f`；从更新main开始6.2，不创建发布tag/Release。
 
 原始命令/日志/退出码：`Artifacts/uikit/phase6-1/commands.json`、`*.log`/`*.exit`、`verify-final.py`、`sdk-warm.json`；Git安装日志 `install-main.log` / `install-addressables.log`。本次没有代码/测试失败或自动修复（计数0），prepare-only的预期退出码按原安装字段明确解释。未运行其他编辑器、完整Suite/Reload、远端CI、Android/iOS Player/IL2CPP、真机/性能/Release Gate；6000 profile只同步本地包版本声明，不是支持验收。回退为不发布，消费保持旧审核提交，在消费项目迁移分支恢复其manifest/lock/生成文件，不自动回滚用户资产。
 
 6.1 最终原始索引：dotween-package-install `20261106T132106402324-tests-34b899`；dotween-dotween `20261106T132116769679-tests-c8e549`；r3-binding-package-install `20261106T132127029013-tests-670402`；r3-binding-r3-binding `20261106T132138573805-tests-de1dcf`；fancy-list-package-install `20261106T132151570863-tests-3f6ef1`；fancy-list-fancy-list `20261106T132203134610-tests-435b2f`；localization-package-install `20261106T132213850017-tests-823c92`；localization-localization `20261106T132224838467-tests-8f7aff`；quickstart-runtime `20261106T132533512846-tests-381aa9`；legacy-flow-samples `20261106T132831835910-tests-2e4787`；legacy-samples `20261106T132842054046-tests-4985e0`；input-flow-samples `20261106T132852422259-tests-010e63`；input-samples `20261106T132903200989-tests-c0865c`；addressables-integration `20261106T133129579018-tests-64e81d`。
+
+
+### 6.2 执行记录（2026-11-06，进行中）
+
+- 核对 PR #16 固定 head `7797c5c701ff2c9bde93727ec23f0043a356d497` / CLEAN后普通合并；基线 `abc8ded418f29b11a94adfcbb7d6929e91c5160f`，分支 `chore/uikit-0.5-editor-ci`。smart-development STANDARD，按明确计划L3；使用executing-plans既有计划，不启动子代理/新worktree。
+- 仓库Actions已启用，runner API total_count=0。用户单独授权本任务临时官方Actions Runner2.338.2（macOS ARM64）及仓库级短时注册token；仅Artifacts/uikit/phase6-2/runner，不安装服务/启动项、不扩展GitHub scope；每次ephemeral一作业后注销，主动派发前核对固定SHA和队列。官方archive SHA256 `25a065af409ffa317ab4d5a3b614dd15fc9c40f2172bc1b35a1b1258e919a388`，约123MB，诊断日志保留；不能把同账号runner当安全沙箱。
+- CI拆分hosted计划/Python与专用macOS原生作业；工具修改无需等待Unity机器；同仓库可信PR/dispatch，fork PR不执行；两个作业固定事件SHA，checkout不持久化凭据。smoke显式现有Context API contracts/integration专项，full明确两后端完整适用Editor、20组Reload/40次真实Play及G0；不安装可选商业/DLL SDK，不进入移动6.3。
+- 修正full的Python证据强制要求；新增原始artifact收集/跨路径离线复核，仅GitHub当前workspace可export，排除host/Library/Temp/SDK/runner凭据，下载后绑定GitHubrun ID/SHA、源码指纹、所有字节/原始XML/trace/索引/完整命令与Reload。evidence.verify默认本地严格路径不变，迁移核验必须显式提供原记录路径，不改写JSON/log。
+- Python首轮全回归242项中2失败：旧workflow结构断言，以及Localization新增后包测试图遗漏Unity.Localization的可选引用。各修复1轮；Localization仍强制sample路径/显式宏/VersionDefine隔离，未放宽基础图。修复后248项PASS；补充workspace保护后全回归249项PASS；随后隐藏文件/symlink保护等相关65项PASS。最终冻结输入由真实hosted Python复验，原始日志/退出码在Artifacts/uikit/phase6-2；当前未声明远端或全门禁通过。

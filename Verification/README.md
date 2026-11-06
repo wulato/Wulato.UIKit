@@ -1,6 +1,6 @@
 # UIKit verification
 
-当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0/1 已合并；Phase 2 已合并；当前 3.1 验证 DOTween 显式可选隔离、真实 SDK 转场/重入/停止、Preset Host 配置与实际 Reload；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase0–5与6.1已合并，当前6.2验证远端CI及默认编辑器两后端完整Editor/Reload；证据与失败修复计数统一写入计划。移动/IL2CPP/真机/完整Release Gate留给6.3。
 
 1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界，不反向依赖可选 SDK。1.2 将 Addressables/Input System 适配迁入主包 Integrations 条件程序集；主包为唯一 UIKit 包，验证入口在启动 Unity 前拒绝旧适配包 manifest/lock 引用。
 
@@ -309,3 +309,24 @@ SDK 安装另行授权：`python3 Tools/Verification/fancy_sdk.py --archive <官
 普通专项覆盖 Unity2022.3.62f2 legacy/input。预览与 Host Reload 仍使用既有 `play-reset --scope preview/context-host`：Legacy 四选项、Input 默认/双禁用，每项两次真实 Play。`preview-action window` 验证正常退出后跨 Reload 的终态数据；`compile` 检查编译中断的恢复/零泄漏，不强制在中断时伪造终态；`cancel --interactive` 用原生保存对话框验证取消不创建预览。受影响错误转发另跑 PlayMode cleanup，沿用既有工具锁/指纹/索引及退出证据。
 
 `preview-addressables` 是 SDK 可选 PlayMode 一例，需既有 Addressables 验证包和真实 Bundle 内容准备；使用无 Adapter Profile 验证默认路由，不以模拟 Loader 或 Fast Mode 冒充。无 SDK 的适用集合排除此专项，基础预览仍验证 Resources。
+
+
+## 0.5 远端 Editor CI（6.2）
+
+`UIKit checks` 分成 GitHub-hosted Linux 的计划/Python作业和需要Unity的专用macOS作业。纯验证工具修改只运行Python，不等待Unity runner；原生作业只接受同仓库可信PR或显式dispatch，拒绝fork PR代码。两个作业都检出事件的精确SHA、关闭持久化checkout凭据，传递同一冻结计划；只读GITHUB_TOKEN，不发布/打tag/合并。
+
+默认按影响选择；dispatch `smoke=true` 显式选择现有Context API的contracts/integration EditMode专项，`full=true` 选择默认配置目标的两后端完整适用EditMode/PlayMode与integration/context-host/preview Reload。两者不能同时启用。full包含Python证据与G0原始检查；默认2022.3.62f2时共有20组Reload配置（每组真实进入/退出Play两次）。Addressables/Input System按现有profile准备；DOTween/R3/Fancy/Localization示例仅在完整SDK及显式宏存在时适用，CI不自动安装它们。不把额外编辑器或移动构建夹带进来。
+
+原生runner标签为 `self-hosted, macOS, uikit-05-editor`，需要已安装/可用许可的准确Unity2022.3.62f2；普通交互Mac上的runner具有该账号文件权限，不是安全沙箱。首次安装/注册需环境所有者授权。可使用仓库级ephemeral runner，每次只接收一个可信作业，不安装开机服务；诊断日志保留，执行后由GitHub注销。未配置runner时Unity作业会排队，不能记作已通过。长期部署应使用专用账号/机器并按官方要求隔离，不能默认接管业务MC或升级许可。
+
+上传前既有 `--check-evidence` 核验当前宿主与命令完整性，即使失败也保留原始材料。`ci_artifact.py export` 仅允许当前GitHub workspace，收集原始证据及完整字节清单，排除hosts/Library/Temp/Git快照/SDK/runner凭据。上传 `uikit-plan-evidence` 和 `uikit-editor-evidence`；缺材料失败，失败artifact不能变成绿色。
+
+下载后先由GitHub run的head SHA/run ID和artifact API的ZIP digest确认来源/字节，安全解压，再运行：
+
+```sh
+python3 Tools/Verification/ci_artifact.py verify --folder <下载目录> --revision <真实headSHA> --run-id <GitHubRunID> --report <报告路径>
+```
+
+复核不重写任何JSON/命令/log，只显式传递原记录路径来解析原始XML/逐例trace、索引、必需用例、冻结计划、原命令顺序、Reload选项/自动退出以及上传前当前宿主审计。离线核对绑定本地相同源码指纹及准确GitHub运行身份，不声称在下载机器上重新执行Unity或重新计算已排除宿主的文件指纹。新增/篡改/缺失字节、错误SHA/runID、跳过/零匹配/缺trace均失败。
+
+官方依据：[self-hosted runner与ephemeral生命周期](https://docs.github.com/en/actions/reference/runners/self-hosted-runners)、[可信代码与最小权限](https://docs.github.com/en/actions/reference/security/secure-use)。

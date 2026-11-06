@@ -1,16 +1,23 @@
 name: UIKit checks
 on:
   pull_request:
-    paths: ['Packages/com.wulato.uikit/**', 'Packages/com.wulato.uikit.*/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
+    paths: ['Packages/com.wulato.uikit/**', 'Verification/**', 'Tools/Verification/**', '.github/workflows/uikit-*.yml']
   workflow_dispatch:
     inputs:
       full:
         type: boolean
         default: false
-        description: Run the explicit full Editor and Reload gate
+        description: Run the explicit default-editor full Editor and Reload gate
+      smoke:
+        type: boolean
+        default: false
+        description: Run the explicit contracts specialty instead of affected-module selection
   workflow_call:
     inputs:
       full:
+        type: boolean
+        default: false
+      smoke:
         type: boolean
         default: false
 permissions:
@@ -19,18 +26,24 @@ concurrency:
   group: uikit-verification-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  editor:
-    runs-on: [self-hosted, macOS, uikit-phase1]
-    timeout-minutes: 180
+  plan:
+    # Never run fork PR code on a machine holding an interactive Unity license.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.scope.outputs.count }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
+          persist-credentials: false
       - name: Select affected modules
         id: scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
           UIKIT_CI_FULL: ${{ inputs.full || false }}
+          UIKIT_CI_SMOKE: ${{ inputs.smoke || false }}
         run: |
           mkdir -p Artifacts/uikit/ci-selected
           python3 Tools/Verification/ci_suites.py --base "$BASE_SHA" --write-plan Artifacts/uikit/ci-selected/selection.json --github-output "$GITHUB_OUTPUT" > Artifacts/uikit/ci-selected/selection.log 2>&1
@@ -42,20 +55,40 @@ jobs:
           uikit_python_exit=$?
           printf '{"exit_code":%s}\n' "$uikit_python_exit" > Artifacts/uikit/ci-selected/python-status.json
           exit "$uikit_python_exit"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uikit-plan-evidence
+          if-no-files-found: error
+          path: Artifacts/uikit/ci-selected
+  editor:
+    needs: plan
+    if: needs.plan.result == 'success' && needs.plan.outputs.count != '0'
+    runs-on: [self-hosted, macOS, uikit-05-editor]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: uikit-plan-evidence
+          path: Artifacts/uikit/ci-selected
       - name: Prepare frozen consumers
-        if: steps.scope.outputs.count != '0'
         run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --prepare
       - name: Run frozen suites and Reload checks
-        if: steps.scope.outputs.count != '0'
         run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json
       - name: Check expected command evidence before upload
-        if: ${{ always() && steps.scope.outcome == 'success' }}
+        if: always()
         run: python3 Tools/Verification/ci_suites.py --read-plan Artifacts/uikit/ci-selected/selection.json --check-evidence
+      - name: Collect portable raw evidence
+        if: always()
+        run: python3 Tools/Verification/ci_artifact.py export --destination Artifacts/uikit/ci-upload
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: uikit-editor-evidence
           if-no-files-found: error
-          path: |
-            Artifacts/uikit
-            !Artifacts/uikit/ci-selected/hosts/**
+          path: Artifacts/uikit/ci-upload
