@@ -12,7 +12,7 @@ M6 干净安装使用现有 `build --phase phase3 --profile clean --prepare-only
 
 CI 专项先用 `ci_suites.py --base <SHA> --write-plan <file> --github-output <file>` 冻结一次选择；后续准备和执行均使用 `--read-plan <file>`（准备另加 `--prepare`），不重新扫描生成后的工作区。计划保存基线、HEAD、源码/配置指纹、选择理由、准备项、Suite 和 Reload；内容损坏或输入变化会拒绝执行。`--plan` 仍只输出建议。显式 `--full` 才选择配置目标集合的完整 Editor、integration/Host/preview Reload 和 G0；日常任务不隐含全量或移动门禁。
 
-专项宿主位于忽略的 `Artifacts/uikit/ci-selected/hosts/<计划身份>/`，通过现有 runner 的 `--host-root` 入口复制对应编辑器的 ProjectSettings，空 Assets 起步并使用规范的绝对本地包路径，不删改原宿主。CI 默认 `prepare --phase runtime --package-set main`，仅 Addressables 相关专项加入适配及 SDK。`prepare-samples --sample-set base/business/addressables/all` 都保留现有样例验收程序集必需的 QuickStart/Modals/Inventory，按选择额外加入 BusinessFlow、LocalInventory；仅生成器运行时回归和预览 Reload 不导入业务样例。普通 flow-integration 无需生成或样例准备。独立调用 runner 未指定范围时保留原 all 行为。
+专项与full宿主均位于忽略的 `Artifacts/uikit/ci-selected/hosts/<计划身份>/`，通过现有 runner 的 `--host-root` 入口复制对应编辑器的 ProjectSettings，空 Assets 起步并使用规范的绝对本地包路径，不删改原宿主。CI 默认 `prepare --phase runtime --package-set main`，仅 Addressables 相关专项加入适配及 SDK。`prepare-samples --sample-set base/business/addressables/all` 都保留现有样例验收程序集必需的 QuickStart/Modals/Inventory，按选择额外加入 BusinessFlow、LocalInventory；仅生成器运行时回归和预览 Reload 不导入业务样例。普通 flow-integration 无需生成或样例准备。独立调用 runner 未指定范围时保留原 all 行为。
 
 Host／预览变更默认选择两输入后端，并调用现有 `play-reset --scope context-host/preview`；Legacy 四种 Reload、Input 默认及双禁用，每种由原 runner 连续执行两次。测试源文件按所属 Category 映射，测试程序集元数据覆盖该程序集拥有的 Suite。选择计划、Python 日志/退出码、每条命令日志、耗时及失败的部分记录均留在 ci-selected；上传前 `--read-plan <file> --check-evidence` 检查计划执行完整性，并复用原始索引/文件哈希、必需用例/trace 与 Reload 报告检查。上传始终执行，缺文件报错，排除独立宿主及其 Library，保留原始验证证据。配置/Python 通过不等于远端 CI、真实新宿主编译或 artifact 下载复核已通过。
 
@@ -330,3 +330,5 @@ python3 Tools/Verification/ci_artifact.py verify --folder <下载目录> --revis
 复核不重写任何JSON/命令/log，只显式传递原记录路径来解析原始XML/逐例trace、索引、必需用例、冻结计划、原命令顺序、Reload选项/自动退出以及上传前当前宿主审计。离线核对绑定本地相同源码指纹及准确GitHub运行身份，不声称在下载机器上重新执行Unity或重新计算已排除宿主的文件指纹。新增/篡改/缺失字节、错误SHA/runID、跳过/零匹配/缺trace均失败。
 
 官方依据：[self-hosted runner与ephemeral生命周期](https://docs.github.com/en/actions/reference/runners/self-hosted-runners)、[可信代码与最小权限](https://docs.github.com/en/actions/reference/security/secure-use)。
+
+full与专项均从空Assets的隔离宿主准备，不启动带历史样例副本的canonical Assets。G0通过同一冻结host-root读取实际当前宿主、复核最新已注册结果及全部原始索引；缺失注册/原始文件/新失败仍阻断旧绿色结果，不用清理历史目录获取通过。未指定host-root的历史G0入口仍保留canonical行为。

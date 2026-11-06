@@ -17,15 +17,18 @@ def assess(results,required,current):
     return dict(status='FAIL' if errors else 'PASS',errors=errors)
 
 
-def _preflight_locked(root):
+def _preflight_locked(root,host_root=None):
     from run import VERSIONS,V,A,C,snapshot,dump
+    if host_root is not None:
+        host_root=(Path(root)/host_root).resolve()
+        if not host_root.is_relative_to((A/'ci-selected/hosts').resolve()):raise ValueError('G0 host root must be under Artifacts/uikit/ci-selected/hosts')
     matrix=json.loads((C/'matrix.json').read_text());items=[]
     records,registration_errors=registered(A)
     from editor_targets import editors
     for ver in editors("all"):
         short,_,_=VERSIONS[ver]
         for backend in ('legacy','input'):
-            host=V/'Projects'/f'{short}-{backend}'
+            host=(host_root if host_root is not None else V/'Projects')/f'{short}-{backend}'
             try:
                 current=snapshot(ver,backend,host)
                 package='com.wulato.uikit.verification.'+('legacy' if backend=='legacy' else 'input-system')
@@ -57,13 +60,18 @@ def _preflight_locked(root):
     return int(status!='PASS')
 
 
-def preflight(root):
+def preflight(root,host_root=None):
     from locking import guard,VerificationBusy
     from run import A,dump
     try:
-        with guard(A,shared=True):return _preflight_locked(root)
+        with guard(A,shared=True):return _preflight_locked(root,host_root)
     except VerificationBusy as e:
         out=A/('g0-busy-'+uuid.uuid4().hex)/'preflight-report.json'
         dump(out,dict(gate='G0',schema=3,status='FAIL',errors=[str(e)],items=[]))
         print('G0 FAIL',str(e),'EVIDENCE',out)
+        return 1
+    except ValueError as error:
+        out=A/('g0-invalid-'+uuid.uuid4().hex)/'preflight-report.json'
+        dump(out,dict(gate='G0',schema=3,status='FAIL',errors=[str(error)],items=[]))
+        print('G0 FAIL',str(error),'EVIDENCE',out)
         return 1

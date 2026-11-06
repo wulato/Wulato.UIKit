@@ -226,10 +226,12 @@ class CoverageAndPreparationTests(unittest.TestCase):
         import ci_suites
         from editor_targets import TARGETS
         p=ci_suites.plan([],full=True)
-        self.assertEqual(set(TARGETS),{r['editor'] for r in p['tests']});self.assertIsNone(p['host_root'])
+        self.assertEqual(set(TARGETS),{r['editor'] for r in p['tests']});self.assertEqual('Artifacts/uikit/ci-selected/hosts',p['host_root'])
         self.assertEqual({'integration','context-host','preview'},{r['scope'] for r in p['reload']})
         self.assertEqual('gate',ci_suites.commands(p,False)[-1]['command'])
         self.assertTrue(p['tools'])
+        command=ci_suites.command_args(ci_suites.commands(p,False)[-1],p)
+        self.assertEqual(p['host_root'],command[command.index('--host-root')+1])
     def test_workflow_freezes_once_and_uploads_failure_evidence_without_host_libraries(self):
         text=(Path(__file__).resolve().parents[2]/'.github/workflows/uikit-checks.yml').read_text()
         self.assertEqual(1,text.count('--write-plan'))

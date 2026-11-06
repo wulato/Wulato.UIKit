@@ -159,7 +159,7 @@ def plan(paths,editor=None,backend='auto',full=False):
         if full or suites & {'preview-runtime','preview-authoring'}:scopes.append('preview')
         if full or any(p.removesuffix('.meta').endswith(('/RuntimeResetTests.cs','/UIPlayModeResetCheck.cs','/UIResourceResolver.cs','/AddressablesUIBootstrap.cs')) for p in paths):scopes.append('integration')
         for scope in scopes:reload.append(dict(command='play-reset',editor=ver,backend=back,scope=scope,reason=sorted(suites)))
-    return dict(schema=2,paths=paths,tools=tools or full,warnings=warnings,tests=rows,prepare=prepare,reload=reload,full=full,host_root=None if full else str(CI_DIR/'hosts'))
+    return dict(schema=2,paths=paths,tools=tools or full,warnings=warnings,tests=rows,prepare=prepare,reload=reload,full=full,host_root=str(CI_DIR/'hosts'))
 
 def binding():
     from build import source_fingerprint
@@ -191,7 +191,7 @@ def command_args(row,chosen):
     cmd=[sys.executable,str(R/'Tools/Verification/run.py'),row['command']]
     for key in ('editor','backend','mode','suite','phase','package_set','sample_set','scope','name'):
         if key in row:cmd+=['--'+key.replace('_','-'),row[key]]
-    if chosen['host_root'] and row['command']!='gate':cmd+=['--host-root',chosen['host_root']]
+    if chosen['host_root']:cmd+=['--host-root',chosen['host_root']]
     return cmd
 
 def execute(chosen,prepare=False):

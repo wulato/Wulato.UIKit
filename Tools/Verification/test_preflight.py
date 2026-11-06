@@ -103,3 +103,26 @@ class PreflightTests(unittest.TestCase):
         (recovery/'command.json').write_text(json.dumps(command))
         summary=json.loads((recovery/'summary.json').read_text());summary.update(run_id=metadata['run_id'],batch_id=metadata['batch_id'],batch_sha256=metadata['batch_sha256'],evidence=str(recovery),evidence_index_sha256=seal(recovery))
         (recovery/'summary.json').write_text(json.dumps(summary));self.assertEqual(0,self.gate())
+
+    def test_isolated_full_gate_uses_same_host_and_preserves_missing_raw_failure(self):
+        scoped=(self.artifacts/'ci-selected/hosts/full').resolve()
+        original=run.snapshot
+        def scoped_snapshot(ver,backend,host):
+            self.assertEqual(scoped/(run.VERSIONS[ver][0]+'-'+backend),host)
+            value=original(ver,backend,run.V/'Projects'/host.name)
+            value['host']=str(host)
+            return value
+        for folder in self.folders:
+            data=json.loads((folder/'host-snapshot.json').read_text())
+            target=scoped/(run.VERSIONS[data['editor']][0]+'-'+data['backend'])
+            data['host']=str(target);(folder/'host-snapshot.json').write_text(json.dumps(data))
+            command=json.loads((folder/'command.json').read_text());command[command.index('-projectPath')+1]=str(target)
+            (folder/'command.json').write_text(json.dumps(command))
+            record=json.loads((folder/'summary.json').read_text());record['evidence_index_sha256']=seal(folder)
+            (folder/'summary.json').write_text(json.dumps(record))
+        with patch.object(run,'snapshot',side_effect=scoped_snapshot),contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0,preflight(run.R,scoped))
+            (self.folders[0]/'results.xml').unlink()
+            self.assertNotEqual(0,preflight(run.R,scoped))
+    def test_isolated_gate_rejects_host_outside_artifacts(self):
+        with contextlib.redirect_stdout(io.StringIO()):self.assertNotEqual(0,preflight(run.R,'/tmp/not-a-uikit-host'))

@@ -1041,3 +1041,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - Python首轮全回归242项中2失败：旧workflow结构断言，以及Localization新增后包测试图遗漏Unity.Localization的可选引用。各修复1轮；Localization仍强制sample路径/显式宏/VersionDefine隔离，未放宽基础图。修复后248项PASS；补充workspace保护后全回归249项PASS；随后隐藏文件/symlink保护等相关65项PASS。最终冻结输入由真实hosted Python复验，原始日志/退出码在Artifacts/uikit/phase6-2；当前未声明远端或全门禁通过。
 
 - 首个真实远端专项 [run42231259000](https://github.com/wulato/Wulato.UIKit/actions/runs/42231259000) 的hosted Python250/250、原生contracts/integration及上传前当前宿主审计均成功；runner自动注销（API total_count回到0）。计划artifact下载digest与跨Linux/macOS冻结绑定复核PASS。原生artifact ZIP digest匹配，但离线审计FAIL：Actions默认忽略隐藏文件，collector却把非证据`.verification.lock`纳入字节清单，下载后缺失。保留原ZIP/API/receipt/失败报告，不修改原始材料；从collector排除这个临时锁，并增加缺文件与排除锁用例，传输同因修复1轮，等待复验。没有放宽RAW/必需用例/索引，也不把远端作业成功等同端到端验收。
+
+- 传输修复1轮复验 [run42233141320](https://github.com/wulato/Wulato.UIKit/actions/runs/42233141320) PASS，固定源码 `e7dcf49ea67f7ec2b81c2334bc3a3fa02576d4ff`：hosted Python251/251，原生contracts30/integration24，共54项；ZIP digest、安全解压及 `ci_artifact.verify` PASS。原始JSON/log未改写，`.verification.lock`仅从非证据上传清单排除；此因已解决，修复计数1。runner再次自动注销。
+- 同一源码完整门禁 [run42234297368](https://github.com/wulato/Wulato.UIKit/actions/runs/42234297368) 已派发，hosted计划成功，正在执行默认2022.3.62f2两后端完整适用Editor/Reload及G0；当前不声明最终通过。原始计划、runner诊断、下载ZIP/API/receipt与审计报告均位于Artifacts/uikit/phase6-2，旧失败run与下载字节保留。
+
+- 首次full run42234297368 FAIL，发生在准备Input宿主，尚未运行all测试：canonical `Verification/Projects` 的历史Assets/Samples/BusinessFlow仍调用0.4 UseNavigation/私有DialogRegistry。真实失败ZIP/digest/审计报告保留。修复方案为full同专项使用空Assets隔离宿主，G0新增相同host-root参数并保持最新注册/原始证据严格校验，拒绝超出忽略宿主范围；不删除/覆盖历史样例、不保留旧API。此因修复1轮；对应97项Python（含隔离G0正向、缺原始XML仍FAIL、越界Root拒绝）PASS。新增测试最初对macOS /var与/private/var别名比较失败，按实际resolve路径修正1轮；未改变Gate断言。冻结新输入后继续最终full门禁，之前专项对UI代码的证明由最终full中同一必需用例集补齐到当前指纹。
