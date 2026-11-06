@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Wulato.UIKit.Navigation;
 
 namespace Wulato.UIKit
 {
@@ -604,23 +605,39 @@ namespace Wulato.UIKit
             return shutdown.Task;
         }
 
+        bool CanUserClose(UISessionHandle session,UICloseReason reason)
+        {
+            if(state!=UIContextState.Running||session==null||session.State!=UIState.Open||session.CloseRequested)return false;
+            if(reason==UICloseReason.Back&&session.Registration.BackAction==UIBackAction.None)return false;
+            try {return Callback(()=>session.View.InvokeCanClose(reason));}
+            catch(Exception error){Report(Error(UIErrorCode.LifecycleFailed,"can-close",session,error));return false;}
+        }
         void UserCloseRequested(UISessionId sessionId, UICloseReason reason)
         {
-            var session = sessions.FirstOrDefault(s => s.Id == sessionId);
-            if (state != UIContextState.Running || session == null || session.State != UIState.Open || session.UserRequestPending || session.CloseRequested) return;
-            if (reason != UICloseReason.UserRequest && reason != UICloseReason.Back && reason != UICloseReason.Mask) return;
-            session.UserRequestPending = true;
-            commands.Enqueue(async () =>
+            var session=sessions.FirstOrDefault(s=>s.Id==sessionId);
+            if(state!=UIContextState.Running||session==null||session.State!=UIState.Open||session.UserRequestPending||session.CloseRequested)return;
+            if(reason!=UICloseReason.UserRequest&&reason!=UICloseReason.Back&&reason!=UICloseReason.Mask)return;
+            session.UserRequestPending=true;
+            if(reason==UICloseReason.Back&&dependencies.Services.TryGetValue(typeof(IUINavigator),out var service)&&service is UINavigator navigator)
+            {ObserveInputBack(navigator,session).Forget();return;}
+            // View/mask requests keep their distinct close reasons and the existing user-close contract.
+            commands.Enqueue(async()=>
             {
-                if (session.State != UIState.Open) return;
-                bool accepts;
-                try { accepts = Callback(() => session.View.InvokeCanClose(reason)); }
-                catch (Exception e) { Report(Error(UIErrorCode.LifecycleFailed, "can-close", session, e)); return; }
-                finally { session.UserRequestPending = false; }
-                if (!accepts) return;
-                session.CloseRequested = true; session.Reason = reason;
-                await CloseCore(session);
-            });
+                try
+                {
+                    if(!CanUserClose(session,reason))return;
+                    session.CloseRequested=true;session.Reason=reason;await CloseCore(session);
+                }
+                finally{session.UserRequestPending=false;}
+            },()=>session.UserRequestPending=false);
+        }
+        async UniTask ObserveInputBack(UINavigator navigator,UISessionHandle source)
+        {
+            try{await navigator.BackFromInputAsync(source.Id);}
+            catch(OperationCanceledException){ /* Shutdown owns bounded cleanup. */ }
+            catch(UIException){ /* Queued execution failures are already reported by Submit. */ }
+            catch(Exception error){Report(Error(UIErrorCode.LifecycleFailed,"input-back",source,error));}
+            finally{source.UserRequestPending=false;}
         }
         void ForegroundChanged(UISessionId sessionId, bool eligible)
         {

@@ -683,7 +683,7 @@ Ruling：原 Engine 单元夹具继续直接验证 Engine；业务模块公共�
 - [x] 当前指纹、XML/trace/原始索引/文件哈希、依赖程序集开关、codegen 各 37 文件及样例 25/34 文件复核通过，汇总 [verification.json](../../Artifacts/uikit/phase2-2/verification.json)。不接受的补充命令单独保留，不改变其他专项精确集合断言。
 - [x] 集中作者自审：目标/历史读取均在同一 FIFO，沿用 Publication/CommitReplacement，未改 Engine PageSteps/取消/资源清理算法；Facade 与默认 IUINavigator 共用历史，Modal 仍走普通 Engine 打开。新增测试附 .meta，既有 .meta 不变，331 GUID 唯一；当前文档路径、迁移说明与 diff 空白检查通过，未启子代理。
 - [x] 实现提交 `c2e034bba7663c03e876bec72bd91534eeb2d91a` 已推送，创建 [任务 2.2 PR #7](https://github.com/wulato/Wulato.UIKit/pull/7)（main ← refactor/uikit-0.5-page-navigation）；本次仅补执行记录，不自动合并。
-- [ ] 等待用户确认合并 PR #7 后，从更新 main 开始 2.3。
+- [x] 用户确认后已合并 PR #7，main 为 `999d918e1d8779e2c411943e078da766ac3d184a`；2.3 从此基线开始。
 
 Ruling：保留现有 PageSteps/提交/取消/回滚实现，未另造事务或生命周期；只更换 Navigator 的目标描述和拟议历史。单次 UniTask 仍只消费一次。PopTo 无匹配包括未注册类型/key，查询也排在 FIFO 内，不按调用时的旧历史提前返回。BackAsync 本阶段仅暴露既有页面返回；Modal 优先、CanClose 和输入 Cancel 路由属于 2.3。
 
@@ -701,3 +701,39 @@ Ruling：模块夹具增加默认 Navigator 与传入配对动画的选项，继
 环境仅 2022.3.62f2；无 SDK Legacy 与双 SDK Input（Addressables 1.21.21 / SBP 1.21.25 / Input System 1.17.0），host-root 分别 `Artifacts/uikit/ci-selected/hosts/phase2-2`、`.../phase2-2-sdk`。现有 run.py 的逐条命令、日志/退出码、首次失败和复验位于 `Artifacts/uikit/phase2-2/`，`final-commands.sh` 保存执行范围；预备/历史通过不重复计数。
 
 新生产代码问题已解决，语法原因修复 1 轮；历史分类问题未修复，补充命令明确 REFUSED，不描述为全项目通过。未运行完整 Suite、Reload 矩阵、额外编辑器、远端 CI、Player/IL2CPP 或真机，未改 ProjectSettings、根 manifest/lock、CI 工作流或原用户脏目录。2.3 等待本任务 PR 经用户确认合并后开始。
+
+
+### 2026-11-06 任务 2.3 统一 Back/Cancel
+
+- [x] 用户明确授权合并 PR #7；核对远端 head 后普通合并。复用干净工作区，从最新 main `999d918e1d8779e2c411943e078da766ac3d184a` 创建 `refactor/uikit-0.5-back-cancel`，不覆盖原工作区修改。
+- [x] 沿用 Navigator → PageSteps → Engine 单一 FIFO；非 Page 输入拥有者优先，BackAction.None/CanClose 否决不穿透；页面返回原描述，根页 no-op。Facade 既有入口自动复用，无第二套生命周期。
+- [x] Input Cancel 绑定原会话，提交前重新核对拥有权，重复待处理请求去重；View UserRequest/Mask/Owner 仍独立。非 Page 接受关闭即提交，caller 取消不抛弃有界 Closed 屏障，Shutdown 仍可接管。
+- [x] 新增导航取消/迟到/隔离/Modal FIFO 用例、两后端共用真实输入场景及 Dialog 联合流程；补 matrix 必需用例，不扩大或放宽范围检查。
+- [x] 最终专项验证与原始证据审计：13 组 / 284 项 Unity、125 项 Python；[verification.json](../../Artifacts/uikit/phase2-3/verification.json) PASS。
+- [x] 实现提交 `aefb40c88bdb393c6a2720f13c21abcb48bfec29` 已推送，创建 [任务 2.3 PR #8](https://github.com/wulato/Wulato.UIKit/pull/8)（main ← refactor/uikit-0.5-back-cancel）。
+- [ ] 等待用户确认合并 PR #8；不开始 2.4。
+
+设计决定：只更改内置返回路径，不新增公共服务/协议；新增内部 RouteBack 步骤复用现有事务锁、资源所有权及关闭清理。显式 Back 保持 Context 本地；设备 Cancel 只作用于当前输入拥有者。UIBackAction.None 包括页面，阻止用户返回；Owner Close 不受此限制。非 Page 返回在没有页面历史时也有效。
+
+初始证据：`Artifacts/uikit/phase2-3/` 保存逐条日志/退出码；基础 prepare PASS `20261106T012752337321-prepare-87a108`；行为 RED `20261106T012829305317-tests-de8cb8` 复现 4 项旧 Back 缺陷。局部变量 target 遮蔽 CS0136 修复 1 轮，navigation 26 项 PASS `20261106T013555270327-tests-914692`。新增测试误用不存在的 Navigator.Current，依据 CS1061 改用已有 diagnostics（修复 1 轮）。新增夹具对 disabled EventSystem 注册失败，改为注册启用但 Update 空实现的测试 EventSystem，仍每注入帧手动调用一次真实 Module.Process（修复 1 轮）；不 suppress 日志。页面加载是异步过程，新增断言改为先检查一次 CanClose，再有界等待历史提交（夹具等待原因修复 1 轮）；Legacy input-runtime 46 项 PASS （`input-await-history.log` 中记录的原始路径）。各原始失败保留，不计为验收通过。历史 samples 分类问题计数 1 保留，本次不运行该非必需专项，不修改 runner。
+
+
+最终验收（2.3）：
+
+| 宿主 | 专项 | 通过用例 |
+| --- | --- | --- |
+| 无 SDK / Legacy | navigation EditMode | 28 |
+| 无 SDK / Legacy | input-runtime PlayMode | 46 |
+| 无 SDK / Legacy | flow-integration PlayMode | 5 |
+| 无 SDK / Legacy | transitions PlayMode | 40 |
+| 无 SDK / Legacy | sessions EditMode / PlayMode | 22 / 29 |
+| 无 SDK / Legacy | dialogs / popup-queue / package-install EditMode | 13 / 12 / 4 |
+| 仅 Input System | navigation EditMode | 28 |
+| 仅 Input System | input-runtime PlayMode | 48 |
+| 仅 Input System | flow-integration PlayMode / package-install EditMode | 5 / 4 |
+
+实际环境为 Unity 2022.3.62f2，无 SDK Legacy 和仅 Input System 1.17.0 两个隔离宿主（host-root `Artifacts/uikit/ci-selected/hosts/phase2-3`、`.../phase2-3-sdk`）。Addressables 适配及加载路径未变，本任务不重跑该 SDK 组合。`final-commands.sh` 保存实际范围，逐条日志/退出码、原始 XML/trace/索引哈希在 `Artifacts/uikit/phase2-3/`。补齐 Input System 新增继承用例的必需集合后，在最终矩阵指纹下集中复验；此前通过不重复计数。审计检查当前指纹、精确用例集合、原始证据和可选程序集开关，PASS；原始失败保留。Python 相关十个模块 125 项通过（results/evidence/integrity/integrated_package/runtime/package_test_boundary/ci_suites/contract_probe/runner/preflight）。
+
+集中审查确认没有新增依赖、第二套生命周期、默认 Context 或通用输入抽象；所有新增 Unity 脚本保留对应 meta，既有 GUID 未变。未改根 manifest/lock、ProjectSettings、CI 工作流或原用户脏目录。无未解决新失败；上述各原因修复均 1 轮，没有超限重试。历史 samples 分类问题仍留在独立后续维护范围。本次没有运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机；不把专项结果扩大为整体验收。2.4 仍须本 PR 由用户确认合并后从更新 main 开始。
+
+GitHub 交付：连接器创建 PR 返回 403 Resource not accessible by integration；使用本机已授权 gh 创建 PR #8 成功，不扩张凭据或安装工具。main 保持 `999d918e1d8779e2c411943e078da766ac3d184a`，本 PR 未合并。

@@ -1,4 +1,6 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
+using Wulato.UIKit.Navigation;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +11,10 @@ using Object=UnityEngine.Object;
 using System.Linq;
 namespace Wulato.UIKit.Tests.Input
 {
+    public sealed class ManualInputEventSystem : EventSystem
+    {
+        protected override void Update() { } // Tests advance the real module explicitly once per injected frame.
+    }
     public class RuntimeInputScene
     {
         public GameObject Root;
@@ -19,7 +25,7 @@ namespace Wulato.UIKit.Tests.Input
         {
             Root=new GameObject("InputPreflight");
             var es=new GameObject("EventSystem");es.transform.SetParent(Root.transform);
-            Events=es.AddComponent<EventSystem>();Events.enabled=false; // Process is advanced exactly once per injected frame.
+            Events=es.AddComponent<ManualInputEventSystem>();Events.enabled=false; // Process is advanced exactly once per injected frame.
             var canvasObject=new GameObject("Canvas",typeof(RectTransform),typeof(Canvas),typeof(GraphicRaycaster));canvasObject.transform.SetParent(Root.transform);
             canvasObject.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
             Spies=new InputEventSpy[2];
@@ -77,6 +83,49 @@ namespace Wulato.UIKit.Tests.Input
         {yield return Step(At(owner,true));yield return Step(At(owner));}
         IEnumerator FreshSubmit(int owner=0)
         {yield return Step(At(owner,submit:true));yield return Step(At(owner));}
+        async UniTask BackFrame(RawInput raw)
+        {
+            await UniTask.NextFrame();Inject(raw);Module.UpdateModule();Module.Process();await UniTask.NextFrame();
+        }
+        [UnityTest,Category("input_runtime")] public IEnumerator Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await f.UI.PushAsync<RuntimeBackPage>();var modal=await f.UI.OpenAsync<RuntimeBackModal>();var nav=f.UI.GetService<IUINavigator>();
+                await BackFrame(At());Assert.That(Scene.Events.currentSelectedGameObject,Is.Not.Null);
+                await BackFrame(At(cancel:true));Assert.That(modal.State,Is.EqualTo(UIState.Closed));Assert.That((await modal.Closed).Reason,Is.EqualTo(UICloseReason.Back));
+                Assert.That(nav.History.Count,Is.EqualTo(2));Assert.That(RuntimeBackPage.Checks,Is.Zero);
+                await BackFrame(At(cancel:true));await BackFrame(At(cancel:true));Assert.That(nav.History.Count,Is.EqualTo(2));
+                await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(RuntimeBackPage.Checks,Is.EqualTo(1),"One fresh edge must invoke CanClose once.");
+                await UniTask.WaitUntil(()=>nav.History.Count==1).Timeout(TimeSpan.FromSeconds(3));Assert.That(nav.History.Count,Is.EqualTo(1));
+                await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(nav.History.Count,Is.EqualTo(1));Assert.That(f.UI.GetDiagnostics().Sessions[0].State,Is.EqualTo(UIState.Open));
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("input_runtime")] public IEnumerator Cancel_VetoAndLockNeverFallThroughOrReplayHeldInput()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await f.UI.PushAsync<RuntimeBackPage>();var modal=await f.UI.OpenAsync<RuntimeBackModal>();var nav=f.UI.GetService<IUINavigator>();
+                RuntimeBackModal.Allow=false;await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(modal.State,Is.EqualTo(UIState.Open));Assert.That(RuntimeBackModal.Checks,Is.EqualTo(1));Assert.That(RuntimeBackPage.Checks,Is.Zero);
+                await BackFrame(At(cancel:true));Assert.That(RuntimeBackModal.Checks,Is.EqualTo(1));await BackFrame(At());RuntimeBackModal.Allow=true;
+                var locked=f.Arbiter.AcquireLock(f.UI.ContextId);try{await BackFrame(At(cancel:true));}finally{locked.Dispose();}
+                await BackFrame(At(cancel:true));Assert.That(modal.State,Is.EqualTo(UIState.Open));
+                await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(modal.State,Is.EqualTo(UIState.Closed));Assert.That(nav.History.Count,Is.EqualTo(2));
+                RuntimeBackPage.Allow=false;await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(nav.History.Count,Is.EqualTo(2));Assert.That(await f.UI.BackAsync(),Is.False);Assert.That(nav.History.Count,Is.EqualTo(2));
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("input_runtime")] public IEnumerator Cancel_OnlyTouchesTheOwningContextAcrossModalTransfer()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await f.UI.PushAsync<RuntimeBackPage>();var a=await f.UI.OpenAsync<RuntimeBackModal>();
+                var peer=f.CreatePeer();await peer.OpenAsync<RuntimeBackHome>();await peer.PushAsync<RuntimeBackPage>();var b=await peer.OpenAsync<RuntimeBackModal>();
+                await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(b.State,Is.EqualTo(UIState.Closed));Assert.That(a.State,Is.EqualTo(UIState.Open));
+                await BackFrame(At(cancel:true));Assert.That(a.State,Is.EqualTo(UIState.Open));
+                await BackFrame(At());await BackFrame(At(cancel:true));Assert.That(a.State,Is.EqualTo(UIState.Closed));
+                Assert.That(f.UI.GetService<IUINavigator>().History.Count,Is.EqualTo(2));Assert.That(peer.GetService<IUINavigator>().History.Count,Is.EqualTo(2));Assert.That(RuntimeBackPage.Checks,Is.Zero);
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest,Category("input_runtime")] public IEnumerator ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce()
         {
             yield return Step(At(down:true));var drag=At(down:true);drag.Position+=new Vector2(40,0);yield return Step(drag);

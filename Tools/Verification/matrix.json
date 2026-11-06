@@ -195,7 +195,10 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
-          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_VetoAndLockNeverFallThroughOrReplayHeldInput",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_OnlyTouchesTheOwningContextAcrossModalTransfer"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -227,7 +230,8 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -427,7 +431,15 @@
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
-          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_ClosesOnlyTheModalThenRespectsPageVetoAndRootNoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.BackActionNone_BlocksFallthroughAndOwnerCloseStillWorks",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_IsDebouncedAndCannotTargetAReplacementSession",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalBack_HoldsFifoUntilClosedAndDoesNotAlsoPopThePage",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_HookFailureAndPreCanceledRequestDoNotChangeHistory",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_IsContextLocalAndShutdownCanTakeOverABlockedBack",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_RestoresHistoryAndRootIsANoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalWithoutPages_AcceptedBackIgnoresLateCallerCancellation"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -705,7 +717,10 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
-          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_VetoAndLockNeverFallThroughOrReplayHeldInput",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_OnlyTouchesTheOwningContextAcrossModalTransfer"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -737,7 +752,8 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -942,7 +958,15 @@
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
-          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_ClosesOnlyTheModalThenRespectsPageVetoAndRootNoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.BackActionNone_BlocksFallthroughAndOwnerCloseStillWorks",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_IsDebouncedAndCannotTargetAReplacementSession",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalBack_HoldsFifoUntilClosedAndDoesNotAlsoPopThePage",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_HookFailureAndPreCanceledRequestDoNotChangeHistory",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_IsContextLocalAndShutdownCanTakeOverABlockedBack",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_RestoresHistoryAndRootIsANoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalWithoutPages_AcceptedBackIgnoresLateCallerCancellation"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -1219,7 +1243,10 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
-          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_VetoAndLockNeverFallThroughOrReplayHeldInput",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Cancel_OnlyTouchesTheOwningContextAcrossModalTransfer"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -1251,7 +1278,8 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -1451,7 +1479,15 @@
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
-          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_ClosesOnlyTheModalThenRespectsPageVetoAndRootNoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.BackActionNone_BlocksFallthroughAndOwnerCloseStillWorks",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_IsDebouncedAndCannotTargetAReplacementSession",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalBack_HoldsFifoUntilClosedAndDoesNotAlsoPopThePage",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_HookFailureAndPreCanceledRequestDoNotChangeHistory",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_IsContextLocalAndShutdownCanTakeOverABlockedBack",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_RestoresHistoryAndRootIsANoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalWithoutPages_AcceptedBackIgnoresLateCallerCancellation"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",
@@ -1729,7 +1765,10 @@
           "Wulato.UIKit.Tests.PlayMode.ForegroundTests.ForegroundExitFailure_ClosingCollectsErrorWithoutSecondTermination",
           "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.RevokedTransitionOwner_RetainsBarrierUntilLeaseRelease",
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce",
-          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput"
+          "Wulato.UIKit.Tests.PlayMode.InputArbitrationTests.ModalBarrier_LockedSameContextPageCannotStealInput",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_VetoAndLockNeverFallThroughOrReplayHeldInput",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Cancel_OnlyTouchesTheOwningContextAcrossModalTransfer"
         ],
         "integration": [
           "Wulato.UIKit.Tests.PlayMode.RuntimeResetTests.TwoPlaySessions_NoOldLocksOrSubscriptions",
@@ -1761,7 +1800,8 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ModalRemainsOwnerAcrossPageReplacement",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -1966,7 +2006,15 @@
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancelBeforeRootOrPopToCommit_RestoresCurrentHistoryAndInputOwner",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.PostCommitCancellationAndOldCloseFailure_DoNotUndoNewRoot",
           "Wulato.UIKit.Navigation.Tests.PageNavigationTests.QueuedRootPushAndPopTo_ReadHistoryWhenTheirFifoTurnStarts",
-          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner"
+          "Wulato.UIKit.Navigation.Tests.PageNavigationTests.CancellationInsideInputCommit_RollsBackRootPublicationAndOwner",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_ClosesOnlyTheModalThenRespectsPageVetoAndRootNoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.BackActionNone_BlocksFallthroughAndOwnerCloseStillWorks",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_IsDebouncedAndCannotTargetAReplacementSession",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalBack_HoldsFifoUntilClosedAndDoesNotAlsoPopThePage",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_HookFailureAndPreCanceledRequestDoNotChangeHistory",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.Back_IsContextLocalAndShutdownCanTakeOverABlockedBack",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.InputBack_RestoresHistoryAndRootIsANoOp",
+          "Wulato.UIKit.Navigation.Tests.BackNavigationTests.ModalWithoutPages_AcceptedBackIgnoresLateCallerCancellation"
         ],
         "presentation": [
           "Wulato.UIKit.Presentation.Tests.PresenterOwnershipTests.CacheReopen_CreatesFreshPresenterPerSession",

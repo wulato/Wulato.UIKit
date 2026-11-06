@@ -57,8 +57,9 @@ namespace Wulato.UIKit.Navigation
         /// <inheritdoc/>
         public async UniTask<bool> BackAsync(CancellationToken cancellationToken=default)
             =>await Navigate(null,Move.Back,cancellationToken)!=null;
+        internal async UniTask<bool> BackFromInputAsync(UISessionId source)=>await Navigate(null,Move.Back,CancellationToken.None,inputSource:source)!=null;
         enum Move { Root,Push,Replace,Back,PopTo }
-        async UniTask<IUISession> Navigate(UIPageDescriptor page,Move move,CancellationToken caller,Type popType=null)
+        async UniTask<IUISession> Navigate(UIPageDescriptor page,Move move,CancellationToken caller,Type popType=null,UISessionId? inputSource=null)
         {
             if(stopped)throw new UIException(UIErrorCode.ContextStopped,"navigation",context.ContextId);
             IUISession result=null;
@@ -68,7 +69,12 @@ namespace Wulato.UIKit.Navigation
                 // Every history read and proposed edit belongs to this FIFO turn.
                 int destination=-1;
                 if(move==Move.Back)
-                {if(history.Count<2)return;destination=history.Count-2;}
+                {
+                    var backTarget=await steps.RouteBackAsync(current,history.Count>1,inputSource);
+                    if(backTarget==null)return;
+                    if(!ReferenceEquals(backTarget,current)){result=backTarget;return;}
+                    destination=history.Count-2;
+                }
                 else if(move==Move.PopTo)
                 {
                     bool Matches(UIPageDescriptor item)=>popType!=null?registry.Get(item.Type).ViewType==popType:item.Type==page.Type;

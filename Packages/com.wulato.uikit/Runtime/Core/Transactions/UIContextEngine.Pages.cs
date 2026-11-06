@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 namespace Wulato.UIKit
 {
@@ -71,6 +72,32 @@ namespace Wulato.UIKit
                 =>steps.AnimateAsync(session,transition,entering,token);
             public UniTask<UICompletion> CloseAsync(IUISession session,UITransitionOwner owner,UICloseReason reason=UICloseReason.Owner)
                 =>steps.CloseAsync(session,owner,reason);
+            public async UniTask<IUISession> RouteBackAsync(IUISession page,bool hasPrevious,UISessionId? inputSource=null)
+            {
+                steps.Guard();if(committed)throw engine.Error(UIErrorCode.InvalidRequest,"back-already-committed");
+                var owner=engine.inputOwner.HasValue?engine.sessions.FirstOrDefault(s=>s.Id==engine.inputOwner.Value.SessionId&&s.State==UIState.Open&&!s.CloseRequested):null;
+                // A device event is tied to the owner at dispatch, never retargeted after a queued replacement.
+                if(inputSource.HasValue&&(owner==null||owner.Id!=inputSource.Value))return null;
+                // Explicit Context Back stays local even when another Context owns the shared domain.
+                if(owner==null&&!inputSource.HasValue)
+                    owner=engine.sessions.LastOrDefault(s=>s.State==UIState.Open&&!s.CloseRequested&&s.Registration.Layer!=UILayer.Page&&s.Registration.InputPolicy.TakesInput);
+                if(owner!=null&&owner.Registration.Layer!=UILayer.Page)
+                {
+                    if(!engine.CanUserClose(owner,UICloseReason.Back))return null;
+                    lock(gate)
+                    {
+                        steps.Guard();
+                        // Accepted closure is the commit point; caller cancellation cannot abandon its Closed barrier.
+                        steps.committed=true;committed=true;
+                    }
+                    await steps.CloseAsync(owner,owner.TransitionOwner,UICloseReason.Back);return owner;
+                }
+                if(page==null||!hasPrevious)return null;
+                var current=steps.Find(page);
+                if(owner!=null&&!ReferenceEquals(owner,current))return null;
+                if(!engine.CanUserClose(current,UICloseReason.Back))return null;
+                steps.Guard();return page;
+            }
             UISessionHandle Validate(IUISession session,bool target)
             {
                 var handle=steps.Find(session);
