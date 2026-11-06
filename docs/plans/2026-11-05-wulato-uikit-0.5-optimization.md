@@ -886,7 +886,8 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 - [x] [verification.json](../../Artifacts/uikit/phase3-3/verification.json) PASS：当前 snapshot/fingerprint、实际/必需精确用例集合、原始 XML/每例 trace、run/batch/index/hash、官方归档 SHA、原样 SDK Runtime 字节、四宿主示例副本一致性。SDK 未声明 AssemblyVersion（实际 0.0.0.0），候选身份由固定 v1.9.0 tag commit / 归档及安装字节验证，不伪称程序集版本为 1.9.0。
 - [x] 记录局部测量：384 高度 6 Cell，768 高度 12 Cell；300 次同步跳转 6.4231ms，GC.GetTotalMemory(false) 前后差 +352256 字节。仅该机器/Editor 的函数调用测量，不含帧渲染/网络，不代表分配总量、零 GC 或 Player 帧预算，不设跨机器阈值。
 - [x] 无生产 Runtime/Editor/API、必需依赖、版本、已有资产 GUID、ProjectSettings 或 MC 变更；新增 Prefab 限于 Samples~/FancyScrollView，SDK viewport 正常序列化绑定。UI Extensions 仅接入指南，未安装/编译，不宣称兼容性验收。SDK/原始证据/临时生成器不提交，临时生成器已从宿主移除。
-- [ ] 提交并创建本任务 PR，等待用户确认合并；不启动 4.1。
+- [x] 实现提交 `79a05650ad4a33f10004a5e4f405094e84516f0a` 已推送，创建 [任务 3.3 PR #12](https://github.com/wulato/Wulato.UIKit/pull/12)（main ← feat/uikit-0.5-fancy-scroll-sample）。
+- [ ] 等待用户确认合并 PR #12；不启动 4.1。
 
 命令及全部退出码/日志：`Artifacts/uikit/phase3-3/final-commands.sh`、`input-legacy-repair1.log`、`python-final.log`、`verify-final.py`。最终原始证据：fancy-list `20261106T054912398608-tests-f43e48`；controls-input Legacy `20261106T054736767542-tests-4b2cd2`、Input `20261106T055029129211-tests-e2129c`；package-install 无/关闭/启用 SDK `20261106T055039762358-tests-0224aa`、`20261106T055049922780-tests-887840`、`20261106T055100032695-tests-245be5`。prepare 及原始失败保留在本地，均不作为额外通过计数；无同原因超过两轮修复。
 
