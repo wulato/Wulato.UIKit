@@ -778,7 +778,7 @@ Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主
 交付状态：PR #9 已创建；沿用本机已授权 gh（连接器先前创建 PR 返回 403，不重复尝试该权限阻塞），未扩张凭据。main 保持 `f9df977f5c47ddceed23bd03d1b5c21c09a9585a`，本 PR 未合并。
 
 
-### 2026-11-06 任务 3.1 DOTween 与 Presets（验收完成，待 PR）
+### 2026-11-06 任务 3.1 DOTween 与 Presets（PR #10 待审）
 
 - [x] 精确 head 合并 PR #9；从最新 main `78a9523137a31061a714acb6b6d5eee9f462d6ab` 创建 `feat/uikit-0.5-dotween-presets`，复用原干净工作区。
 - [x] 用户单独授权从官方下载 DOTween 1.3.045，仅用于本任务隔离宿主；不提交 SDK，不修改 MC 项目。官方 ZIP SHA256 `32eba5c48520a541775d00cb396e18975b83587ba79175dbb878d753725ba5d9`，DLL SHA256 `c51b065925bb37c308f9a05a776cdf09f49a97a6f7c2393b4fb3b3f01c045232`，实际版本由专项断言。
@@ -786,7 +786,8 @@ Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主
 - [x] 实现 Fade/Scale/Slide、配对并行 Sequence、默认非缩放 Update、播放身份、同步 Stop/Kill(false)、声明属性复位；不调用 KillAll 或修改 SDK 全局设置。
 - [x] 移除通用生产 UITransitionRunner；其 Stop、完成、timeScale=0、重入四项验收迁往实际 DOTween 专项，基础 ControlledTransition 合约测试保留，不以测试代码替换生产通用引擎。
 - [x] 完成 Preset/Host 真实资产、示例、静态状态 Reload 与依赖组合；最终 18 组 / 307 项 Unity、6 组 / 12 次实际 Play、151 项 Python 通过，严格审计 PASS。
-- [ ] 集中审查、提交和创建 PR；等用户确认合并，不推进 3.2。
+- [x] 集中自审完成，实现提交 `b10f62f8c44496b136c479ded10a83b1a7816f92` 已推送，创建 [任务 3.1 PR #10](https://github.com/wulato/Wulato.UIKit/pull/10)（main ← feat/uikit-0.5-dotween-presets）。
+- [ ] 等待用户确认合并 PR #10；不推进 3.2。
 
 执行证据集中在 `Artifacts/uikit/phase3-1/`。Preset API 编译 RED `20261106T022811624946-prepare-5636ca`；无 SDK 首轮 prepare PASS `20261106T023042681697-prepare-c8a298`。SDK 启用脚本最初匹配了另一个 Standalone YAML 字段，实际 define 未启用，专项零匹配（不算通过）；改为只编辑 scriptingDefineSymbols（该原因修复 1 轮）。自动枚举误收 IDisposable.Dispose 已移出必需集合，不放宽用例断言。启用真实 SDK 后 `20261106T023554217497-tests-9f5127` 验出缺 runtime Modules 和零时长成功被 Kill 回调覆盖；零时长原因修复 1 轮。SDK runtime Modules 完整性第 1 轮仅加入官方 Utils，编译证实其依赖 Physics/Physics2D；第 2 轮补齐这两个官方文件，未改 SDK 源码。当时 `sdk-complete-prepare` / `dotween-complete` 正在执行；第 2 轮随后实际通过（`20261106T023942759186-prepare-c2bc14`、`20261106T023958773893-tests-0c63ca`），未继续同因修复。所有日志/退出码与失败保留。历史 samples 类别问题计数 1 原样保留。
 
@@ -819,3 +820,5 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 集中自审：适配只拥有每次 Sequence，Stop 在结果发布前同步 Kill，Complete/Kill 重入由播放身份隔离；自有 AutoKill/非回收/unscaled 配置不改变 SDK 全局设置；单界面用一个 Settings 的反向出场，配对可分别配置 Incoming/Outgoing。基础 Host 的两个抽象 factory 不引用 SDK，空字段 Immediate，configure 最后执行。新 Unity 文件均有独立 meta，既有 GUID 仅随明确移除的非 MonoBehaviour Runner 脚本删除；未改 Scene/Prefab、根 ProjectSettings/manifest/lock、CI workflow 或 MC 项目；SDK/ZIP/官方模块不提交。package.json 只新增可选示例条目，依赖和版本不变。
 
 当前只验证官方 DLL 形式 DOTween 1.3.045，不宣称 Pro/其他 SDK 格式/其他版本已兼容。Addressables 未改，不额外扩展该 SDK 组合；未运行完整 Suite、额外编辑器、远端 CI、Player/IL2CPP、真机或移动性能门禁。CI 选择/证据规则已支持可选专项，但不会自动安装 SDK，远端 SDK provisioning/发布仍留 Phase 6。3.2 必须等待本 PR 经用户确认合并后再从更新 main 开始；回退整项 revert，不动用户 SDK 或全局 Tween。
+
+交付状态：PR #10 已创建，SDK 二进制与归档均留在本地忽略目录；main 保持 `78a9523137a31061a714acb6b6d5eee9f462d6ab`，本 PR 未合并。沿用本机已授权 gh，未重复尝试连接器既有的写入 403 限制，未扩张凭据。
