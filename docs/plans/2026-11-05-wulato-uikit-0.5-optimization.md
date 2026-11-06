@@ -958,7 +958,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] [verification.json](../../Artifacts/uikit/phase4-2/verification.json) PASS：所有必需用例均匹配，全部实际用例通过；当前 snapshot/指纹、原始 XML/逐例trace、run/batch/index/hash、Reload选项/自动退出/取消原始文件、两后端九阶段编译输出及真实Bundle当前源/字节校验。原始命令、日志和退出码见 `Artifacts/uikit/phase4-2/final-commands.sh`、`pilot-commands.sh`、`verify-final.py` 和逐条输出。
 - [x] 原生保存取消两后端均通过实际 Cancel 点击与 `save-cancel.json` 的四项证明（脏场景保留、未进入Play、未创建预览、PASS）。点击后测试夹具才清理脏标记并进行两次正常预览，不把后续预览误当取消失败。
 - [x] 集中自审：单一 Package/程序集边界、依赖与版本不变，无生产 Scene/Prefab/ProjectSettings/已有GUID变更，不修改MC。Runtime改动限诊断值投影和有界记录；无新生命周期、Loader、历史管理器或可写诊断对象。旧 Profile 默认Immediate，旧恢复记录不要求 terminal 字段。
-- [ ] 提交并创建本任务 PR，等待用户审核合并；不开始5.1。
+- [x] 实现提交 `736b1c8a2f6e8f02e3d68cdf3e2812c7e9aaf3d5` 已推送，创建 [任务 4.2 PR #14](https://github.com/wulato/Wulato.UIKit/pull/14)（main ← feat/uikit-0.5-diagnostics-preview）。
+- [ ] 等待用户确认合并 PR #14；不开始5.1。
 
 环境修复（1轮）：首轮交互保存取消的行为与双次Play报告均 PASS，但 `20261106T072224757366-preview-reset-980b24` 指纹门禁 FAIL，未计验收。GUI 首次打开自动将空 Standalone applicationIdentifier 补为 com.Wulato.UIKitPreflight，并新建 ProjectSettings/PackageManagerSettings.asset；不是生产代码失败。只恢复该已比对单字段，将新文件移入本任务忽略证据目录，原 headless 宿主恢复到已通过的完整指纹。为原生验证另复制两个任务宿主（仅Assets/Packages/ProjectSettings），预置已观察的GUI默认值/文件，未复制Library、未改MC；稳定宿主两次验证通过。保留原始失败/raw snapshot，不改已有证据或放宽 runner，原界面应用自动退出后的 CUA noWindowsAvailable 不记为测试通过，最终以原始报告及指纹验收。
 
