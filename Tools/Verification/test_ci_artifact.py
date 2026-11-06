@@ -7,7 +7,7 @@ class PortableArtifactTests(unittest.TestCase):
   with tempfile.TemporaryDirectory() as directory:
    root=Path(directory);a=root/'Artifacts/uikit';a.mkdir(parents=True)
    (root/'Packages/com.wulato.uikit').mkdir(parents=True);(root/'Packages/com.wulato.uikit/package.json').write_text('{"version":"0.5.0"}')
-   paths=['failed/editor.log','ci-selected/selection.json','ci-selected/hosts/project/Assets/secret.cs','project/Library/cache','snapshot/git-source/secret.cs','sdk/vendor.dll','runner/.credentials','runner/_diag/log']
+   paths=['failed/editor.log','ci-selected/selection.json','ci-selected/hosts/project/Assets/secret.cs','project/Library/cache','snapshot/git-source/secret.cs','sdk/vendor.dll','runner/.credentials','runner/_diag/log','.verification.lock']
    for name in paths:
     p=a/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('raw failure evidence')
    with patch.dict('os.environ',{'GITHUB_WORKSPACE':str(root)}),patch.object(artifact.run,'R',root),patch.object(artifact.run,'A',a),patch.object(artifact.build,'source_fingerprint',return_value='fingerprint'),patch('subprocess.check_output',return_value='a'*40+'\n'):
@@ -41,3 +41,10 @@ class PortableArtifactTests(unittest.TestCase):
    folder=Path(directory);self.fixture(folder);(folder/'external').symlink_to('/etc/passwd')
    with patch.object(artifact.build,'source_fingerprint',return_value='source'):
     self.assertIn('artifact-symlink',artifact.verify(folder,'a'*40,'123')['errors'])
+
+ def test_missing_indexed_file_returns_a_failure_before_raw_parsing(self):
+  with tempfile.TemporaryDirectory() as directory:
+   folder=Path(directory);data=self.fixture(folder);data['files']={'results.xml':'hash'};(folder/'artifact.json').write_text(json.dumps(data))
+   with patch.object(artifact.build,'source_fingerprint',return_value='source'):
+    result=artifact.verify(folder,'a'*40,'123')
+   self.assertEqual('FAIL',result['status']);self.assertIn('missing-artifact-byte:results.xml',result['errors'])

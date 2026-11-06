@@ -9,7 +9,7 @@ def export(destination):
  if not workspace or Path(workspace).resolve()!=run.R.resolve():raise ValueError('export-requires-current-github-workspace')
  if not destination.is_relative_to(run.A.resolve()) or destination==run.A.resolve():raise ValueError('export-must-be-under-artifacts')
  if destination.exists():raise ValueError('refuse-overwriting-artifact')
- excluded={'Library','Temp','.git','consumer','git-source','hosts','sdk','runner','_work','_diag','.credentials','.credentials_rsaparams'}
+ excluded={'Library','Temp','.git','consumer','git-source','hosts','sdk','runner','_work','_diag','.credentials','.credentials_rsaparams','.verification.lock'}
  paths=[p for p in run.A.rglob('*') if p.is_file() and not p.is_symlink() and not p.resolve().is_relative_to(destination) and not (set(p.relative_to(run.A).parts)&excluded) and p.name!='.DS_Store']
  destination.mkdir(parents=True)
  index={}
@@ -32,6 +32,8 @@ def verify(folder,revision,run_id):
  for name,digest in manifest['files'].items():
   path=Path(name)
   if path.is_absolute() or '..' in path.parts:raise ValueError('unsafe-artifact-member')
+  if not (folder/path).is_file():
+   errors.append('missing-artifact-byte:'+name);continue
   check(evidence.sha256(folder/path)==digest,'artifact-byte:'+name)
  check(not errors,'artifact-envelope')
  if errors:return dict(status='FAIL',errors=errors,groups=groups)
