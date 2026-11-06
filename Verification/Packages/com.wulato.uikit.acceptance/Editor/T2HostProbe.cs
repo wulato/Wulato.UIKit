@@ -21,7 +21,7 @@ namespace Wulato.UIKit.Acceptance.Editor
             File.WriteAllText(Path.Combine(folder,"dependency-snapshot.json"),JsonUtility.ToJson(report,true));
             var ugui=Environment.GetEnvironmentVariable("UIKIT_EXPECTED_UGUI");
             if(string.IsNullOrEmpty(ugui))throw new InvalidOperationException("Missing explicit editor dependency profile.");
-            foreach(var requirement in new[]{("com.wulato.uikit","0.4.0"),("com.cysharp.unitask","2.5.11"),("com.unity.ugui",ugui)})
+            foreach(var requirement in new[]{("com.wulato.uikit","0.5.0"),("com.cysharp.unitask","2.5.11"),("com.unity.ugui",ugui)})
                 if(!packages.Any(p=>p.name==requirement.Item1 && p.version==requirement.Item2))throw new InvalidOperationException("Resolved package mismatch: "+requirement.Item1);
             Wulato.UIKit.Verification.Editor.FixtureBuilder.Create();
             Debug.Log("UIKIT_T2_DEPENDENCIES_OK");

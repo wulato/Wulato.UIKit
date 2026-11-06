@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased — 0.5 tasks 1.1–4.2
+## 0.5.0 — 2026-11-06
+
+Package checkpoint for reviewed Phase 1–5 functionality. Remote CI and mobile/Release Gate remain separate Phase 6 acceptance; this entry is not a release-gate pass.
 
 - Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
 - Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
@@ -15,6 +17,9 @@
 - Extend Workbench with Page/Modal/Dialog and optional Presenter templates, guarded source selection, explicit input selection and atomic scene/Host initialization with existing presets. Preserve existing policies, user partials and assembly routes.
 - Add a read-only Workbench Diagnostics page and value-only history/error summaries. Keep reported errors bounded and forward originals; preserve preview terminal sampling across normal reload without treating PendingCleanup as live completion. Reuse default resource routing and optional Host presets.
 - See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
+
+- Add optional Localization 1.4.5 session-owned native string subscriptions; keep Theme project-side and Focus on native Selectable/current input gate.
+- Complete single-package installation and migration guidance, optional SDK capability table, sample ownership rules and pinned-commit distribution checks. Package and verification identity are now 0.5.0; no new compatibility layer or mandatory SDK.
 
 ## 0.4.0
 

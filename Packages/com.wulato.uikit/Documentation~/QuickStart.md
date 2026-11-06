@@ -1,6 +1,6 @@
 # 从空项目接入
 
-主包当前版本 0.4.0。推荐先跑通一个 Settings 页面，再阅读 [生命周期](Lifecycle.md) 和 [取消与错误](CancellationAndErrors.md)。本页不代表移动端或完整发布验收通过。
+主包版本 **0.5.0**，安装与可选依赖清单见 [安装](Installation.md)。推荐先跑通一个 Settings 页面，再阅读 [生命周期](Lifecycle.md) 和 [取消与错误](CancellationAndErrors.md)。本页不代表移动端或完整发布验收通过。
 
 ## 1. 安装主包与输入后端
 
@@ -69,7 +69,7 @@ await host.ShutdownAsync();
 
 需要 configure 注入时，在自动 Start 前（例如业务 Awake）调用 Initialize，或关闭 Initialize On Start。成功后再次无参调用返回同一 Context；再次传 configure 会拒绝。Build 失败可修复后显式重试，Shutdown 后不可重启同一宿主。禁用组件不关闭，销毁/退出 PlayMode 请求有界关闭；不接管外部共享依赖。原手动 Builder 路径继续有效。
 
-[0.5 开发迁移](Migration-0.5.md) · [独立预览](Preview.md)
+[0.5 迁移](Migration-0.5.md) · [独立预览](Preview.md)
 
 Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Dialogs/PopupQueue 默认装配，无需 Use*。普通 Open/Close 可直接使用 IUIContext，Presenter 仍可选。迁移及统一 Dialog 注册见 [0.5 迁移](Migration-0.5.md)。
 
@@ -84,3 +84,5 @@ Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Di
 大数据固定尺寸列表可选导入 FancyScrollView Catalog；普通列表继续使用 ScrollRect。安装、输入与资源边界见 [Controls](Integrations/Controls.md)。
 
 0.5 Workbench 可创建 Page / Modal / Dialog 与可选 Presenter，配置 Prefab / Addressables 来源，并一键安装默认 Host。详见 [模板与初始化](Authoring-0.5.md)。
+
+可选本地化使用 [Unity Localization](Integrations/Localization.md)，主题与焦点沿用 [项目侧 Styler / 原生 Selectable](Integrations/ThemeAndFocus.md)。每项 SDK 仅按需安装，示例导入不会自动安装依赖。

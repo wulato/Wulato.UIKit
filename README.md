@@ -1,22 +1,22 @@
-# Wulato.UIKit
+# Wulato.UIKit 0.5.0
 
-面向 Unity uGUI 的独立 UPM 框架，提供 Session 生命周期、异步打开关闭、缓存、导航、Dialogs、PopupQueue 和 Presenter 扩展点，不强制 MVC/MVP/MVVM。
+面向 Unity uGUI 的轻量独立 UPM 框架，提供 Session、异步打开关闭、缓存、导航、Dialog、Popup 和可选 Presenter。简单 UI 可直接编写，不强制 MVC/MVP/MVVM。
 
-- 主包：`com.wulato.uikit`，当前为 0.5 开发树，基础 Runtime 已收敛为 `Wulato.UIKit`。package.json 暂保持 0.4.0，不表示已发布 0.5；见 [开发迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md)。
-- Addressables/Input System 适配已内置主包条件程序集；只按需安装 Unity SDK，无需额外 UIKit 适配包。
-- [接入指南](Packages/com.wulato.uikit/Documentation~/QuickStart.md) · [升级迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
-- [0.5 当前实施计划](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [0.4 历史计划与证据](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) · [验证入口](Verification/README.md)
+只安装一个 UIKit 包：`com.wulato.uikit`。基础 Runtime 为 `Wulato.UIKit`，必需依赖 uGUI1.0.0 / UniTask2.5.11；Addressables/Input System/DOTween 适配在主包内条件程序集，可选绑定、列表和本地化通过样例接入。
 
-0.5 计划已批准，Phase 0 两项 PR 已合并，默认分支为 main。Phase 1 已合并，Phase 2 已合并，Phase 3 / 4.1 已合并，当前任务 4.2 Diagnostics/预览；host.UI 为主入口。
+- [安装与能力选择](Packages/com.wulato.uikit/Documentation~/Installation.md) · [QuickStart](Packages/com.wulato.uikit/Documentation~/QuickStart.md)
+- [0.5 Breaking Changes / 迁移](Packages/com.wulato.uikit/Documentation~/Migration-0.5.md) · [包内索引](Packages/com.wulato.uikit/README.md)
+- [Workbench](Packages/com.wulato.uikit/Documentation~/Authoring-0.5.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
+- [0.5计划与验收记录](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [验证入口](Verification/README.md) · [历史0.4记录](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md)
 
-开发采用简化 GitHub Flow：main 为稳定基线，独立任务使用 feat/*、fix/*、refactor/*、chore/* 短分支，专项验证后提交 PR，由用户确认合并。main 已要求通过 PR，禁止强推和删除，管理员同样受约束；暂不要求额外审批账号或远端 CI 状态，人工合并确认仍然必需。不清理 master、原开发分支及未提交工作区。每项依赖任务从更新的 main 开始，不自动合并。
+开发/本轮验收使用 Unity **2022.3.62f2**。0.5.0 是 Phase1–5 功能的文档/安装检查点；远端 CI、完整 Editor/Reload、移动/IL2CPP、真机和 Release Gate 尚须后续验收。其他编辑器 profile 与历史证据不代表当前支持声明。
 
-开发默认使用 Unity 2022.3.62f2。其他编辑器按明确兼容目标配置和验证；开发默认、已有历史证据与新版支持声明是不同概念。包的最低版本声明保持不变，不宣称所有更新版本均已验证。
+开发采用 GitHub Flow：main 为默认分支与稳定基线，任务使用 feat/*、fix/*、refactor/*、chore/*，专项通过后提交 PR，main 合并由用户确认。保护禁止强推/删除及管理员绕过；不清理 master、原分支或用户工作区。
 
-日常修改先查看建议：
+日常修改先检查 `git status`，再运行建议（不执行测试）：
 
 ```sh
 python3 Tools/Verification/ci_suites.py --base HEAD --plan
 ```
 
-该命令包含本地暂存、未暂存和相关未跟踪文件，只输出建议。执行具体专项使用现有 `Tools/Verification/run.py`；`--editor all` 仅选择 `editors.json` 中的 targets，`--backend all` 选择两种输入后端。正式移动发布需另过独立门禁。
+具体专项使用 `Tools/Verification/run.py`，默认只选相关 suite 与准确编辑器/后端。全量、远端与移动门禁按计划执行，不因版本号升级而宣称完成。
