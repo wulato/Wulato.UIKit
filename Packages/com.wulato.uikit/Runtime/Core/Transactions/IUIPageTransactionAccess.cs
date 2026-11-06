@@ -13,6 +13,8 @@ namespace Wulato.UIKit
     /// <summary>Page steps are valid only during their owning transaction.</summary>
     internal interface IUIPageTransactionSteps : IUITransactionSteps
     {
+        /// <summary>In this FIFO turn, close one eligible non-page owner or authorize the current page; null means veto/no action.</summary>
+        UniTask<IUISession> RouteBackAsync(IUISession page,bool hasPrevious,UISessionId? inputSource=null);
         /// <summary>Show the prepared page under the input lock and observe one paired animation.</summary>
         UniTask AnimatePairAsync(IUISession from,IUISession to,INavigationTransition transition,CancellationToken cancellationToken=default);
         /// <summary>Atomically replace the page and prepared extension state before publishing notifications.</summary>

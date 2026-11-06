@@ -22,7 +22,7 @@ namespace Wulato.UIKit.Navigation
         /// <summary>Restore the nearest matching descriptor and its arguments; missing/current returns false.</summary>
         UniTask<bool> PopToAsync<TView>(CancellationToken cancellationToken=default) where TView:UIViewBase;
         UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken cancellationToken=default);
-        /// <summary>Reconstruct the previous descriptor, or return false at the root.</summary>
+        /// <summary>Close one eligible local non-page owner, otherwise restore the previous page after CanClose(Back); veto/root returns false.</summary>
         UniTask<bool> BackAsync(CancellationToken cancellationToken=default);
     }
     /// <summary>Arguments must be immutable caller-owned values suitable for reconstructing a page.</summary>

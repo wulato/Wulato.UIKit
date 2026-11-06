@@ -1,4 +1,4 @@
-# 0.5 开发迁移：任务 1.1–2.2
+# 0.5 开发迁移：任务 1.1–2.3
 
 当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。本检查点已收敛 Context 入口与默认装配；页面 Open/Push/Replace/PopTo 已统一；后续 Back/Cancel、Dialog/Popup 便捷入口及版本升级继续按计划交付。
 
@@ -48,7 +48,7 @@ Dialog 的请求/结果映射与 View 一起注册：`builder.AddDialog<ConfirmV
 
 业务扩展工厂执行前，三个默认服务和 Registry/Lifetime 已可查找；默认服务不可被 WithServiceFactory 覆盖。构建阶段只允许读取服务和 ContextId，命令须等 Build 返回；失败先取消 Lifetime，再逆序释放创建的服务并回滚 Root/Input 所有权。注入 Loader/动画/Presenter 工厂仍归调用方所有。
 
-本任务提供无需 GetService 的普通 Open/Close；页面新根历史、Replace/PopTo 与导航便捷入口已在 2.2 交付，统一 Back 在 2.3，DialogAsync/泛型 PopupAsync 在 2.4。当前高级业务服务仍可通过 GetService 访问，避免先添加一组稍后废弃的服务属性或并行实现。
+本任务提供无需 GetService 的普通 Open/Close；页面新根历史、Replace/PopTo 与导航便捷入口已在 2.2 交付，统一 Back/Cancel 已在 2.3 交付，DialogAsync/泛型 PopupAsync 在 2.4。当前高级业务服务仍可通过 GetService 访问，避免先添加一组稍后废弃的服务属性或并行实现。
 
 ## 页面操作（2.2）
 
@@ -56,4 +56,4 @@ Page 的 `OpenAsync` 现在经默认 Navigator 建立新根：成功提交后替
 
 原直接 Page Open 的单界面 IUITransition 不再驱动页面 Enter/Exit；页面配对动画通过 WithNavigationTransition 配置。生成映射的页面取消测试也改用配对转场，仍验证绑定释放与迟到清理，不通过删除断言规避新契约。
 
-当前 `ui.BackAsync` 只转发原有页面返回；统一 Modal 优先、CanClose 及 Input Cancel 属于 2.3。新 IUIContext/IUINavigator 成员是 Breaking Changes；本包不提供第二套历史或旧 Open(Page) 兼容开关。
+`ui.BackAsync` 与 Navigator Back 统一为弹窗优先、CanClose(Back)、页面返回、根页 no-op。Cancel 不再直接关闭当前页清空历史；按住键不会重放，旧输入会话不会转投新页面。否决不穿透；Owner Close 与 Mask 仍独立。新 IUIContext/IUINavigator 成员是 Breaking Changes；本包不提供第二套历史或旧 Open(Page) 兼容开关。

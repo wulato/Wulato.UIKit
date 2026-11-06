@@ -22,6 +22,7 @@ namespace Wulato.UIKit
         UniTask<IUISession> ReplaceAsync(UIViewTypeKey type,UIArguments arguments,CancellationToken cancellationToken=default);
         UniTask<bool> PopToAsync<TView>(CancellationToken cancellationToken=default) where TView:UIViewBase;
         UniTask<bool> PopToAsync(UIViewTypeKey type,CancellationToken cancellationToken=default);
+        /// <summary>FIFO Back: one local input popup first, otherwise the previous page; veto or root returns false.</summary>
         UniTask<bool> BackAsync(CancellationToken cancellationToken=default);
         UniTask<UIBatchCompletion> CloseAllAsync(UICloseReason reason = UICloseReason.Owner);
         UniTask<UIBatchCompletion> CloseAllOfTypeAsync<TView>(UICloseReason reason = UICloseReason.Owner) where TView : UIViewBase;

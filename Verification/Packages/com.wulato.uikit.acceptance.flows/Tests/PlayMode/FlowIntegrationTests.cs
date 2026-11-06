@@ -23,6 +23,8 @@ namespace Wulato.UIKit.Acceptance.Flows
     public class Confirm:UIView<DialogArguments<Question,bool>>
     {
         internal static IDialogResponder<bool> Responder;
+        internal static bool AllowBack=true;
+        protected override bool CanClose(UICloseReason reason)=>reason!=UICloseReason.Back||AllowBack;
         protected override UniTask OnOpenAsync(DialogArguments<Question,bool> args,UISessionScope scope,CancellationToken ct){Responder=args.Responder;return UniTask.CompletedTask;}
     }
     public class Reward:UIView{}
@@ -55,7 +57,7 @@ namespace Wulato.UIKit.Acceptance.Flows
             readonly GameObject sources,root,events;readonly UIRegistry registry;readonly RegistryProvider provider;readonly EventSystem previous;
             public Fixture(INavigationTransition transition=null)
             {
-                Confirm.Responder=null;previous=EventSystem.current;sources=new GameObject("flow sources");sources.SetActive(false);
+                Confirm.Responder=null;Confirm.AllowBack=true;previous=EventSystem.current;sources=new GameObject("flow sources");sources.SetActive(false);
                 provider=ScriptableObject.CreateInstance<RegistryProvider>();provider.Home=Prefab<Home>();provider.Settings=Prefab<Settings>();provider.Confirm=Prefab<Confirm>();provider.Reward=Prefab<Reward>();provider.Details=Prefab<Details>();
                 registry=ScriptableObject.CreateInstance<UIRegistry>();typeof(UIRegistry).GetField("providers",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(registry,new List<UIRegistryProvider>{provider});
                 events=new GameObject("flow events",typeof(EventSystem));
@@ -78,6 +80,18 @@ namespace Wulato.UIKit.Acceptance.Flows
             }
         }
         static UniTask WaitFor(IUIContext ui,string key)=>UniTask.WaitUntil(()=>ui.GetDiagnostics().Sessions.Any(s=>s.Type.Value==key&&s.State==UIState.Open));
+        [UnityTest,Category("flow_integration")] public IEnumerator UnifiedBack_RespectsDialogVetoThenRestoresPageHistory()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new Fixture();try
+            {
+                await f.UI.OpenAsync<Home>();await f.UI.PushAsync<Settings>();var nav=f.UI.GetService<IUINavigator>();
+                var dialog=f.UI.GetService<IUIDialogs>().ShowAsync(new Question());await WaitFor(f.UI,"confirm");Confirm.AllowBack=false;
+                Assert.That(await f.UI.BackAsync(),Is.False);Assert.That(nav.History.Count,Is.EqualTo(2));Assert.That(dialog.Status.IsCompleted(),Is.False);
+                Confirm.AllowBack=true;Assert.That(await f.UI.BackAsync(),Is.True);Assert.That((await dialog).Status,Is.EqualTo(DialogStatus.UserCanceled));Assert.That(nav.History.Count,Is.EqualTo(2));
+                Assert.That(await f.UI.BackAsync(),Is.True);Assert.That(f.UI.GetDiagnostics().Sessions[0].Type.Value,Is.EqualTo("home"));Assert.That(nav.History.Count,Is.EqualTo(1));Assert.That(await f.UI.BackAsync(),Is.False);
+                await f.UI.ShutdownAsync();Assert.That(f.Presenters.Created,Is.EqualTo(f.Presenters.Released));Assert.That(f.UI.GetDiagnostics().ActiveLeaseCount,Is.Zero);
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest,Category("flow_integration")] public IEnumerator FacadePageOperations_KeepModalOwnershipAndOneHistory() => UniTask.ToCoroutine(async()=>
         {
             var f=new Fixture();try
