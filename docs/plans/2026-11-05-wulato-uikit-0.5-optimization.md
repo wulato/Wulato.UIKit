@@ -710,7 +710,8 @@ Ruling：模块夹具增加默认 Navigator 与传入配对动画的选项，继
 - [x] Input Cancel 绑定原会话，提交前重新核对拥有权，重复待处理请求去重；View UserRequest/Mask/Owner 仍独立。非 Page 接受关闭即提交，caller 取消不抛弃有界 Closed 屏障，Shutdown 仍可接管。
 - [x] 新增导航取消/迟到/隔离/Modal FIFO 用例、两后端共用真实输入场景及 Dialog 联合流程；补 matrix 必需用例，不扩大或放宽范围检查。
 - [x] 最终专项验证与原始证据审计：13 组 / 284 项 Unity、125 项 Python；[verification.json](../../Artifacts/uikit/phase2-3/verification.json) PASS。
-- [ ] 提交并创建 PR，等待用户确认合并；不开始 2.4。
+- [x] 实现提交 `aefb40c88bdb393c6a2720f13c21abcb48bfec29` 已推送，创建 [任务 2.3 PR #8](https://github.com/wulato/Wulato.UIKit/pull/8)（main ← refactor/uikit-0.5-back-cancel）。
+- [ ] 等待用户确认合并 PR #8；不开始 2.4。
 
 设计决定：只更改内置返回路径，不新增公共服务/协议；新增内部 RouteBack 步骤复用现有事务锁、资源所有权及关闭清理。显式 Back 保持 Context 本地；设备 Cancel 只作用于当前输入拥有者。UIBackAction.None 包括页面，阻止用户返回；Owner Close 不受此限制。非 Page 返回在没有页面历史时也有效。
 
@@ -734,3 +735,5 @@ Ruling：模块夹具增加默认 Navigator 与传入配对动画的选项，继
 实际环境为 Unity 2022.3.62f2，无 SDK Legacy 和仅 Input System 1.17.0 两个隔离宿主（host-root `Artifacts/uikit/ci-selected/hosts/phase2-3`、`.../phase2-3-sdk`）。Addressables 适配及加载路径未变，本任务不重跑该 SDK 组合。`final-commands.sh` 保存实际范围，逐条日志/退出码、原始 XML/trace/索引哈希在 `Artifacts/uikit/phase2-3/`。补齐 Input System 新增继承用例的必需集合后，在最终矩阵指纹下集中复验；此前通过不重复计数。审计检查当前指纹、精确用例集合、原始证据和可选程序集开关，PASS；原始失败保留。Python 相关十个模块 125 项通过（results/evidence/integrity/integrated_package/runtime/package_test_boundary/ci_suites/contract_probe/runner/preflight）。
 
 集中审查确认没有新增依赖、第二套生命周期、默认 Context 或通用输入抽象；所有新增 Unity 脚本保留对应 meta，既有 GUID 未变。未改根 manifest/lock、ProjectSettings、CI 工作流或原用户脏目录。无未解决新失败；上述各原因修复均 1 轮，没有超限重试。历史 samples 分类问题仍留在独立后续维护范围。本次没有运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机；不把专项结果扩大为整体验收。2.4 仍须本 PR 由用户确认合并后从更新 main 开始。
+
+GitHub 交付：连接器创建 PR 返回 403 Resource not accessible by integration；使用本机已授权 gh 创建 PR #8 成功，不扩张凭据或安装工具。main 保持 `999d918e1d8779e2c411943e078da766ac3d184a`，本 PR 未合并。
