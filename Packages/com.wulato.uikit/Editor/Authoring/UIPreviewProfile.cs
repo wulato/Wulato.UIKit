@@ -10,5 +10,7 @@ namespace Wulato.UIKit.Editor.Authoring
         public MonoScript inputDriver;
         public GameObject rootTemplate;
         public UIPreviewAdapter adapter;
+        public UITransitionPreset transitionPreset;
+        public UINavigationTransitionPreset navigationPreset;
     }
 }

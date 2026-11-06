@@ -133,6 +133,7 @@ def applicable_suites(matrix,manifest,dotween=False,r3=False,fancy=False):
  mapping['addressables-runtime']='com.unity.addressables'
  mapping['input-package']='com.unity.inputsystem'
  mapping['addressables-preflight']='com.wulato.uikit.verification.addressables'
+ mapping['preview-addressables']='com.wulato.uikit.verification.addressables'
  mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
  mapping['flow-samples']='com.wulato.uikit.acceptance.flows'
  mapping['quickstart-only']='com.wulato.uikit.acceptance.quickstart'
@@ -188,7 +189,7 @@ def _run_locked(args):
     if suite=='r3-binding' and 'r3-binding' not in matrix:raise ValueError('R3 binding suite requires WULATO_UIKIT_R3, imported R3 sample and the official SDK')
     if suite=='dotween' and 'dotween' not in matrix:raise ValueError('DOTween suite requires WULATO_UIKIT_DOTWEEN and the official SDK')
     required=matrix[suite] if suite!='all' else sum(matrix.values(),[])
-    if suite in ('addressables-preflight','addressables-integration'):
+    if suite in ('addressables-preflight','addressables-integration','preview-addressables'):
      from addressables_content import verify_content
      content_errors=verify_content(host,ver)
      if content_errors:raise ValueError(str(content_errors))

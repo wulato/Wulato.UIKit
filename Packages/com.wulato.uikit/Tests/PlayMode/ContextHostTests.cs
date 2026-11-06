@@ -102,8 +102,8 @@ namespace Wulato.UIKit.Tests.PlayMode
                     var loader=new PendingLoader();var ui=Init(b=>b.WithLoader(loader));var opening=ui.OpenAsync<Wulato.UIKit.Tests.Support.T4ProbeView>();
                     if(destroyRoot)UnityEngine.Object.Destroy(root);else UnityEngine.Object.Destroy(host);await UniTask.NextFrame();
                     Exception failure=null;try{await opening;}catch(Exception e){failure=e;}Assert.That(failure,Is.Not.Null);Assert.That(loader.Token.IsCancellationRequested,Is.True);
-                    var result=await ui.ShutdownAsync();Assert.That(result.PendingCleanupCount,Is.EqualTo(1));Assert.That(ui.GetDiagnostics().InputLockCount,Is.Zero);
-                    var lease=new LateLease();Assert.That(loader.Pending.TrySetResult(lease),Is.True);await UniTask.NextFrame();Assert.That(lease.Releases,Is.EqualTo(1));Assert.That(loader.Disposes,Is.Zero);
+                    var result=await ui.ShutdownAsync();Assert.That(result.PendingCleanupCount,Is.EqualTo(1));var terminal=ui.GetDiagnostics();Assert.That(terminal.InputLockCount,Is.Zero);Assert.That(terminal.PendingCleanupCount,Is.EqualTo(1));
+                    var lease=new LateLease();Assert.That(loader.Pending.TrySetResult(lease),Is.True);await UniTask.NextFrame();Assert.That(lease.Releases,Is.EqualTo(1));Assert.That(loader.Disposes,Is.Zero);Assert.That(ui.GetDiagnostics(),Is.SameAs(terminal));Assert.That(terminal.PendingCleanupCount,Is.EqualTo(1),"Terminal diagnostics are a frozen observation, not a physical completion poll.");
                 }
             }
             finally{UnityEngine.Object.Destroy(provider);}

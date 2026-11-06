@@ -4,6 +4,7 @@ from pathlib import Path
 R=Path(__file__).resolve().parents[2]
 MODULES={'navigation':'navigation','dialogs':'dialogs','presentation':'presentation','popup-queue':'popup-queue'}
 TEST_GROUPS={
+    ('EditMode','diagnostics'): 'DiagnosticsTests SnapshotDiagnosticsTests',
     ('PlayMode','controls-input'): 'RuntimeInputScenarios',
     ('PlayMode','input-runtime'): 'InputArbitrationTests LegacyInputArbitrationTests RuntimeInputIntents RuntimeInputScenarios InputEventSpy RawInput ForegroundTests',
     ('PlayMode','transitions'): 'TransitionTests NavigationTransactionTests TransactionBoundaryTests',
@@ -32,6 +33,8 @@ def select_suites(paths):
             add('PlayMode','fancy-list','legacy');add('EditMode','package-install','legacy');continue
         if '/Samples~/R3' in path and not path.endswith('.md'):
             add('PlayMode','r3-binding','legacy');add('EditMode','package-install','legacy');continue
+        if path.endswith('/PreviewRoutingTests.cs') or path.endswith('/PreviewRoutingTests.cs.meta'):
+            add('PlayMode','preview-addressables','input');continue
         if '/Samples~/LocalInventory/' in path:path=path.replace('Packages/com.wulato.uikit/','Packages/com.wulato.uikit.addressables/',1)
         if path.removesuffix('.meta')=='Packages/com.wulato.uikit/Runtime/Wulato.UIKit.asmdef':
             for suite in ('contracts','integration','editor','package-install',*MODULES):add('EditMode',suite)
@@ -99,7 +102,7 @@ def plan(paths,editor=None,backend='auto',full=False):
         if '/Runtime/UGUI/UIContextHost' in path or '/Tests/PlayMode/ContextHost' in path:selected=[('PlayMode','context-host','all'),('PlayMode','input-runtime','all')]
         if '/Editor/Authoring/UIPreview' in path:selected=[('EditMode','preview-authoring','all'),('PlayMode','preview-runtime','all')]
         if '/Tests/Preview/' in path:selected=[('EditMode','preview-authoring','all'),('PlayMode','preview-runtime','all')]
-        if '/Tests/PlayMode/PreviewRuntimeTests' in path:selected=[('PlayMode','preview-runtime','all')]
+        if '/Tests/PlayMode/PreviewRuntimeTests' in path:selected=[('PlayMode','preview-runtime','all'),('PlayMode','diagnostics','all')]
         if '/Tests/Preview/ContextHostResetFixture' in path:selected=[('PlayMode','context-host','all')]
         if '/Tests/EditMode/AuthoringTests' in path:selected=[('EditMode','authoring','all')]
         if '/Editor/Authoring/UIContextHost' in path:selected=[('EditMode','authoring','all'),('PlayMode','context-host','all'),('PlayMode','input-runtime','all')]
@@ -112,6 +115,7 @@ def plan(paths,editor=None,backend='auto',full=False):
                 selected=[(mode,suite,'all') for mode,suite in TEST_GROUPS if mode in modes]
                 if 'PlayMode' in modes:selected += [('PlayMode','context-host','all'),('PlayMode','preview-runtime','all')]
                 if 'EditMode' in modes:selected.append(('EditMode','authoring','all'))
+        if '/Editor/Diagnostics/' in path or '/Core/Diagnostics/' in path:selected += [('EditMode','diagnostics','all'),('PlayMode','diagnostics','all')]
         if '/Editor/Authoring/UIAuthoringWorkbench' in path:
             selected+= [('EditMode','preview-authoring','all'),('PlayMode','preview-runtime','all')]
         if '/Runtime/UGUI/UIContextHost' in path:selected.append(('EditMode','authoring','all'))

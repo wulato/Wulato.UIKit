@@ -15,7 +15,7 @@ namespace Wulato.UIKit.Tests.EditMode
             try {
                 ui=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).WithSettings(new UIContextSettings{DiagnosticsLevel=UIDiagnosticsLevel.Off}).Build();
                 var snapshot=ui.GetDiagnostics();Assert.That(snapshot.Level,Is.EqualTo(UIDiagnosticsLevel.Off));Assert.That(snapshot.State,Is.EqualTo(UIContextState.Running));
-                Assert.That(snapshot.Sessions,Is.Empty);Assert.That(snapshot.CacheLru,Is.Empty);
+                Assert.That(snapshot.Sessions,Is.Empty);Assert.That(snapshot.CacheLru,Is.Empty);Assert.That(snapshot.History,Is.Empty);Assert.That(snapshot.Errors,Is.Empty);
                 Exception failure=null;var worker=new System.Threading.Thread(()=>{try{ui.GetDiagnostics();}catch(Exception e){failure=e;}});worker.Start();worker.Join();Assert.That(failure,Is.TypeOf<UIException>());
             } finally {ui?.ShutdownAsync().GetAwaiter().GetResult();UnityEngine.Object.DestroyImmediate(root);EditModeUIFixture.DestroyEvents(events);UnityEngine.Object.DestroyImmediate(registry);foreach(var host in UnityEngine.Object.FindObjectsOfType<UIRuntimeHost>())UnityEngine.Object.DestroyImmediate(host.gameObject);}
         }
