@@ -922,7 +922,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 独立 QuickStart 两后端各八次准备阶段 PASS；重复配置前后指纹相同，生成/编译/写回由既有 Workbench Operation 完成，真实 PlayMode 两例与原始证据复核 PASS。主宿主 SDK 本地 Bundle prepare/current content hash 通过；只证明 Editor 本地内容，不代表 Player 构建。
 - [x] [verification.json](../../Artifacts/uikit/phase4-1/verification.json) PASS：当前 Snapshot/指纹、实际及必需用例集合、原始 XML/逐例 trace、run/batch/index/hash、九阶段原始文件hash、当前只读模板状态及独立消费者幂等性。原始日志/退出码/命令见 `Artifacts/uikit/phase4-1/` 的 `final-commands.sh`、`remaining-commands.sh`、`verify-final.py` 和逐条输出。
 - [x] 集中自审：基础 Runtime、必需依赖、版本、场景/Prefab、已有资产 GUID、ProjectSettings、MC 均无变更；仅扩展现有 Editor 工作流、文档与直接专项。SDK 缺席的基础 Editor 无 SDK 程序集引用，Preset 使用已有基础抽象。撤回工具不删除已创建用户文件。
-- [ ] 提交并创建任务 PR，等待用户确认合并；不开始 4.2。
+- [x] 实现提交 `21d47a49463b261612473006791a50e91e0c2be3` 已推送，创建 [任务 4.1 PR #13](https://github.com/wulato/Wulato.UIKit/pull/13)（main ← feat/uikit-0.5-authoring-templates）。
+- [ ] 等待用户确认合并 PR #13；不开始 4.2。
 
 失败及修复：首次 editor 17例中16 PASS，旧断言仍要求3个 Codegen Prefab，实际已包含3个原夹具和3个模板，`20261106T061912087195-tests-7cf1e2`。改为六个具体名称的严格集合（不删除原夹具、不放宽为最小数量），一次修复后 `20261106T062136541338-tests-151f51` 17/17 PASS；其余相关专项在最终输入上运行。此后未修改生产源或模板。首个聚合审计脚本把authoring最低必需集合误当完整集合、且只读校验使用相对路径算hash：按已观察的明确11项既有附加用例及 Snapshot 绝对宿主路径修正一次后 PASS，原始证据、runner/evidence 校验器均未修改。
 
