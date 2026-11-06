@@ -1046,3 +1046,6 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - 同一源码完整门禁 [run42234297368](https://github.com/wulato/Wulato.UIKit/actions/runs/42234297368) 已派发，hosted计划成功，正在执行默认2022.3.62f2两后端完整适用Editor/Reload及G0；当前不声明最终通过。原始计划、runner诊断、下载ZIP/API/receipt与审计报告均位于Artifacts/uikit/phase6-2，旧失败run与下载字节保留。
 
 - 首次full run42234297368 FAIL，发生在准备Input宿主，尚未运行all测试：canonical `Verification/Projects` 的历史Assets/Samples/BusinessFlow仍调用0.4 UseNavigation/私有DialogRegistry。真实失败ZIP/digest/审计报告保留。修复方案为full同专项使用空Assets隔离宿主，G0新增相同host-root参数并保持最新注册/原始证据严格校验，拒绝超出忽略宿主范围；不删除/覆盖历史样例、不保留旧API。此因修复1轮；对应97项Python（含隔离G0正向、缺原始XML仍FAIL、越界Root拒绝）PASS。新增测试最初对macOS /var与/private/var别名比较失败，按实际resolve路径修正1轮；未改变Gate断言。冻结新输入后继续最终full门禁，之前专项对UI代码的证明由最终full中同一必需用例集补齐到当前指纹。
+
+- full隔离修复run42235868429证明12条准备均PASS、Legacy EditMode233/PlayMode248全部PASS；Input EditMode仅 AdapterManifest_PinsCoreAndInputVersions FAIL，仍有两处主包版本期望0.4.0（实际0.5.0）。这是独立于历史宿主污染的遗漏身份断言，按已批准0.5身份更新为精确0.5.0，保留Input SDK1.17.0、基础IL隔离及无必需SDK的原断言。该因修复1轮；原input-package专项2/2及即时current snapshot/原始索引审计PASS，原始batch复制保存在外层Artifacts/uikit/phase6-2/input-package-targeted-raw，未修改既有CI证据。全部Packages测试源码的0.4.0遗留版本值已查无其他。首轮full失败artifact/digest及Legacy通过记录保留。
+- 本门禁要求最终源码指纹完整，因此在输入包专项通过后以新固定提交重跑两后端最终full；这是当前明确门禁的必要指纹复验，不扩展其他编辑器/SDK/Player，也不以旧Legacy绿色结果替当前来源。
