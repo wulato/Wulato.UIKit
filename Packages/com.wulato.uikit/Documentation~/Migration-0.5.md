@@ -1,6 +1,17 @@
-# 0.5 开发迁移：任务 1.1–3.1
+# 迁移到 Wulato.UIKit 0.5.0
 
-当前完成基础 Runtime 收敛、可选适配迁移与默认资源路由，尚不是 0.5 发布。package.json 仍保持原版本，消费开发树时固定 Git 提交，不把本分支变化解释为已发布的 0.4 patch。本检查点已收敛 Context 入口与默认装配；页面 Open/Push/Replace/PopTo 已统一；后续 Back/Cancel、Dialog/Popup 便捷入口及版本升级继续按计划交付。
+0.5.0 汇总 Phase 1–5 的架构与业务 API 变更。按已审核的固定提交安装，先保存消费项目修改并在项目任务分支迁移；不要直接追踪 main。版本号不代表远端 CI、移动或 Release Gate 已完成。完整安装清单见 [Installation](Installation.md)。
+
+## 迁移顺序
+
+1. 记录旧 UIKit 提交、manifest/lock 和已导入样例/生成代码，保留消费项目原有修改。
+2. 在同一次 manifest 修改中移除旧 `com.wulato.uikit.navigation`、`.presentation`、`.dialogs`、`.popup-queue`、`.addressables`、`.input-system` 依赖及 testables，只保留 `com.wulato.uikit`；按需保留 Unity SDK。不要手工复制旧 Runtime 来补编译。
+3. 更新主包到已审核的 0.5.0 固定 SHA，提交 UniTask2.5.11 显式源；让 Unity 正常解析锁，不从本仓库验证宿主复制锁到业务项目。
+4. 按下文更新业务 asmdef、Host 与调用点；重新生成绑定/注册并编译。已导入样例、View/Presenter 模板和 Usage 是项目文件，先比较再更新，不直接覆盖。
+5. 选择项目实际输入后端，检查唯一 EventSystem/输入模块；运行项目涉及的导航/取消/缓存/资源专项，再提交项目自身的 manifest/lock。不要把 Editor 通过解释为移动验收。
+6. 失败时消费项目保持旧确认提交；撤回迁移分支或恢复已记录的 manifest/lock/生成文件，不删除用户资产、不清缓存来掩盖版本冲突。
+
+旧 [0.4 迁移](Migration-0.4.md) 只保留历史背景，其中独立适配包步骤已被本页替代。
 
 ## 消费程序集
 
@@ -48,7 +59,7 @@ Dialog 的请求/结果映射与 View 一起注册：`builder.AddDialog<ConfirmV
 
 业务扩展工厂执行前，三个默认服务和 Registry/Lifetime 已可查找；默认服务不可被 WithServiceFactory 覆盖。构建阶段只允许读取服务和 ContextId，命令须等 Build 返回；失败先取消 Lifetime，再逆序释放创建的服务并回滚 Root/Input 所有权。注入 Loader/动画/Presenter 工厂仍归调用方所有。
 
-本任务提供无需 GetService 的普通 Open/Close；页面新根历史、Replace/PopTo 与导航便捷入口已在 2.2 交付，统一 Back/Cancel 已在 2.3 交付，DialogAsync/泛型 PopupAsync 已在 2.4 交付。当前高级业务服务仍可通过 GetService 访问，避免先添加一组稍后废弃的服务属性或并行实现。
+IUIContext 提供直接业务入口；高级导航/Dialog/Popup 服务仍可通过 GetService 访问，使用同一生命周期和事务实现。
 
 ## 页面操作（2.2）
 
@@ -80,3 +91,23 @@ Popup 只接受非 Page，避免队列意外改变导航根。等待取消移除
 ## Diagnostics / 预览（4.2）
 
 诊断快照新增只读 History（类型键）、Errors（有界值摘要）及 TotalErrorCount；不返回业务参数或异常对象。预览使用默认资源路由，Addressables 不再需要 Loader Adapter；UIPreviewAdapter 继续用于明确参数/业务依赖。空输入驱动依据已启用后端，Both 必须明确选择；可选已有 Host Preset。旧 Profile 新字段为空即保持 Immediate，恢复记录 schema1 可读取旧记录，新附加终态字段不参与资产删除权判断。详见 [Preview](Preview.md)。
+
+
+## 可选控件与本地化（3.3 / 5.1）
+
+无核心 API Breaking Changes。FancyScrollView 固定尺寸列表、Localization Session 为独立可选示例；SDK 与显式宏见 [安装能力表](Installation.md)。原生 ScrollRect/Selectable 继续用于普通 UI，不自动替换业务控件。Theme 不提供全局引擎，不升级 Evo 或迁移主题资产；不允许 Styler 绕过 Shell 输入门控。
+
+## Breaking Changes 核对表
+
+| 旧用法 | 0.5 处理 |
+| --- | --- |
+| 七个基础 Runtime asmdef | references 收敛到 Wulato.UIKit；GUID规则见上文 |
+| 独立业务/适配 UPM包 | 移除旧 UIKit 包和 testables，SDK 本身按需保留 |
+| Host.Context / UseNavigation、UseDialogs、UsePopupQueue | Host.UI / 默认装配 |
+| WithTransactions / UITransitionRunner | 已移除；使用现有转场接口与 Host Preset |
+| Page Open 追加历史 | Open 新根；Push 追加，Replace 顶项，PopTo 最近匹配 |
+| Cancel 直接关闭页面 | 统一 Back；弹窗优先，CanClose 否决不穿透，根页 no-op |
+| 独立 DialogRegistry / IPopupRequest | AddDialog / DialogAsync / 泛型 PopupAsync |
+| 组件销毁才退订 | 每次 Session.Track，缓存重开重新订阅 |
+
+自定义 IUIContext / IUINavigator / IUIPopupQueue 实现需按当前接口重新编译；不提供旧 API 兼容层。取消仍抛 OperationCanceledException，共享关闭结果/单次 UniTask、Session 隔离、租约所有权、迟到清理、事务回滚和 Shutdown 契约仍有效。

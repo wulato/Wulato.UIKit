@@ -76,7 +76,7 @@ class RuntimePreparationTests(unittest.TestCase):
         self.assertEqual(UNITASK,prepared['dependencies']['com.cysharp.unitask'])
     def test_package_and_core_boundary_validation_rejects_optional_dependencies(self):
         from runtime import validate_main_package
-        package={'name':'com.wulato.uikit','version':'0.4.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
+        package={'name':'com.wulato.uikit','version':'0.5.0','unity':'2022.3','unityRelease':'62f2','dependencies':{'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}}
         assemblies={'Wulato.UIKit':['UniTask','UnityEngine.UI'],'Wulato.UIKit.Addressables':['Wulato.UIKit','UniTask','Unity.Addressables','Unity.ResourceManager'],'Wulato.UIKit.InputSystem':['Wulato.UIKit','UnityEngine.UI','Unity.InputSystem'],'Wulato.UIKit.DOTween':['Wulato.UIKit','UniTask']}
         self.assertEqual([],validate_main_package(package,assemblies))
         package['dependencies']['com.unity.inputsystem']='1.17.0'
@@ -133,7 +133,7 @@ class IsolatedCIHostTests(unittest.TestCase):
                 sources=run.package_sources(host)
                 self.assertEqual(run.R/'Packages/com.wulato.uikit',sources['com.wulato.uikit'])
                 run.dump(host/'Packages/packages-lock.json',dict(dependencies={name:dict(version=value,source='local' if value.startswith('file:') else 'git' if name=='com.cysharp.unitask' else 'registry') for name,value in m['dependencies'].items()}))
-                run.dump(out/'dependency-snapshot.json',dict(editor=ver,packages=[dict(name=name,version=version) for name,version in [('com.wulato.uikit','0.4.0'),('com.cysharp.unitask','2.5.11'),('com.unity.ugui','1.0.0')]]))
+                run.dump(out/'dependency-snapshot.json',dict(editor=ver,packages=[dict(name=name,version=version) for name,version in [('com.wulato.uikit','0.5.0'),('com.cysharp.unitask','2.5.11'),('com.unity.ugui','1.0.0')]]))
                 log='Unity Editor version: '+ver+'\n';(out/'editor.log').write_text(log)
                 return 0,False,log,ver
             with patch.object(run,'A',artifacts),patch.object(run,'verify_editor',return_value='2022.3.62f2'),patch.object(run,'unity',side_effect=unity) as process:

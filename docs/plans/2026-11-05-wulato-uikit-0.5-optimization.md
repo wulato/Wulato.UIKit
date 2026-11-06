@@ -990,10 +990,43 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 合计10组30/30 Unity 用例 PASS，零跳过/零缺失；[verification.json](../../Artifacts/uikit/phase5-1/verification.json) 为 PASS。`verify-final.py` 逐组执行现有 evidence.verify(acceptance=True)，核对当前绝对宿主 snapshot/指纹、命令/索引/hash、原始 XML/逐例 trace、所有实际用例和官方 SDK 源码及实际依赖闭包。原始命令/退出码见 `Artifacts/uikit/phase5-1/final-commands.json`、`*-final.log`、`*-final.exit`、Python和verify输出。均为本地忽略材料，不冒充远端 artifact。
 - [x] 集中审查差异、元文件/GUID、主包必需依赖、两个可选 asmdef 与生命周期所有权；`git diff --check` PASS。远端 main 仍为本次基线，目标远端分支不存在。
 - [x] 实现提交 `2c564f3` 已推送，创建 [任务5.1 PR #15](https://github.com/wulato/Wulato.UIKit/pull/15)（main ← feat/uikit-0.5-localization-focus-guides）。
-- [ ] 等待用户确认合并 PR #15；不开始6.1。
+- [x] 用户确认后普通合并 PR #15，merge commit `2ccec025779b9c142af7d5c3390d3200ff4bb00d`；从更新 main 开始6.1。
 
 失败与修复记录（均未删除测试或放宽 runner/生产断言，同因最多一次修复）：初次 prepare 的测试限定名误写为 UnityEngine.UnityEngine，修复1轮；SDK宿主脚本误定位第一个 Standalone 字段，限定到 scriptingDefineSymbols，并加包含其他 Standalone 字段的回归，修复1轮；测试数据库误当 ScriptableObject 创建，按真实 SDK 普通类型修复1轮；测试 UIRoot 未设 Overlay，按既有夹具修复1轮。SDK首次解析更新 packages-lock、Input首次导入生成样例父目录meta，各轮用例通过但 runner 正确拒绝输入变化，稳定后各补跑1轮。原始失败分别保留 `20261106T075019627733-prepare-e5ae4c`、`20261106T075507489771-tests-3885a2`、`20261106T075627436229-tests-51a6ba`、`20261106T075711618560-tests-717ac3`、`20261106T075435300257-tests-c5beaf`、`20261106T080011929785-tests-00057d`（以各 pilot/repair 日志中 EVIDENCE 为准）。聚合审计初将 SDK package.json 的 Newtonsoft3.0.2 要求误当实际解析版本，检查两份 lock 与官方包依赖后按实际 registry3.2.1核对；未改 lock/runner，无需重跑 Unity。Python首次模块调用路径及退出码脚本使用 zsh只读变量各作一次调用修正；最终保留正确退出码0与93项证据。没有未解决失败，原有历史失败计数继续保留。
 
 未运行额外编辑器、完整 Suite、Both 输入专门组合、Reload、Player/IL2CPP、真机或远端 CI；本任务未改静态重置/运行时生命周期。受控表来源不证明真实项目的 Addressables 表打包、字体/RTL、翻译资源或厂商主题控件兼容性；Gamepad 项目映射仍需项目验证。回退本项示例/指南/相关专项即可，不迁移主题资产、不改变业务表或 MC。
 
 最终原始索引：no-sdk-off-legacy `20261106T075949214459-tests-ff263b`；no-sdk-off-input `20261106T080103841161-tests-7fa1af`；no-sdk-on `20261106T080120799050-tests-f62e56`；sdk-off `20261106T080142624468-tests-2a853b`；sdk-on `20261106T080157963392-tests-28b3a6`；localization `20261106T080215379042-tests-91b401`；legacy-focus-controls `20261106T080223536794-tests-59d3df`；legacy-controls-input `20261106T080237252295-tests-3ca0d4`；input-focus-controls `20261106T080247415708-tests-2b97dc`；input-controls-input `20261106T080257685643-tests-cacc10`。
+
+
+### 6.1 执行记录（2026-11-06）
+
+- 核对 PR #15 固定 head `e80ee5350aaa4856748fde0cb51594aa4d89f1e5` / CLEAN 后按用户确认普通合并。基线 `2ccec025779b9c142af7d5c3390d3200ff4bb00d`，分支 `chore/uikit-0.5-release-documentation`；复用当前 worktree，无子代理/新工作区。初判文档 FAST，读取明确安装/生成验收后调整 STANDARD / L2，使用 smart-development / executing-plans。
+- 版本身份升至0.5.0，同步 runtime/build/T2HostProbe/PackageInstallTests及验证包声明；四个 canonical lock 只更新本地验证包对主包的版本声明，不修改 SDK解析，不据此宣称其他编辑器通过。保留旧适配包测试中的0.4历史值和0.4文档/证据。
+- 新增包内 README / Installation，重写根 README、更新 QuickStart / Migration-0.5 / CHANGELOG：单包固定提交源、UniTask显式源、按需 SDK能力、已导入样例/生成文件的项目所有权、完整 Breaking Changes/迁移顺序/回退与验收边界。补齐13处历史文档meta及新文档meta，既有GUID不变；不修改基础 Runtime、公开API、业务样例行为或MC。
+- 四组合定义为 Unity2022.3.62f2 的 Legacy/Input × Addressables缺席/存在。复用现有 build prepare-only / Git snapshot /安装闭包校验；不执行 Player。QuickStart独立生成运行、BusinessFlow既有生成/写回/运行路径；SDK使用已安装的隔离宿主，无新下载或第三方安装。只复验相关专项，不跑完整Editor/Reload、远端CI、移动/Release Gate，后者留给6.2/6.3。
+- 静态路径/样例/meta检查 PASS（9项样例），相关 Python 六模块127项 PASS；实际命令/退出码和最终原始证据位于 `Artifacts/uikit/phase6-1/`。
+
+
+6.1 最终验收：
+
+| 范围 | 实际结果 |
+| --- | --- |
+| 固定Git安装/生成编译 | Legacy/Input × 无/有Addressables，4/4安装PASS；每个Git快照711个包文件，只有一个UIKit包且实际版本0.5.0 |
+| 独立QuickStart | 新宿主0.5.0样例目录，八次真实Editor准备/重复配置与幂等校验，运行1/1 PASS |
+| BusinessFlow/普通样例 | 两后端各6阶段生成/写回/接线/校验；flow-samples 2/2、samples 12/12 PASS |
+| 可选SDK独立专项 | DOTween13/13、R3 9/9、FancyScrollView7/7、Localization4/4；四SDK宿主package-install16/16 PASS |
+| 真实Addressables样例 | Input后端生成/内容准备/真实本地Bundle，addressables-integration12/12 PASS |
+| Python | test_runtime、test_build、test_samples、test_ci_suites、test_evidence、test_release_gate，127/127 PASS |
+
+- [x] 合计14组76/76 Unity用例执行PASS，四个独立Git安装组合PASS。`samples` 既有原生分类各额外匹配同一 BusinessFlowScene_StartsAndRenders（另有flow-samples显式执行），按实际6项集合记录，不假称只有5项或去掉额外结果。
+- [x] [verification.json](../../Artifacts/uikit/phase6-1/verification.json) PASS：现有 evidence.verify(acceptance=True) 对全部必需用例、所有实际用例、当前绝对宿主snapshot/指纹、XML/逐例trace和索引/hash复核；现有 Git snapshot/phase3安装校验核对精确文件/包源/0.5.0身份/锁/实际程序集闭包。SDK只复用既有忽略宿主，由现有run.unity与T2HostProbe先稳定UPM元数据，再用原CLI专项测试；未下载安装或切换SDK符号。
+- [x] `build --prepare-only` 保留原始退出码1、Player状态BLOCKED及唯一原因 `prepare-only; no mobile Player built`；同时四组均 `install_status=PASS` / `generation_compiled=true`。它是安装通过/未构建Player，不能作为移动验收；没有伪造返回0或放宽原执行器。
+- [x] 集中审查改动：仅文档、缺失meta、主包版本、验证身份/本地声明及对应断言；基础Runtime/API/SDK版本/工作流/MC未改。历史phase2/phase3、Migration-0.4正文保留，现行README/Installation/Migration-0.5明确替代旧步骤；既有GUID不变。
+- [x] 实现提交 `59e3f3e2953106dc002d7552945325ea5c8ad829`；`committed-package.json` PASS，实际Git提交含711个包文件，与四个安装快照逐文件完全一致，包含全部文档/九项样例/meta。根README提供此完整固定SHA地址，后续记录提交不改变该包快照。
+- [x] 已推送任务分支，创建 [任务6.1 PR #16](https://github.com/wulato/Wulato.UIKit/pull/16)（main ← chore/uikit-0.5-release-documentation）。
+- [ ] 等待用户确认合并PR #16；不开始6.2，不创建发布tag/Release。
+
+原始命令/日志/退出码：`Artifacts/uikit/phase6-1/commands.json`、`*.log`/`*.exit`、`verify-final.py`、`sdk-warm.json`；Git安装日志 `install-main.log` / `install-addressables.log`。本次没有代码/测试失败或自动修复（计数0），prepare-only的预期退出码按原安装字段明确解释。未运行其他编辑器、完整Suite/Reload、远端CI、Android/iOS Player/IL2CPP、真机/性能/Release Gate；6000 profile只同步本地包版本声明，不是支持验收。回退为不发布，消费保持旧审核提交，在消费项目迁移分支恢复其manifest/lock/生成文件，不自动回滚用户资产。
+
+6.1 最终原始索引：dotween-package-install `20261106T132106402324-tests-34b899`；dotween-dotween `20261106T132116769679-tests-c8e549`；r3-binding-package-install `20261106T132127029013-tests-670402`；r3-binding-r3-binding `20261106T132138573805-tests-de1dcf`；fancy-list-package-install `20261106T132151570863-tests-3f6ef1`；fancy-list-fancy-list `20261106T132203134610-tests-435b2f`；localization-package-install `20261106T132213850017-tests-823c92`；localization-localization `20261106T132224838467-tests-8f7aff`；quickstart-runtime `20261106T132533512846-tests-381aa9`；legacy-flow-samples `20261106T132831835910-tests-2e4787`；legacy-samples `20261106T132842054046-tests-4985e0`；input-flow-samples `20261106T132852422259-tests-010e63`；input-samples `20261106T132903200989-tests-c0865c`；addressables-integration `20261106T133129579018-tests-64e81d`。

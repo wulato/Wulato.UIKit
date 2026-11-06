@@ -132,7 +132,7 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         data=json.loads(definition.read_text());data.pop('defineConstraints',None)
         if phase=='phase2':
             data['references']+=['Wulato.UIKit.Samples.BusinessFlow']
-            data['versionDefines']=[dict(name='com.wulato.uikit',expression='0.4.0',define='UIKIT_PHASE2_SMOKE')]
+            data['versionDefines']=[dict(name='com.wulato.uikit',expression='0.5.0',define='UIKIT_PHASE2_SMOKE')]
         run.dump(definition,data)
         editor=host/'Assets/UIKitMobileSmoke/Editor';editor.mkdir()
         body=(run.V/'Packages/com.wulato.uikit.acceptance/Editor/MobileSmokeSceneBuilder.cs').read_text().replace('#if UIKIT_MOBILE_SMOKE','').replace('#endif','')
@@ -245,7 +245,7 @@ def validate_phase3_install(folder,editor,backend,scope,revision):
     packages={p['name']:p for p in report['packages']}
     expected={'com.wulato.uikit'}
     if LEGACY_ADAPTERS&set(packages):raise ValueError('Package migration: remove legacy UIKit adapter packages')
-    if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.4.0':raise ValueError('phase3-installed-baseline')
+    if report.get('editor')!=editor or packages['com.wulato.uikit']['version']!='0.5.0':raise ValueError('phase3-installed-baseline')
     for name in expected:
         if packages[name].get('source')!='Git':raise ValueError('phase3-non-git-package:'+name)
     if scope=='main':

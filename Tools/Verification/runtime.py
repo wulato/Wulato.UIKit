@@ -74,7 +74,7 @@ def prepare_runtime_manifest(ver,backend,manifest,lock,package_set='all'):
 def validate_main_package(package,assemblies):
     errors=[]
     expected={'com.unity.ugui':'1.0.0','com.cysharp.unitask':'2.5.11'}
-    if package.get('name')!=MAIN or package.get('version')!='0.4.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
+    if package.get('name')!=MAIN or package.get('version')!='0.5.0' or package.get('unity')!='2022.3' or package.get('unityRelease')!='62f2':
         errors.append('main-package-identity-or-unity-baseline')
     if package.get('dependencies')!=expected:errors.append('main-package-runtime-dependencies')
     expected_graph={'Wulato.UIKit':{'UniTask','UnityEngine.UI'},
@@ -91,7 +91,7 @@ def validate_installed_report(ver,folder):
     path=folder/'dependency-snapshot.json'
     if not path.is_file():return ['missing-actual-package-metadata']
     data=json.loads(path.read_text())
-    expected={'com.wulato.uikit':'0.4.0','com.cysharp.unitask':'2.5.11','com.unity.ugui':VERSIONS[ver][1]}
+    expected={'com.wulato.uikit':'0.5.0','com.cysharp.unitask':'2.5.11','com.unity.ugui':VERSIONS[ver][1]}
     errors=[]
     if data.get('editor')!=ver:errors.append('resolved-report-editor')
     actual={item['name']:item for item in data.get('packages',[])}
