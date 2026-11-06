@@ -38,6 +38,11 @@
       "displayName": "DOTween",
       "description": "Optional DOTween SDK: Fade/Scale/Slide and paired Host presets; SDK installation is separate.",
       "path": "Samples~/DOTween"
+    },
+    {
+      "displayName": "R3 Session Binding",
+      "description": "Optional R3 SDK: native uGUI bindings owned by each UI session; SDK installation is separate.",
+      "path": "Samples~/R3"
     }
   ]
 }

@@ -283,3 +283,9 @@ python3 Tools/Verification/run.py prepare-samples --editor all --backend all --q
 3.1：`dotween` 为显式 SDK 专项。安装须另行授权，`dotween_sdk.py --archive <官方 1.3.045 ZIP> --host <Artifacts/uikit/ci-selected/hosts/...>` 固定哈希并仅写隔离宿主；`--disabled` 验证 DLL 已有但适配未启用。默认 all 不要求此可选 SDK，显式 suite 缺符号时拒绝。Host Reload 沿用现有入口与证据协议，启用时额外核验 dotween-exit-0/1.json；不安装 SDK Editor 工具或覆盖其他项目。
 
 新的 PlayMode 专项须从首轮起输出每个必需用例对应的 `CaseName.trace.json`（或 CaseName- 前缀），并由 runner 密封原始索引。SDK 版本汇总不能替代逐用例记录；evidence.verify 会拒绝缺失，禁止事后补造已执行批次的 trace。
+
+## R3 可选专项（3.2）
+
+`r3-binding` 为 PlayMode 九例，仅在 `WULATO_UIKIT_R3` 启用时纳入适用集合；无 SDK 默认组合不要求它。显式请求该 suite 必须装有真实 R3/R3.Unity 1.3.1、完整 NuGet DLL 和导入示例，不能通过跳过替代。SDK 安装需要单独授权。`Tools/Verification/r3_sdk.py --directory <已批准下载目录> --host Artifacts/uikit/ci-selected/hosts/<任务>/u2022-legacy` 只校验固定 SHA 并部署到忽略宿主，不下载、不全局安装；`--disabled` 保留 SDK 并关闭示例符号。
+
+按该宿主运行既有 `run.py tests --editor 2022.3.62f2 --backend legacy --mode PlayMode --suite r3-binding --host-root <任务宿主根>`，并补充 EditMode `presentation` / `package-install`。可选组合为：导入示例但无 SDK/无符号，SDK 存在但符号关闭，SDK 和符号均启用。每个 PlayMode 用例必须产出实际 SDK 版本 trace；使用原始 XML、当前指纹、索引/哈希和必需集合验收。SDK/示例指纹变化后旧证据不能算最终通过。

@@ -1,0 +1,22 @@
+{
+  "name": "Wulato.UIKit.Samples.R3.Tests",
+  "references": [
+    "Wulato.UIKit",
+    "Wulato.UIKit.Samples.R3",
+    "UniTask",
+    "UnityEngine.UI",
+    "R3.Unity"
+  ],
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "R3.dll"
+  ],
+  "includePlatforms": [],
+  "defineConstraints": [
+    "WULATO_UIKIT_R3",
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

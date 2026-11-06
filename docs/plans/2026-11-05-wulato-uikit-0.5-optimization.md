@@ -787,7 +787,7 @@ Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主
 - [x] 移除通用生产 UITransitionRunner；其 Stop、完成、timeScale=0、重入四项验收迁往实际 DOTween 专项，基础 ControlledTransition 合约测试保留，不以测试代码替换生产通用引擎。
 - [x] 完成 Preset/Host 真实资产、示例、静态状态 Reload 与依赖组合；最终 18 组 / 307 项 Unity、6 组 / 12 次实际 Play、151 项 Python 通过，严格审计 PASS。
 - [x] 集中自审完成，实现提交 `b10f62f8c44496b136c479ded10a83b1a7816f92` 已推送，创建 [任务 3.1 PR #10](https://github.com/wulato/Wulato.UIKit/pull/10)（main ← feat/uikit-0.5-dotween-presets）。
-- [ ] 等待用户确认合并 PR #10；不推进 3.2。
+- [x] 用户确认后正常合并 PR #10，merge `74e3ae237634f8a884ed815baefde2de73a08eda`；从更新 main 开始 3.2。
 
 执行证据集中在 `Artifacts/uikit/phase3-1/`。Preset API 编译 RED `20261106T022811624946-prepare-5636ca`；无 SDK 首轮 prepare PASS `20261106T023042681697-prepare-c8a298`。SDK 启用脚本最初匹配了另一个 Standalone YAML 字段，实际 define 未启用，专项零匹配（不算通过）；改为只编辑 scriptingDefineSymbols（该原因修复 1 轮）。自动枚举误收 IDisposable.Dispose 已移出必需集合，不放宽用例断言。启用真实 SDK 后 `20261106T023554217497-tests-9f5127` 验出缺 runtime Modules 和零时长成功被 Kill 回调覆盖；零时长原因修复 1 轮。SDK runtime Modules 完整性第 1 轮仅加入官方 Utils，编译证实其依赖 Physics/Physics2D；第 2 轮补齐这两个官方文件，未改 SDK 源码。当时 `sdk-complete-prepare` / `dotween-complete` 正在执行；第 2 轮随后实际通过（`20261106T023942759186-prepare-c2bc14`、`20261106T023958773893-tests-0c63ca`），未继续同因修复。所有日志/退出码与失败保留。历史 samples 类别问题计数 1 原样保留。
 
@@ -822,3 +822,38 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 当前只验证官方 DLL 形式 DOTween 1.3.045，不宣称 Pro/其他 SDK 格式/其他版本已兼容。Addressables 未改，不额外扩展该 SDK 组合；未运行完整 Suite、额外编辑器、远端 CI、Player/IL2CPP、真机或移动性能门禁。CI 选择/证据规则已支持可选专项，但不会自动安装 SDK，远端 SDK provisioning/发布仍留 Phase 6。3.2 必须等待本 PR 经用户确认合并后再从更新 main 开始；回退整项 revert，不动用户 SDK 或全局 Tween。
 
 交付状态：PR #10 已创建，SDK 二进制与归档均留在本地忽略目录；main 保持 `78a9523137a31061a714acb6b6d5eee9f462d6ab`，本 PR 未合并。沿用本机已授权 gh，未重复尝试连接器既有的写入 403 限制，未扩张凭据。
+
+
+### 3.2 执行记录（2026-11-06）
+
+- 用户明确确认合并 PR #10；核对 head `0b59b856aa6bfc430b7ca4458536a29ef7fab593` 后正常合并，merge/main=`74e3ae237634f8a884ed815baefde2de73a08eda`。更新 main 后创建 `feat/uikit-0.5-r3-session-sample`，复用当前干净 worktree。
+- STANDARD / L2：仅 R3 可选示例、文档、专项与验证入口；不改核心 Runtime、Session/Host 生命周期或公共接口，不增加绑定引擎、必需包依赖。
+- 用户已单独授权官方 R3/R3.Unity 1.3.1 及必需 NuGet DLL，仅用于 Artifacts/uikit/ 隔离宿主；不修改 MC、不提交 SDK/归档、不全局安装 NuGetForUnity。R3.Unity tag commit `f6eed2dd4208dc4ae171c601e799e85f82aca25e`；六项精确 SHA / TFM 见 `Tools/Verification/r3_sdk.py`，原始归档/receipt 留 `Artifacts/uikit/phase3-2/`。
+- 选择 R3 原生 ObserveOnMainThread、SubscribeToText、OnClickAsObservable；每次打开 scope.Track 全部订阅，在主线程投递后用捕获的本次 scope.IsCurrent 拒绝旧通知。业务持有/释放 Model；CacheOne 的 View 不作为订阅生命周期。
+- 原生 SDK 首轮 prepare PASS：`20261106T051036727963-prepare-48f62f`；无 SDK prepare PASS：`20261106T050150960658-prepare-34cf54`。不关闭引用/版本校验、不修改官方 SDK。不以这些早期输入证据替代最终专项。
+- 先定义九个真实 Context/SDK 行为用例；RED `20261106T051401190857-prepare-6fe2fa` 为缺少尚未实现的 CounterModel/CounterView（预期）。
+- 环境记录：Python 自带证书链下载失败，改用系统 curl 正常 TLS（未关闭验证/改系统）；沙箱 Unity LicensingClient 失败 exit199，`20261106T052031204772-tests-0771c9`，以已授权隔离验证的正常权限执行解决，不改许可证配置。
+- 静态边界检查遗漏 R3.Unity 外部引用：增加仅 Samples~/R3 且显式 WULATO_UIKIT_R3 的允许规则，97 项相关 Python 检查通过（同因修复1轮）。测试 asmdef 错设 Editor-only 导致 PlayMode 零匹配：`20261106T052213525494-tests-088c78`，改为空平台限制并保留 TestAssemblies / UNITY_INCLUDE_TESTS（同因修复1轮）。首次导入新资产生成 meta 造成输入变化，先 prepare 稳定宿主后再验收；旧记录均不计最终通过。
+- 最小验证：Unity 2022.3.62f2，三种 R3 可选组合；九例 r3-binding + EditMode presentation / package-install。无 Core/Host/static 修改，不要求 Reload、输入矩阵、完整生命周期或发布验收。最终证据如下。
+
+
+3.2 最终验收（本地证据，不代替远端 CI / 发布门禁）：
+
+| 隔离组合（Unity 2022.3.62f2 / Legacy） | 实际验证 | 结果 |
+| --- | --- | --- |
+| 无 R3 SDK / 关闭符号 / 已导入示例 | prepare 编译、package-install 4、presentation 6 | 10/10 PASS；R3.Unity / 示例程序集均不存在 |
+| 完整 SDK / 关闭符号 / 已导入示例 | prepare 编译、package-install 4 | 4/4 PASS；SDK 存在、示例程序集不存在 |
+| 完整 SDK / 启用符号 / 已导入示例 | prepare 编译、r3-binding 9、package-install 4、presentation 6 | 19/19 PASS；实际 R3 1.3.1 / R3.Unity，无 Core IL 引用 |
+
+- [x] 实现 CounterModel / CounterView 原生 R3 示例、注册及使用说明、UPM Sample 入口；基础 Runtime 仍四个 asmdef（含既有可选扩展），未增加 R3 Runtime 适配抽象或强制依赖。示例测试位于 Samples~/R3/Tests，不要求普通使用者安装仓库验收包。
+- [x] 六组 33/33 Unity 用例 PASS；相关 Python 八个模块 97/97 PASS。源码输入稳定后执行一次最终专项；未重复运行无变化的绑定用例。新增可选 suite / 精确必需集合，CI 选择器与证据适用集合同步，不自动安装 SDK、不放宽零匹配或 trace/指纹检查。
+- [x] [verification.json](../../Artifacts/uikit/phase3-2/verification.json) PASS：当前 snapshot/fingerprint、原始 XML、实际/必需精确用例集合、每例 trace、run/batch/index/hash、六个 NuGet 归档、原样 SDK Runtime 字节以及三个宿主中的示例文件逐一校验。命令/日志/退出码见 `Artifacts/uikit/phase3-2/final-commands.sh`、`binding-final.log`、`python-final.log` 和 `verify-final.py`。
+- [x] 最终自审：无 UIKit Runtime / Editor 生产实现、核心 API、场景、Prefab、ProjectSettings 或已有资产 GUID 变更；package.json 仅增加 sample 元数据、依赖和版本不变；SDK/DLL/归档仅留忽略目录。main/远端 main 均为 `74e3ae237634f8a884ed815baefde2de73a08eda`。
+- [x] 实现提交 `4dee81a6123f56f4a031927877b9ff4245406f7b` 已推送，创建 [任务 3.2 PR #11](https://github.com/wulato/Wulato.UIKit/pull/11)（main ← feat/uikit-0.5-r3-session-sample）。
+- [ ] 等待用户确认合并 PR #11；不启动 3.3。
+
+最终原始证据：绑定 `20261106T052340237325-tests-0658b9`；package-install 三组合依次 `20261106T052551591604-tests-f55448`、`20261106T052558921520-tests-bb221f`、`20261106T052605934486-tests-b4bded`；presentation 无/有 SDK `20261106T052613239912-tests-7c7465`、`20261106T052620313540-tests-cdb861`。有 SDK 启用宿主还保留 Addressables 1.21.21 / SBP 1.21.25（并存编译通过，不扩展该 SDK 运行专项），所有宿主均无 Input System SDK。当前只证明该编辑器/TFM/R3 版本；不宣称其他 SDK 格式、版本、输入后端或移动裁剪已验证。
+
+额外准备记录：空宿主先复制示例使目录存在但缺少 manifest，prepare `20261106T052434349800-prepare-3a73c3` 明确失败；按 runner 原有隔离宿主布局补齐初始配置后一次修复，通过 `20261106T052508358053-prepare-adde68`。SDK 关闭组合 prepare `20261106T052532714298-prepare-06ea8e`、启用组合 `20261106T052322094825-prepare-c59adc` 均通过。先前失败不计验收且原始证据保留；无同原因超过两轮修复。
+
+未运行 suite all、额外编辑器、完整输入矩阵/Reload、远端 CI、Player/IL2CPP、真机或移动性能；本任务无相应变更且不在该发布门禁。回退为整项 revert 示例/文档/专项工具，不自动卸载用户 SDK；业务 Model 线程安全由业务负责，ObserveOnMainThread 仅负责 UI 调度。

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased — 0.5 tasks 1.1–3.1
+## Unreleased — 0.5 tasks 1.1–3.2
 
 - Consolidate the seven built-in Runtime assemblies into `Wulato.UIKit`; keep View/Session behavior, namespaces and script GUIDs. Preserve the former Core asmdef GUID on the new root definition.
 - Make first-party transaction protocols and input bookkeeping components internal; keep navigation/transition and input-driver extension contracts public.
@@ -10,6 +10,7 @@
 - Unify Back/Cancel in the existing Context FIFO: non-page input owner first, CanClose veto without fallthrough, page restoration and root no-op. Bind input requests to their original owner; preserve fresh-edge gating, bounded closure, cancellation and Shutdown.
 - Add DialogAsync and typed PopupAsync on IUIContext, backed by the existing default services and unified Registry. Give popup items independent cancellation with rollback/Closed and deduplication barriers; marshal cancellation callbacks to the main thread. Popup scheduling rejects Page registrations.
 - Add SDK-independent Host preset factories and an opt-in DOTween 1.3.045 adapter/sample with Fade/Scale/Slide and paired sequences. Remove UITransitionRunner; retain the custom transition contracts and SDK-free Immediate default.
+- Add an optional R3 1.3.1 Counter sample using native uGUI helpers and Session.Track; keep business model ownership external and guard queued notifications after main-thread dispatch. No core R3 dependency or binding API.
 - See Documentation~/Migration-0.5.md. Package versions are unchanged at this development checkpoint; this is not a 0.5 release.
 
 ## 0.4.0

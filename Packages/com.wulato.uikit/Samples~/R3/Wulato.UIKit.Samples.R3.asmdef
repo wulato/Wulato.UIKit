@@ -1,0 +1,7 @@
+{
+  "name": "Wulato.UIKit.Samples.R3",
+  "references": ["Wulato.UIKit", "UniTask", "UnityEngine.UI", "R3.Unity"],
+  "overrideReferences": true,
+  "precompiledReferences": ["R3.dll"],
+  "defineConstraints": ["WULATO_UIKIT_R3"]
+}
