@@ -25,6 +25,45 @@ namespace Wulato.UIKit.Tests.Preview
         public static GameObject Prefab;
         public override void Populate(UIRegistryBuilder b)=>b.Add<PreviewTypedView,string>(new UIViewTypeKey("typed-preview"),UIViewAsset.Direct(Prefab));
     }
+    public sealed class DiagnosticFaultView:UIView
+    {
+        sealed class Fault:IDisposable{public void Dispose()=>throw new InvalidOperationException("diagnostic-scope-failure");}
+        protected override UniTask OnOpenAsync(UISessionScope scope,System.Threading.CancellationToken token){scope.Track(new Fault());return UniTask.CompletedTask;}
+    }
+    public sealed class DiagnosticFaultRegistry:UIRegistryProvider
+    {
+        internal static GameObject Prefab;
+        public override void Populate(UIRegistryBuilder b)=>b.Add<DiagnosticFaultView>(new UIViewTypeKey("diagnostic-fault"),UIViewAsset.Direct(Prefab),UILayer.Modal);
+    }
+    [Category("diagnostics")]
+    public sealed class RuntimeDiagnosticsTests
+    {
+        sealed class CaptureErrors:IUIErrorSink {internal readonly List<UIException> Errors=new List<UIException>();public void Report(UIException error)=>Errors.Add(error);}
+        [UnityTest] public IEnumerator ContextErrors_AreCopiedWithoutChangingTheSink()=>UniTask.ToCoroutine(async()=>
+        {
+            var prefab=new GameObject("Diagnostic source",typeof(RectTransform),typeof(DiagnosticFaultView));prefab.SetActive(false);DiagnosticFaultRegistry.Prefab=prefab;
+            // The loader requires an active-self prefab; an inactive parent keeps this source out of the scene.
+            var sources=new GameObject("Sources");sources.SetActive(false);prefab.transform.SetParent(sources.transform,false);prefab.SetActive(true);
+            var registry=ScriptableObject.CreateInstance<UIRegistry>();var provider=ScriptableObject.CreateInstance<DiagnosticFaultRegistry>();
+            typeof(UIRegistry).GetField("providers",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(registry,new List<UIRegistryProvider>{provider});
+            var root=new GameObject("Diagnostic root",typeof(RectTransform),typeof(UIRoot));root.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
+            var events=new GameObject("Diagnostic events",typeof(EventSystem));
+#if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
+            events.AddComponent(Type.GetType("Wulato.UIKit.InputSystem.InputSystemUIInputDriver, Wulato.UIKit.InputSystem",true));
+#else
+            events.AddComponent<LegacyUIInputDriver>();
+#endif
+            var sink=new CaptureErrors();var ui=new UIContextBuilder(root.GetComponent<UIRoot>(),registry).WithErrorSink(sink).Build();
+            try
+            {
+                var session=await ui.OpenAsync<DiagnosticFaultView>();var before=ui.GetDiagnostics();await session.CloseAsync();
+                var after=ui.GetDiagnostics();Assert.That(before.Errors,Is.Empty);Assert.That(after.Errors.Count,Is.EqualTo(1));Assert.That(after.TotalErrorCount,Is.EqualTo(1));
+                Assert.That(sink.Errors.Count,Is.EqualTo(1));Assert.That(after.Errors[0].Code,Is.EqualTo(sink.Errors[0].Code));Assert.That(after.Errors[0].SessionId,Is.EqualTo(session.Id));Assert.That(after.Errors[0].Message,Does.Contain("diagnostic-scope-failure"));
+            }
+            finally{await ui.ShutdownAsync();UnityEngine.Object.Destroy(root);UnityEngine.Object.Destroy(events);UnityEngine.Object.Destroy(registry);UnityEngine.Object.Destroy(provider);UnityEngine.Object.Destroy(sources);DiagnosticFaultRegistry.Prefab=null;}
+            var dir=Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");if(!string.IsNullOrEmpty(dir))File.WriteAllText(Path.Combine(dir,"ContextErrors_AreCopiedWithoutChangingTheSink.trace.json"),"{\"events\":[\"reported-original\",\"copied-summary\",\"previous-snapshot-frozen\"]}");
+        });
+    }
     [Category("preview_runtime")]
     public class PreviewRuntimeTests
     {
@@ -89,9 +128,13 @@ namespace Wulato.UIKit.Tests.Preview
             try
             {
                 await (UniTask)type.GetMethod("OpenAsync").Invoke(runtime,null);var first=(IUISession)type.GetProperty("Session").GetValue(runtime);
-                Assert.That(first.State,Is.EqualTo(UIState.Open));await (UniTask)type.GetMethod("CloseAsync").Invoke(runtime,null);
+                Assert.That(first.State,Is.EqualTo(UIState.Open));
+                var ui=(IUIContext)type.GetProperty("Context").GetValue(runtime);var live=ui.GetDiagnostics();Assert.That(live.History.Select(h=>h.Value),Does.Contain("preview-probe"));
+                var facade=typeof(UIContextBuilder).Assembly.GetType("Wulato.UIKit.UIContextFacade");
+                var values=(System.Collections.Generic.IReadOnlyList<UIDiagnosticsSnapshot>)facade.GetMethod("CaptureDiagnostics",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,null);Assert.That(values.Any(d=>d.ContextId.Equals(ui.ContextId)),Is.True);
+                await (UniTask)type.GetMethod("CloseAsync").Invoke(runtime,null);Assert.That(ui.GetDiagnostics().CacheLru.Select(k=>k.Value),Does.Contain("preview-probe"));
                 await (UniTask)type.GetMethod("OpenAsync").Invoke(runtime,null);var next=(IUISession)type.GetProperty("Session").GetValue(runtime);
-                Assert.That(next.Id,Is.Not.EqualTo(first.Id));
+                Assert.That(next.Id,Is.Not.EqualTo(first.Id));Assert.That(live.Sessions.Single().Id,Is.EqualTo(first.Id),"Previously captured values cannot follow the cached View into another Session.");
             }
             finally
             {

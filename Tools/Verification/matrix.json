@@ -324,6 +324,12 @@
         ],
         "controls-input": [
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.Preview.RuntimeDiagnosticsTests.ContextErrors_AreCopiedWithoutChangingTheSink"
+        ],
+        "preview-addressables": [
+          "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
         ]
       },
       "EditMode": {
@@ -576,6 +582,13 @@
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.Snapshot_CollectionsAreFrozenAndExcludeBusinessArguments",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.ErrorRecording_IsBoundedAndForwardsOriginalWithoutOwningSink",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.WorkbenchSamples_AreBoundedValueOnlyAndKeepTerminalTime",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.TerminalRecord_RoundTripsOnlyValuesAndRejectsInvalidIdentity"
         ]
       }
     },
@@ -906,6 +919,12 @@
         ],
         "controls-input": [
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.Preview.RuntimeDiagnosticsTests.ContextErrors_AreCopiedWithoutChangingTheSink"
+        ],
+        "preview-addressables": [
+          "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
         ]
       },
       "EditMode": {
@@ -1163,6 +1182,13 @@
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.Snapshot_CollectionsAreFrozenAndExcludeBusinessArguments",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.ErrorRecording_IsBoundedAndForwardsOriginalWithoutOwningSink",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.WorkbenchSamples_AreBoundedValueOnlyAndKeepTerminalTime",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.TerminalRecord_RoundTripsOnlyValuesAndRejectsInvalidIdentity"
         ]
       }
     }
@@ -1492,6 +1518,12 @@
         ],
         "controls-input": [
           "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.Preview.RuntimeDiagnosticsTests.ContextErrors_AreCopiedWithoutChangingTheSink"
+        ],
+        "preview-addressables": [
+          "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
         ]
       },
       "EditMode": {
@@ -1744,6 +1776,13 @@
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.Snapshot_CollectionsAreFrozenAndExcludeBusinessArguments",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.ErrorRecording_IsBoundedAndForwardsOriginalWithoutOwningSink",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.WorkbenchSamples_AreBoundedValueOnlyAndKeepTerminalTime",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.TerminalRecord_RoundTripsOnlyValuesAndRejectsInvalidIdentity"
         ]
       }
     },
@@ -2074,6 +2113,12 @@
         ],
         "controls-input": [
           "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.Preview.RuntimeDiagnosticsTests.ContextErrors_AreCopiedWithoutChangingTheSink"
+        ],
+        "preview-addressables": [
+          "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
         ]
       },
       "EditMode": {
@@ -2331,6 +2376,13 @@
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.ClosingRecoveryWindow_DoesNotChooseRestoreForUser",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.Stop_PersistenceFailureDoesNotAbortCleanup",
           "Wulato.UIKit.Tests.Preview.PreviewAuthoringTests.OwnedDirectory_ModifiedFolderMetadata_IsNeverDeleted"
+        ],
+        "diagnostics": [
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.OffDiagnostics_KeepBaseState_AndRejectWorkerReads",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.Snapshot_CollectionsAreFrozenAndExcludeBusinessArguments",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.ErrorRecording_IsBoundedAndForwardsOriginalWithoutOwningSink",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.WorkbenchSamples_AreBoundedValueOnlyAndKeepTerminalTime",
+          "Wulato.UIKit.Tests.EditMode.SnapshotDiagnosticsTests.TerminalRecord_RoundTripsOnlyValuesAndRejectsInvalidIdentity"
         ]
       }
     }

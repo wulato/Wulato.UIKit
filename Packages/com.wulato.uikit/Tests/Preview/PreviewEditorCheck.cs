@@ -90,6 +90,9 @@ namespace Wulato.UIKit.Tests.Preview
                 {
                     if(phase=="opening"&&session?.State==UIState.Open)
                     {
+                        var snapshot=(UIDiagnosticsSnapshot)Get("Diagnostics");
+                        if(snapshot==null||!snapshot.Sessions.Any(s=>s.Id.Equals(session.Id)))throw new Exception("Preview diagnostics did not capture the active Session.");
+                        SessionState.SetString(Key+"context",snapshot.ContextId.ToString());
                         SessionState.SetString(Key+"session",session.Id.ToString());Phase("closing");((UniTask)Call("CloseAsync")).Forget(Fail);
                     }
                     else if(phase=="closing"&&session?.State==UIState.Closed)
@@ -114,6 +117,8 @@ namespace Wulato.UIKit.Tests.Preview
                     var facade=typeof(UIContextBuilder).Assembly.GetType("Wulato.UIKit.UIContextFacade",true);
                     if((int)facade.GetProperty("ActiveCount",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null)!=0)throw new Exception("Context leaked after preview stop.");
                     if(UnityEngine.Object.FindObjectsOfType<UIInputGate>().Length!=0)throw new Exception("Input gate leaked after preview stop.");
+                    var terminal=(UIDiagnosticsSnapshot)Get("Diagnostics");
+                    if(SessionState.GetString(Key+"action","")!="compile"&&(terminal==null||terminal.State!=UIContextState.Stopped||terminal.ContextId.ToString()!=SessionState.GetString(Key+"context","")||terminal.InputLockCount!=0))throw new Exception("Terminal value snapshot was not preserved across preview exit/reload.");
                     var cycle=SessionState.GetInt(Key+"cycle",0);File.WriteAllText(Path.Combine(SessionState.GetString(Key+"out",""),"automatic-exit-"+cycle+".json"),"{\"status\":\"PASS\",\"activeContexts\":0,\"oldLocks\":0,\"subscriptions\":0,\"sceneRestored\":true,\"sessionChanged\":true}");
                     SessionState.SetInt(Key+"cycle",cycle+1);if(cycle==0)Begin();else Finish();
                 }

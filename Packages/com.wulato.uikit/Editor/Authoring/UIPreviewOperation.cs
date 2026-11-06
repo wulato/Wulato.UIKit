@@ -11,6 +11,7 @@ namespace Wulato.UIKit.Editor.Authoring
     [Serializable] internal sealed class UIPreviewState
     {
         public int schema=1;
+        public UIDiagnosticsRecord terminal;
         public string request,phase,profileGuid,scenePath,directory,directoryGuid,error;
         public string[] originalGuids,selection;
         public bool createdAssetRoot;

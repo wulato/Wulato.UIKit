@@ -923,10 +923,46 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] [verification.json](../../Artifacts/uikit/phase4-1/verification.json) PASS：当前 Snapshot/指纹、实际及必需用例集合、原始 XML/逐例 trace、run/batch/index/hash、九阶段原始文件hash、当前只读模板状态及独立消费者幂等性。原始日志/退出码/命令见 `Artifacts/uikit/phase4-1/` 的 `final-commands.sh`、`remaining-commands.sh`、`verify-final.py` 和逐条输出。
 - [x] 集中自审：基础 Runtime、必需依赖、版本、场景/Prefab、已有资产 GUID、ProjectSettings、MC 均无变更；仅扩展现有 Editor 工作流、文档与直接专项。SDK 缺席的基础 Editor 无 SDK 程序集引用，Preset 使用已有基础抽象。撤回工具不删除已创建用户文件。
 - [x] 实现提交 `21d47a49463b261612473006791a50e91e0c2be3` 已推送，创建 [任务 4.1 PR #13](https://github.com/wulato/Wulato.UIKit/pull/13)（main ← feat/uikit-0.5-authoring-templates）。
-- [ ] 等待用户确认合并 PR #13；不开始 4.2。
+- [x] 用户确认后正常合并 PR #13；main=`dd3a86e9960e647bb9e8e36356903bf1c38fcdb9`，从更新 main 开始 4.2。
 
 失败及修复：首次 editor 17例中16 PASS，旧断言仍要求3个 Codegen Prefab，实际已包含3个原夹具和3个模板，`20261106T061912087195-tests-7cf1e2`。改为六个具体名称的严格集合（不删除原夹具、不放宽为最小数量），一次修复后 `20261106T062136541338-tests-151f51` 17/17 PASS；其余相关专项在最终输入上运行。此后未修改生产源或模板。首个聚合审计脚本把authoring最低必需集合误当完整集合、且只读校验使用相对路径算hash：按已观察的明确11项既有附加用例及 Snapshot 绝对宿主路径修正一次后 PASS，原始证据、runner/evidence 校验器均未修改。
 
 最终原始索引：Legacy authoring `20261106T062311037854-tests-a2d0b2`、editor `20261106T062136541338-tests-151f51`、generated `20261106T062325549785-tests-232257`；Input authoring `20261106T062337257556-tests-b508be`、editor `20261106T062350657867-tests-a9252b`、generated `20261106T062400634541-tests-f7315d`、addressables `20261106T062410736357-tests-c6ecf6`；只读生成 `20261106T062420863756-check-generated-d7063c`；Input九阶段 `20261106T061717076257-codegen-19153f`；SDK内容准备 `20261106T061846342919-prepare-3f01ec`；独立消费者 `20261106T062438085496-quickstart-consumers-6080db`，其测试 `20261106T062646736928-tests-28a3fd`。均为本地忽略材料，不冒充远端 artifact。
 
 未运行全 Suite、其他编辑器、Both 专门组合、Preview/runtime/context-host 全专项或独立 Reload 矩阵、远端 CI、Player/IL2CPP、真机。4.1 没有改运行时生命周期、预览流程或静态重置；对应4.2/发布门禁保留。回退整项 revert 工具/专项，不自动更改已生成用户模板；新建策略与现有手工策略的区别见 Authoring-0.5 / Migration-0.5。
+
+
+### 4.2 执行记录（2026-11-06）
+
+- 按用户确认核对 PR #13 head `7ed68d0bc38a62e8731f35bcafd4062db3a35693` / CLEAN 后普通合并；基线 `dd3a86e9960e647bb9e8e36356903bf1c38fcdb9`，分支 `feat/uikit-0.5-diagnostics-preview`。smart-development STANDARD / L2，使用已有计划执行；无子代理/新工作区。
+- Workbench 新 Diagnostics 页仅保存值快照（最多32个 Context），约4Hz按需采样，显示 Session、历史键、缓存、输入 Owner/Generation/锁、租约/隔离、PendingCleanup、错误；无运行 View / Context / Session 对象或业务参数。区分运行中、终态和已脱离运行集的最后采样。
+- 必要 Runtime 补充仅为 History 类型键与 Errors 值摘要/总数；Context 有界记录最近32个已报告错误、消息1024字符，转发原异常给原 Sink，不拥有/释放注入 Sink。Off 不记录；最终快照仍冻结，不把迟到清理当成实时终态。历史只在 Running 读取，避免 Shutdown 后访问已释放的 Navigator。
+- 预览已有默认 Registry 资源路由；Adapter 继续用于参数/业务依赖。新增真实 Bundle 的无 Adapter Addressables 证明。Profile 可选已有 Preset，空驱动依据启用后端、Both 要求明确选择。正常退出将纯值终态附加到既有恢复记录，保留 schema1 与原资产所有权/场景 GUID 保护；跨正常 Reload 恢复终态，不伪造编译中断时未取得的快照。
+- 首轮 compile PASS `20261106T070100417096-prepare-bfe3b6`，四项新 EditMode 诊断行为已 PASS，但按当前原生分类未匹配同类下原 Off 方法，`20261106T070138458810-tests-bd4231` 明确 FAIL。将 Off 契约放入独立诊断包装用例、Runtime 诊断独立类，并同步 CI selector（同因1轮）；`20261106T070426216396-tests-333f05` 五例与 `20261106T070439520960-tests-fe1399` 真实错误路径均 PASS。生产断言/证据校验器未放宽。
+- 首轮 preview-runtime PASS `20261106T071130507085-tests-a6e79a`；Legacy 九阶段 codegen `20261106T071148217553-codegen-607d3f` PASS。默认预览 Reload 两次真实 Play PASS：`20261106T071308746280-preview-reset-611c86`，包含跨退出 Reload 的终态/ContextId 与原场景恢复、零活跃 Context/旧锁/订阅。后续静态源输入稳定，相关 Python 八模块99项 PASS。
+- 最终范围：两后端 diagnostics(Edit/Play)/preview-authoring/runtime/context-host；受影响错误转发另跑 cleanup(Play)与integration(Edit)。Input宿主采用既有 Unity Input System1.17.0 / Addressables1.21.21 / SBP1.21.25，验证 SDK 默认路由。必要 Reload 为 Preview+Host：Legacy四选项 / Input默认与双禁用，每项两次Play，另编译中断及原生保存取消。最终结果如下，等待交付 PR 审核。
+
+
+4.2 最终验收：
+
+| Unity2022.3.62f2 / 配置 | 实际专项 | 结果 |
+| --- | --- | --- |
+| Legacy / 无可选 SDK | diagnostics(Edit5/Play1)、preview-authoring7、preview-runtime2、context-host11、cleanup(Play15)、integration(Edit24) | 65/65 PASS |
+| Input System1.17.0 + Addressables1.21.21 / SBP1.21.25 | 上述组合（integration25），另真实 Bundle preview-addressables1 | 67/67 PASS |
+| Preview Reload | Legacy0/1/2/3，Input0/3，每项2次真实Play | 6组12次 PASS |
+| Context Host Reload | Legacy0/1/2/3，Input0/3，每项2次真实Play | 6组12次 PASS |
+| 编译中断 / 原生保存取消 | 每后端 compile选项3、cancel选项0，每项2次真实Play | 4组8次 PASS |
+
+- [x] 十五组 132/132 Unity 用例 PASS，相关 Python 八模块99/99 PASS。两后端各九阶段真实 codegen PASS；核心错误记录/清理及 Off、主线程、不可变快照、历史键、原 Sink/异常身份、消息截断、值记录等契约均有专项。
+- [x] 十六组 Reload / 32次实际Play PASS；保留原零活跃Context/旧锁/订阅、连续两次、重开新Session、原场景恢复和所有权保护检查。正常退出额外断言终态 ContextId/Stopped/零锁跨 Reload 保留；编译中断不强制伪造未取得样本。
+- [x] [verification.json](../../Artifacts/uikit/phase4-2/verification.json) PASS：所有必需用例均匹配，全部实际用例通过；当前 snapshot/指纹、原始 XML/逐例trace、run/batch/index/hash、Reload选项/自动退出/取消原始文件、两后端九阶段编译输出及真实Bundle当前源/字节校验。原始命令、日志和退出码见 `Artifacts/uikit/phase4-2/final-commands.sh`、`pilot-commands.sh`、`verify-final.py` 和逐条输出。
+- [x] 原生保存取消两后端均通过实际 Cancel 点击与 `save-cancel.json` 的四项证明（脏场景保留、未进入Play、未创建预览、PASS）。点击后测试夹具才清理脏标记并进行两次正常预览，不把后续预览误当取消失败。
+- [x] 集中自审：单一 Package/程序集边界、依赖与版本不变，无生产 Scene/Prefab/ProjectSettings/已有GUID变更，不修改MC。Runtime改动限诊断值投影和有界记录；无新生命周期、Loader、历史管理器或可写诊断对象。旧 Profile 默认Immediate，旧恢复记录不要求 terminal 字段。
+- [x] 实现提交 `736b1c8a2f6e8f02e3d68cdf3e2812c7e9aaf3d5` 已推送，创建 [任务 4.2 PR #14](https://github.com/wulato/Wulato.UIKit/pull/14)（main ← feat/uikit-0.5-diagnostics-preview）。
+- [ ] 等待用户确认合并 PR #14；不开始5.1。
+
+环境修复（1轮）：首轮交互保存取消的行为与双次Play报告均 PASS，但 `20261106T072224757366-preview-reset-980b24` 指纹门禁 FAIL，未计验收。GUI 首次打开自动将空 Standalone applicationIdentifier 补为 com.Wulato.UIKitPreflight，并新建 ProjectSettings/PackageManagerSettings.asset；不是生产代码失败。只恢复该已比对单字段，将新文件移入本任务忽略证据目录，原 headless 宿主恢复到已通过的完整指纹。为原生验证另复制两个任务宿主（仅Assets/Packages/ProjectSettings），预置已观察的GUI默认值/文件，未复制Library、未改MC；稳定宿主两次验证通过。保留原始失败/raw snapshot，不改已有证据或放宽 runner，原界面应用自动退出后的 CUA noWindowsAvailable 不记为测试通过，最终以原始报告及指纹验收。
+
+主要原始索引：Preview Reload默认 `20261106T071308746280-preview-reset-611c86`，其余Legacy `20261106T071925640180-preview-reset-fcd26a`、`20261106T071935438190-preview-reset-043d62`、`20261106T071945293928-preview-reset-e978ac`，Input `20261106T071955207799-preview-reset-18ea9d`；Host六组 `20261106T072016454028-host-reset-6e2442`；compile两组 `20261106T072115909786-preview-reset-6f94f0`；稳定cancel Legacy `20261106T072600259184-preview-reset-f437d5`、Input `20261106T072930342713-preview-reset-808cec`。模块十五组逐项索引在 verification.json，均为本地忽略材料，不冒充远端 artifact。
+
+未运行 suite all、其他编辑器、Both专项、完整远端CI、Player/IL2CPP、真机或移动性能。普通Snapshot展示最多128行但数据为原值集合；错误仅包含被报告到Context Sink的有界摘要。终态不更新物理清理计数；暂停/清除只影响面板。回退整项 revert，保留用户修改过的临时资产与恢复记录；旧代码忽略新的纯值 terminal 字段，不把它用于资产删除授权。

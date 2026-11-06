@@ -76,3 +76,7 @@ Popup 只接受非 Page，避免队列意外改变导航根。等待取消移除
 ## Workbench（4.1）
 
 新模板 Page 使用 Single/Release，Modal/Dialog 使用 Multi/Release；已有资产不自动迁移。新增 Dialog/可选 Presenter 源码是用户所有文件，撤回工具不删除它们。来源、输入和 Host 初始化见 [Authoring-0.5](Authoring-0.5.md)。
+
+## Diagnostics / 预览（4.2）
+
+诊断快照新增只读 History（类型键）、Errors（有界值摘要）及 TotalErrorCount；不返回业务参数或异常对象。预览使用默认资源路由，Addressables 不再需要 Loader Adapter；UIPreviewAdapter 继续用于明确参数/业务依赖。空输入驱动依据已启用后端，Both 必须明确选择；可选已有 Host Preset。旧 Profile 新字段为空即保持 Immediate，恢复记录 schema1 可读取旧记录，新附加终态字段不参与资产删除权判断。详见 [Preview](Preview.md)。

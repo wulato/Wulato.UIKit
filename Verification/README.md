@@ -301,3 +301,11 @@ SDK 安装另行授权：`python3 Tools/Verification/fancy_sdk.py --archive <官
 新模板在既有 codegen 夹具中使用实际 UIViewAuthoring.WriteTemplate / ConfigureNew，跨三种业务程序集编译 Page、Modal、Dialog 与可选 Presenter，并经历重复生成及目录/程序集重命名；不只比较模板字符串。`authoring` 验证新策略仅作用于新 Marker、来源预检/Undo、驱动选择、一键 Host、Preset/Settings 保留及等待期间资产冲突保护。`editor` / `generated-integration` 保留原文件所有权、指纹、路由及运行时回归。
 
 按批准范围选择 Unity 2022.3.62f2 的 legacy / input 两配置运行上述专项。独立 QuickStart 仍使用 `prepare-samples --quickstart-only` 跨八次 Editor 重启与重复配置，自动跑并复核 `quickstart-only` 原始证据。改动 Addressables Editor 预检时，另在已装 SDK 的宿主验证 `addressables` EditMode；按现有 `prepare --phase addressables` 准备稳定设置和真实本地内容，Bundle 构建不等于 Player 构建。不扩展全部 Suite、其他版本、Reload 或移动门禁。
+
+## Diagnostics / 预览4.2
+
+使用 EditMode `diagnostics`（五例）和 PlayMode `diagnostics`（一例）验证快照复制、无运行对象、错误有界/原始转发、Off、终态值记录及真实 Scope 错误。`preview-authoring`、`preview-runtime`、`context-host` 继续覆盖保存/恢复/资产保护、重开新 Session、PendingCleanup 终态冻结；不以 DTO 测试替代真实预览。
+
+普通专项覆盖 Unity2022.3.62f2 legacy/input。预览与 Host Reload 仍使用既有 `play-reset --scope preview/context-host`：Legacy 四选项、Input 默认/双禁用，每项两次真实 Play。`preview-action window` 验证正常退出后跨 Reload 的终态数据；`compile` 检查编译中断的恢复/零泄漏，不强制在中断时伪造终态；`cancel --interactive` 用原生保存对话框验证取消不创建预览。受影响错误转发另跑 PlayMode cleanup，沿用既有工具锁/指纹/索引及退出证据。
+
+`preview-addressables` 是 SDK 可选 PlayMode 一例，需既有 Addressables 验证包和真实 Bundle 内容准备；使用无 Adapter Profile 验证默认路由，不以模拟 Loader 或 Fast Mode 冒充。无 SDK 的适用集合排除此专项，基础预览仍验证 Resources。

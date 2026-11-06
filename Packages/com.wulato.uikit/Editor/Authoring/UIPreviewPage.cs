@@ -9,7 +9,7 @@ namespace Wulato.UIKit.Editor.Authoring
         public static void Draw(ref UIPreviewProfile profile)
         {
             profile=(UIPreviewProfile)EditorGUILayout.ObjectField("预览配置",profile,typeof(UIPreviewProfile),false);
-            EditorGUILayout.HelpBox("使用真实 PlayMode 和独立临时场景。带参或依赖业务服务的 View 需要显式 Adapter；不会模拟完整业务环境。",MessageType.Info);
+            EditorGUILayout.HelpBox("使用真实 PlayMode 和独立临时场景。资源按 Registry 自动路由；带参或依赖业务服务的 View 需要显式 Adapter；不会模拟完整业务环境。",MessageType.Info);
             if(!UIPreviewController.Active)
             {
                 using(new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode||EditorApplication.isCompiling))
@@ -45,6 +45,8 @@ namespace Wulato.UIKit.Editor.Authoring
                     if(GUILayout.Button("保留现场"))UIPreviewController.Keep();
                 }
             }
+            if(!UIPreviewController.Running&&UIPreviewController.Diagnostics!=null)
+                UIDiagnosticsPage.DrawSample(new UIDiagnosticsSample(UIPreviewController.Diagnostics,false,UIPreviewController.LastSampleUtc));
             if(!string.IsNullOrEmpty(UIPreviewController.LastMessage))EditorGUILayout.HelpBox(UIPreviewController.LastMessage,MessageType.Info);
             if(!string.IsNullOrEmpty(UIPreviewController.RecoveryError))EditorGUILayout.HelpBox(UIPreviewController.RecoveryError,MessageType.Error);
         }

@@ -32,7 +32,7 @@ namespace Wulato.UIKit.Editor.Authoring
         void OnEnable(){minSize=new Vector2(720,440);EditorApplication.update+=Refresh;if(registry==null)registry=AssetDatabase.LoadAssetAtPath<UIRegistry>(UICodegenPipeline.RegistryPath);}
         void OnDisable(){EditorApplication.update-=Refresh;}
         void OnDestroy(){if(UIPreviewController.Active&&EditorApplication.isPlayingOrWillChangePlaymode)UIPreviewController.StopAsync().Forget(UIPreviewController.Report);}
-        void Refresh(){if(UIAuthoringOperation.Busy||UIPreviewController.Active)Repaint();}
+        void Refresh(){if(UIAuthoringOperation.Busy||UIPreviewController.Active||(tab==5&&EditorApplication.isPlaying))Repaint();}
         Type Driver=>driverChoice==0?UISceneAuthoring.DefaultDriver():driverChoice==1?typeof(LegacyUIInputDriver):driverChoice==2?Type.GetType("Wulato.UIKit.InputSystem.InputSystemUIInputDriver, Wulato.UIKit.InputSystem",true):driverScript==null?null:driverScript.GetClass();
         void Run(Action action)
         {
@@ -41,9 +41,10 @@ namespace Wulato.UIKit.Editor.Authoring
         }
         void OnGUI()
         {
-            tab=GUILayout.Toolbar(tab,new[]{"场景","界面","生成","样例","预览"});scroll=EditorGUILayout.BeginScrollView(scroll);
+            tab=GUILayout.Toolbar(tab,new[]{"场景","界面","生成","样例","预览","Diagnostics"});scroll=EditorGUILayout.BeginScrollView(scroll);
             EditorGUILayout.Space();
-            if(tab==4){try{UIPreviewPage.Draw(ref previewProfile);}catch(Exception e){UIPreviewController.Report(e);}}
+            if(tab==5){UIDiagnosticsPage.Draw();}
+            else if(tab==4){try{UIPreviewPage.Draw(ref previewProfile);}catch(Exception e){UIPreviewController.Report(e);}}
             else using(new EditorGUI.DisabledScope(UIPreviewController.Active||UIAuthoringOperation.Busy||EditorApplication.isCompiling||EditorApplication.isPlayingOrWillChangePlaymode))
             {switch(tab){case 0:DrawScene();break;case 1:DrawView();break;case 2:DrawGeneration();break;case 3:DrawSamples();break;}}
             EditorGUILayout.Space();EditorGUILayout.HelpBox(UIAuthoringOperation.Describe(),UIAuthoringOperation.Current.status=="失败"?MessageType.Error:MessageType.Info);

@@ -16,16 +16,18 @@ namespace Wulato.UIKit.Editor.Authoring
         static UIPreviewRuntime runtime;
         static UIPreviewProfile preparingProfile;
         static bool stopping;
+        static UIDiagnosticsSnapshot lastDiagnostics;
+        public static string LastSampleUtc { get; private set; }
         public static string RecoveryError { get; private set; }
         public static string LastMessage { get; private set; }
         public static bool Active=>state!=null||File.Exists(UIPreviewOperation.StatePath);
         public static bool Running=>runtime!=null&&!stopping;
         public static bool CanCommand=>Running&&!runtime.Busy;
         public static IUISession Session=>runtime?.Session;
-        public static UIDiagnosticsSnapshot Diagnostics=>runtime?.Context?.GetDiagnostics();
+        public static UIDiagnosticsSnapshot Diagnostics=>runtime?.Context?.GetDiagnostics()??lastDiagnostics;
         static UIPreviewController()
         {
-            try{state=UIPreviewOperation.Read();}catch(Exception e){RecoveryError=e.Message;}
+            try{state=UIPreviewOperation.Read();lastDiagnostics=state?.terminal?.Restore();LastSampleUtc=state?.terminal?.capturedUtc;}catch(Exception e){RecoveryError=e.Message;}
             EditorApplication.playModeStateChanged+=Changed;
             AssemblyReloadEvents.beforeAssemblyReload+=BeforeReload;
             bool expectedEntry=state!=null&&state.phase=="entering"&&SessionState.GetString("UIKit.Preview.Request","")==state.request;
@@ -40,7 +42,7 @@ namespace Wulato.UIKit.Editor.Authoring
         {
             if(!profile||!profile.registry)throw new ArgumentException("Choose a preview profile and Registry.");
             profile.registry.CopyValidated().Get(profile.view);
-            UISceneAuthoring.ValidateDriver(profile.inputDriver?profile.inputDriver.GetClass():typeof(LegacyUIInputDriver));
+            UISceneAuthoring.ValidateDriver(profile.inputDriver?profile.inputDriver.GetClass():UISceneAuthoring.DefaultDriver());
             if(profile.rootTemplate)
             {
                 if(!PrefabUtility.IsPartOfPrefabAsset(profile.rootTemplate)||profile.rootTemplate.GetComponentsInChildren<UIRoot>(true).Length!=1)throw new ArgumentException("Root template must be a Prefab with exactly one UIRoot.");
@@ -56,7 +58,8 @@ namespace Wulato.UIKit.Editor.Authoring
             var registryPath=AssetDatabase.GetAssetPath(profile.registry);
             if(string.IsNullOrEmpty(registryPath))throw new ArgumentException("Save the preview Registry as an asset first.");
             var guid=AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(profile));if(string.IsNullOrEmpty(guid))throw new ArgumentException("Save the profile as an asset first.");
-            if(!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())return;
+            if(!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()){LastMessage="已取消启动；未创建预览。";return;}
+            lastDiagnostics=null;
             var scenes=EditorSceneManager.GetSceneManagerSetup();
             if(scenes.Any(s=>string.IsNullOrEmpty(s.path)))throw new InvalidOperationException("Save untitled scenes before previewing.");
             var id=Guid.NewGuid().ToString("N");state=new UIPreviewState{createdAssetRoot=!Directory.Exists(UIPreviewOperation.AssetRoot),request=id,phase="preparing",profileGuid=guid,directory=UIPreviewOperation.AssetRoot+"/"+id,scenePath=UIPreviewOperation.AssetRoot+"/"+id+"/Preview.unity",scenes=scenes,originalGuids=scenes.Select(s=>AssetDatabase.AssetPathToGUID(s.path)).ToArray(),selection=Selection.objects.Select(o=>GlobalObjectId.GetGlobalObjectIdSlow(o).ToString()).ToArray()};
@@ -74,9 +77,9 @@ namespace Wulato.UIKit.Editor.Authoring
                 {
                     var instance=(GameObject)PrefabUtility.InstantiatePrefab(profile.rootTemplate,scene);root=instance.GetComponentInChildren<UIRoot>(true);
                 }
-                var driver=profile.inputDriver?profile.inputDriver.GetClass():typeof(LegacyUIInputDriver);
+                var driver=profile.inputDriver?profile.inputDriver.GetClass():UISceneAuthoring.DefaultDriver();
                 root=UISceneAuthoring.Apply(scene,root,previewRegistry,null,driver);UISampleAuthoring.EnsurePreviewCamera(scene);
-                var host=UIContextHostAuthoring.Apply(root,previewRegistry);var so=new SerializedObject(host);so.FindProperty("initializeOnStart").boolValue=false;so.ApplyModifiedPropertiesWithoutUndo();
+                var host=UIContextHostAuthoring.ApplyPresets(root,previewRegistry,profile.transitionPreset,profile.navigationPreset);var so=new SerializedObject(host);so.FindProperty("initializeOnStart").boolValue=false;so.ApplyModifiedPropertiesWithoutUndo();
                 if(!EditorSceneManager.SaveScene(scene,state.scenePath))throw new IOException("Could not save preview scene.");
                 UIPreviewOperation.CaptureFiles(state);state.phase="entering";UIPreviewOperation.Save(state);SessionState.SetString("UIKit.Preview.Request",state.request);EditorApplication.EnterPlaymode();
             }
@@ -96,6 +99,7 @@ namespace Wulato.UIKit.Editor.Authoring
         }
         static void Changed(PlayModeStateChange mode)
         {
+            if(mode==PlayModeStateChange.ExitingEditMode){lastDiagnostics=null;LastSampleUtc=null;}
             if(state==null)return;
             if(mode==PlayModeStateChange.EnteredPlayMode)
             {
@@ -132,7 +136,7 @@ namespace Wulato.UIKit.Editor.Authoring
                 if(state!=null){state.phase="stopping";SaveStateSafely();}
                 if(runtime!=null)
                 {
-                    var result=await runtime.ShutdownAsync();LastMessage="Shutdown errors: "+result.Errors.Count+"; pending cleanup: "+result.PendingCleanupCount;
+                    var result=await runtime.ShutdownAsync();lastDiagnostics=runtime.Context?.GetDiagnostics();LastMessage="Shutdown errors: "+result.Errors.Count+"; pending cleanup: "+result.PendingCleanupCount;
                     if(state!=null)state.error=(state.error??"")+"\n"+LastMessage;
                 }
                 else if(state!=null&&EditorApplication.isPlaying)
@@ -144,7 +148,13 @@ namespace Wulato.UIKit.Editor.Authoring
             catch(Exception e){Report(e);}
             finally
             {
-                runtime=null;SaveStateSafely();
+                if(runtime?.Context!=null)lastDiagnostics=runtime.Context.GetDiagnostics();
+                if(lastDiagnostics!=null)
+                {
+                    if(state?.terminal==null)LastSampleUtc=DateTime.UtcNow.ToString("O");
+                    if(state!=null)state.terminal=UIDiagnosticsRecord.Capture(lastDiagnostics,LastSampleUtc);
+                }
+                UIDiagnosticsPage.Remember(lastDiagnostics,false);runtime=null;SaveStateSafely();
                 if(EditorApplication.isPlayingOrWillChangePlaymode)EditorApplication.ExitPlaymode();else FinishRestore();
             }
         }

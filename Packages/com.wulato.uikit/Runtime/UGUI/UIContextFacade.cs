@@ -34,6 +34,14 @@ namespace Wulato.UIKit
             if(roots.TryGetValue(root,out var value)&&value==this)roots.Remove(root);
         }
         internal static int ActiveCount=>roots.Count;
+        // Editor consumes copied values, never the registry of mutable Contexts or their Roots.
+        internal static IReadOnlyList<UIDiagnosticsSnapshot> CaptureDiagnostics()
+        {
+            if(!PlayerLoopHelper.IsMainThread)throw new InvalidOperationException("Capture diagnostics on the main thread.");
+            var snapshots=new List<UIDiagnosticsSnapshot>();
+            foreach(var value in roots.Values)if(value.engine!=null)snapshots.Add(value.GetDiagnostics());
+            return snapshots.AsReadOnly();
+        }
         // Teardown live owners before removing the bridge; never reset unresolved ownership counters.
         internal static void StopPlaySession()
         {

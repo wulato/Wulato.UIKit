@@ -15,6 +15,7 @@ namespace Wulato.UIKit
         readonly UIRuntimeDependencies dependencies;
         readonly UICompletionQueue completions;
         readonly UICommandQueue commands;
+        readonly UIDiagnosticErrorSink diagnosticErrors;
         readonly List<UISessionHandle> sessions = new List<UISessionHandle>();
         readonly List<UICompletion> shutdownCompletions = new List<UICompletion>();
         readonly CancellationTokenSource stopping;
@@ -43,7 +44,8 @@ namespace Wulato.UIKit
             stopping = dependencies.Lifetime.Source;
             cache = new UIViewCache(dependencies.Settings.CacheCapacity);
             shutdownBudget = new UIShutdownBudget(dependencies.Scheduler, dependencies.Settings.ShutdownBudget);
-            orphans = new UIOrphanRegistry(dependencies.Scheduler, dependencies.ErrorSink, id, callbacks.Invoke);
+            diagnosticErrors=new UIDiagnosticErrorSink(dependencies.ErrorSink,dependencies.Settings.DiagnosticsLevel!=UIDiagnosticsLevel.Off);
+            orphans = new UIOrphanRegistry(dependencies.Scheduler, diagnosticErrors, id, callbacks.Invoke);
             hostProvider = dependencies.HostFactory as IUIRuntimeHostProvider;
             runtimeHost = hostProvider?.RuntimeHost;
             completions = new UICompletionQueue(orphans.ReportCompletion);
@@ -79,7 +81,7 @@ namespace Wulato.UIKit
         {using(marker.Auto())callbacks.Invoke(callback);}
         void Report(UIException error)
         {
-            try { Callback(() => dependencies.ErrorSink.Report(error)); }
+            try { Callback(() => diagnosticErrors.Report(error)); }
             catch (Exception e) { Debug.LogWarning("UIKit error sink failed: " + e.Message); }
         }
         void Collect(UISessionHandle session, Action cleanup)
@@ -683,9 +685,14 @@ namespace Wulato.UIKit
             if(Thread.CurrentThread.ManagedThreadId!=mainThread)throw Error(UIErrorCode.InvalidRequest,"main-thread");
             return finalDiagnostics ?? BuildDiagnostics();
         }
+        IEnumerable<UIViewTypeKey> DiagnosticHistory()
+        {
+            if(state!=UIContextState.Running||dependencies.Settings.DiagnosticsLevel==UIDiagnosticsLevel.Off)return Enumerable.Empty<UIViewTypeKey>();
+            return dependencies.Services.TryGetValue(typeof(IUINavigator),out var service)?((IUINavigator)service).History.Select(page=>page.Type):Enumerable.Empty<UIViewTypeKey>();
+        }
         UIDiagnosticsSnapshot BuildDiagnostics()
             => new UIDiagnosticsSnapshot(id, state, dependencies.Settings.DiagnosticsLevel, dependencies.Scheduler.UnscaledTime,
                 dependencies.Settings.DiagnosticsLevel == UIDiagnosticsLevel.Off ? Enumerable.Empty<UISessionDiagnostics>() : sessions.Select(s => new UISessionDiagnostics(s.Id, s.Registration.Key, s.State)),
-                sessions.Count(s => s.Lease != null), orphans.IsolatedLeaseCount, dependencies.Settings.DiagnosticsLevel == UIDiagnosticsLevel.Off ? Enumerable.Empty<UIViewTypeKey>() : cache.Keys, inputOwner, inputLocks, orphans.PendingCount);
+                sessions.Count(s => s.Lease != null), orphans.IsolatedLeaseCount, dependencies.Settings.DiagnosticsLevel == UIDiagnosticsLevel.Off ? Enumerable.Empty<UIViewTypeKey>() : cache.Keys, inputOwner, inputLocks, orphans.PendingCount,DiagnosticHistory(),diagnosticErrors.Recent,diagnosticErrors.Total);
     }
 }
