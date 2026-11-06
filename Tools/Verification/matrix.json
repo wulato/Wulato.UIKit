@@ -301,6 +301,17 @@
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
+        ],
+        "r3-binding": [
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.SdkIdentity_UsesRealPinnedCoreAndUnityExtensions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CachedReopen_HasOneLiveSubscriptionAndButtonListener",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.EndedSession_DetachesWithoutDisposingTheBusinessModel",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.WorkerNotification_WritesUguiOnTheMainThread",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.QueuedOldSession_CannotOverwriteTheCachedReopen",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.NativeCloseButton_EndsTheSessionAndAllBindings",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
         ]
       },
       "EditMode": {
@@ -851,6 +862,17 @@
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
+        ],
+        "r3-binding": [
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.SdkIdentity_UsesRealPinnedCoreAndUnityExtensions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CachedReopen_HasOneLiveSubscriptionAndButtonListener",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.EndedSession_DetachesWithoutDisposingTheBusinessModel",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.WorkerNotification_WritesUguiOnTheMainThread",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.QueuedOldSession_CannotOverwriteTheCachedReopen",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.NativeCloseButton_EndsTheSessionAndAllBindings",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
         ]
       },
       "EditMode": {
@@ -1405,6 +1427,17 @@
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
+        ],
+        "r3-binding": [
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.SdkIdentity_UsesRealPinnedCoreAndUnityExtensions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CachedReopen_HasOneLiveSubscriptionAndButtonListener",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.EndedSession_DetachesWithoutDisposingTheBusinessModel",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.WorkerNotification_WritesUguiOnTheMainThread",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.QueuedOldSession_CannotOverwriteTheCachedReopen",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.NativeCloseButton_EndsTheSessionAndAllBindings",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
         ]
       },
       "EditMode": {
@@ -1955,6 +1988,17 @@
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageCancellation_RollsBackTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.CorePageTimeout_StopsWithoutOrphaningTheActualTweenPair",
           "Wulato.UIKit.DOTween.Tests.DOTweenTransitionTests.BusinessAutoKillDefaultFalse_DoesNotRetainCompletedOwnedSequences"
+        ],
+        "r3-binding": [
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.SdkIdentity_UsesRealPinnedCoreAndUnityExtensions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CachedReopen_HasOneLiveSubscriptionAndButtonListener",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.EndedSession_DetachesWithoutDisposingTheBusinessModel",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.WorkerNotification_WritesUguiOnTheMainThread",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.QueuedOldSession_CannotOverwriteTheCachedReopen",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.NativeCloseButton_EndsTheSessionAndAllBindings",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
+          "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
         ]
       },
       "EditMode": {

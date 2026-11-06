@@ -78,3 +78,5 @@ Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Di
 2.4 起普通弹窗可用 `await ui.DialogAsync(request, ct)`；排队弹窗用 `await ui.PopupAsync<NoticeView>(cancellationToken: ct)` 或带参数重载。View 在统一 Registry 注册为非 Page，取消仅作用于该请求。见 [Dialogs](Dialogs/index.md) 与 [Popup Queue](PopupQueue/index.md)。
 
 3.1 起 Host 可配置单界面与页面配对 Preset；空字段仍使用 Immediate。可选 [DOTween](Integrations/DOTween.md) 提供 Fade/Scale/Slide，使用者按需安装 SDK 并显式启用。
+
+需要响应式状态时，可选导入 [R3 Session Binding](Integrations/R3.md)；每次打开的订阅由 Session.Track 管理，业务持有 Model。简单界面无需引入 R3。

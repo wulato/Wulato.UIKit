@@ -68,3 +68,7 @@ Popup 只接受非 Page，避免队列意外改变导航根。等待取消移除
 ## 转场（3.1）
 
 移除 UITransitionRunner；原自定义 IUITransition / INavigationTransition 可继续使用，默认 Immediate 不需要 SDK。Host 新增单界面/页面配对 Preset 字段，configure 可覆盖；DOTween 使用主包内显式启用的可选程序集，参见 [DOTween](Integrations/DOTween.md)。原 Runner 的四项专项迁往实际 DOTween 验证，未保留通用帧动画引擎。
+
+## R3 示例（3.2）
+
+无核心 API Breaking Changes。可选导入 R3 Session Binding，按 [R3 集成文档](Integrations/R3.md) 安装 SDK 并显式启用符号。订阅从 GameObject 生命周期移到每次 Session.Track；业务继续持有并释放 Model。
