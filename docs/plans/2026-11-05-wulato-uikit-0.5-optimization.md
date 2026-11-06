@@ -849,7 +849,8 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 - [x] 六组 33/33 Unity 用例 PASS；相关 Python 八个模块 97/97 PASS。源码输入稳定后执行一次最终专项；未重复运行无变化的绑定用例。新增可选 suite / 精确必需集合，CI 选择器与证据适用集合同步，不自动安装 SDK、不放宽零匹配或 trace/指纹检查。
 - [x] [verification.json](../../Artifacts/uikit/phase3-2/verification.json) PASS：当前 snapshot/fingerprint、原始 XML、实际/必需精确用例集合、每例 trace、run/batch/index/hash、六个 NuGet 归档、原样 SDK Runtime 字节以及三个宿主中的示例文件逐一校验。命令/日志/退出码见 `Artifacts/uikit/phase3-2/final-commands.sh`、`binding-final.log`、`python-final.log` 和 `verify-final.py`。
 - [x] 最终自审：无 UIKit Runtime / Editor 生产实现、核心 API、场景、Prefab、ProjectSettings 或已有资产 GUID 变更；package.json 仅增加 sample 元数据、依赖和版本不变；SDK/DLL/归档仅留忽略目录。main/远端 main 均为 `74e3ae237634f8a884ed815baefde2de73a08eda`。
-- [ ] 提交并创建本任务 PR，等待用户审核合并；不启动 3.3。
+- [x] 实现提交 `4dee81a6123f56f4a031927877b9ff4245406f7b` 已推送，创建 [任务 3.2 PR #11](https://github.com/wulato/Wulato.UIKit/pull/11)（main ← feat/uikit-0.5-r3-session-sample）。
+- [ ] 等待用户确认合并 PR #11；不启动 3.3。
 
 最终原始证据：绑定 `20261106T052340237325-tests-0658b9`；package-install 三组合依次 `20261106T052551591604-tests-f55448`、`20261106T052558921520-tests-bb221f`、`20261106T052605934486-tests-b4bded`；presentation 无/有 SDK `20261106T052613239912-tests-7c7465`、`20261106T052620313540-tests-cdb861`。有 SDK 启用宿主还保留 Addressables 1.21.21 / SBP 1.21.25（并存编译通过，不扩展该 SDK 运行专项），所有宿主均无 Input System SDK。当前只证明该编辑器/TFM/R3 版本；不宣称其他 SDK 格式、版本、输入后端或移动裁剪已验证。
 
