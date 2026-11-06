@@ -1,6 +1,6 @@
 # UIKit verification
 
-当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0/1 已合并；2.1/2.2 已合并；当前 2.3 验证 Back/Cancel 弹窗优先、否决不穿透、根页 no-op、FIFO/取消与 Context 隔离，两个输入后端运行同一组实际驱动场景；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
+当前任务入口：[0.5 Optimization Plan](../docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md)。[0.4 历史计划与证据](../docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md) 保留。开发默认 Unity `2022.3.62f2`；其他版本为显式兼容目标。Phase 0/1 已合并；2.1–2.3 已合并；当前 2.4 验证 Dialog/Popup 入口、逐项取消、Closed/key 屏障、迟到清理与 Shutdown，两个输入宿主运行联合流程；实际证据记录于计划，不因历史命令扩大本次范围。远端 CI 与完整移动发布留到 Phase 6。
 
 1.1 起基础 Runtime 的 asmdef/IL 边界为 `Wulato.UIKit → UniTask / UnityEngine.UI`；原 Core/Loading/UGUI/四业务模块名称仅表示逻辑目录。根 asmdef 或其 .meta 变化须覆盖生成、Host、输入及包边界，不反向依赖可选 SDK。1.2 将 Addressables/Input System 适配迁入主包 Integrations 条件程序集；主包为唯一 UIKit 包，验证入口在启动 Unity 前拒绝旧适配包 manifest/lock 引用。
 

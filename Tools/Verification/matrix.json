@@ -231,7 +231,11 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadeDialogAndPopup_UseDefaultServicesAndPreservePageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.WorkerPopupCancellation_WaitsForClosedBeforeReusingKeyAndStartingNext",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PopupCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.DialogCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -462,7 +466,9 @@
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
-          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_UsesDefaultRegistrationAndInvalidatesCachedResponders",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_SubmittedNullIsAValue"
         ],
         "popup-queue": [
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
@@ -476,7 +482,16 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
-          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.InvalidPopupRegistration_DoesNotLoadOrCreatePageHistory",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.GenericFacade_UsesTheDefaultQueueForTypedAndParameterlessViews",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WaitingCancellation_RemovesOnlyItsItemAndReleasesTheKey",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.OpeningCancellation_RollsBackAndAdvancesWhileLateCleanupRemainsIsolated",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.DisplayedCancellation_HoldsTheClosedAndDeduplicationBarriers",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CancelFromCloseHook_DoesNotNestACommandOrReleaseTheKeyEarly",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PreCanceledPopup_DoesNotLoadAndDoesNotStopTheQueue",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CloseErrorsAndPendingCleanup_RemainVisibleInTheResult",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Shutdown_OverridesCancellationWhileTheClosedBarrierIsPending"
         ],
         "addressables": [
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
@@ -753,7 +768,11 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadeDialogAndPopup_UseDefaultServicesAndPreservePageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.WorkerPopupCancellation_WaitsForClosedBeforeReusingKeyAndStartingNext",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PopupCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.DialogCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -989,7 +1008,9 @@
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
-          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_UsesDefaultRegistrationAndInvalidatesCachedResponders",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_SubmittedNullIsAValue"
         ],
         "popup-queue": [
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
@@ -1003,7 +1024,16 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
-          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.InvalidPopupRegistration_DoesNotLoadOrCreatePageHistory",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.GenericFacade_UsesTheDefaultQueueForTypedAndParameterlessViews",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WaitingCancellation_RemovesOnlyItsItemAndReleasesTheKey",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.OpeningCancellation_RollsBackAndAdvancesWhileLateCleanupRemainsIsolated",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.DisplayedCancellation_HoldsTheClosedAndDeduplicationBarriers",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CancelFromCloseHook_DoesNotNestACommandOrReleaseTheKeyEarly",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PreCanceledPopup_DoesNotLoadAndDoesNotStopTheQueue",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CloseErrorsAndPendingCleanup_RemainVisibleInTheResult",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Shutdown_OverridesCancellationWhileTheClosedBarrierIsPending"
         ],
         "addressables": [
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
@@ -1279,7 +1309,11 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadeDialogAndPopup_UseDefaultServicesAndPreservePageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.WorkerPopupCancellation_WaitsForClosedBeforeReusingKeyAndStartingNext",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PopupCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.DialogCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -1510,7 +1544,9 @@
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
-          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_UsesDefaultRegistrationAndInvalidatesCachedResponders",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_SubmittedNullIsAValue"
         ],
         "popup-queue": [
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
@@ -1524,7 +1560,16 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
-          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.InvalidPopupRegistration_DoesNotLoadOrCreatePageHistory",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.GenericFacade_UsesTheDefaultQueueForTypedAndParameterlessViews",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WaitingCancellation_RemovesOnlyItsItemAndReleasesTheKey",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.OpeningCancellation_RollsBackAndAdvancesWhileLateCleanupRemainsIsolated",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.DisplayedCancellation_HoldsTheClosedAndDeduplicationBarriers",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CancelFromCloseHook_DoesNotNestACommandOrReleaseTheKeyEarly",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PreCanceledPopup_DoesNotLoadAndDoesNotStopTheQueue",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CloseErrorsAndPendingCleanup_RemainVisibleInTheResult",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Shutdown_OverridesCancellationWhileTheClosedBarrierIsPending"
         ],
         "addressables": [
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",
@@ -1801,7 +1846,11 @@
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PausedQueueAndDialog_StopWithoutStrandedWaiters",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.ShutdownDuringNavigationPair_ReleasesProductionResources",
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadePageOperations_KeepModalOwnershipAndOneHistory",
-          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory"
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.UnifiedBack_RespectsDialogVetoThenRestoresPageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.FacadeDialogAndPopup_UseDefaultServicesAndPreservePageHistory",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.WorkerPopupCancellation_WaitsForClosedBeforeReusingKeyAndStartingNext",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.PopupCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits",
+          "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.DialogCallerCancelInsideCanClose_DefersOwnerCloseUntilTheHookExits"
         ],
         "flow-samples": [
           "Wulato.UIKit.Acceptance.Flows.FlowIntegrationTests.BusinessFlowScene_StartsAndRenders"
@@ -2037,7 +2086,9 @@
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.CallerCancelDuringSubmittedClose_WaitsForBarrierThenCancels",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.Shutdown_OverridesUnfinishedSubmittedIntent",
           "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.DuplicateRequestRegistration_IsRejected",
-          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand"
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.ResultFromClosingHook_WaitsForExistingClosedWithoutNestedCommand",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_UsesDefaultRegistrationAndInvalidatesCachedResponders",
+          "Wulato.UIKit.Dialogs.Tests.DialogLifecycleTests.FacadeDialog_SubmittedNullIsAValue"
         ],
         "popup-queue": [
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PriorityAndFIFO_RespectAllPauseLeases",
@@ -2051,7 +2102,16 @@
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.ShutdownDuringOpen_WithMultiplePausesTerminatesAllRequests",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopFromClosingHook_DoesNotSubmitNestedClose",
           "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest",
-          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow"
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WorkerThreadAsyncEntries_ReturnFaultedOperationsWithoutSynchronousThrow",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.InvalidPopupRegistration_DoesNotLoadOrCreatePageHistory",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.GenericFacade_UsesTheDefaultQueueForTypedAndParameterlessViews",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.WaitingCancellation_RemovesOnlyItsItemAndReleasesTheKey",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.OpeningCancellation_RollsBackAndAdvancesWhileLateCleanupRemainsIsolated",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.DisplayedCancellation_HoldsTheClosedAndDeduplicationBarriers",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CancelFromCloseHook_DoesNotNestACommandOrReleaseTheKeyEarly",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.PreCanceledPopup_DoesNotLoadAndDoesNotStopTheQueue",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.CloseErrorsAndPendingCleanup_RemainVisibleInTheResult",
+          "Wulato.UIKit.PopupQueue.Tests.PopupSchedulingTests.Shutdown_OverridesCancellationWhileTheClosedBarrierIsPending"
         ],
         "addressables": [
           "Wulato.UIKit.AddressablesTests.Editor.AddressablesValidationTests.ExplicitAddressAndGuid_AreAcceptedWithoutChangingSettings",

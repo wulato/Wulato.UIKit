@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 namespace Wulato.UIKit.PopupQueue
 {
@@ -13,8 +14,10 @@ namespace Wulato.UIKit.PopupQueue
     /// <summary>Non-preemptive Context-local scheduling; Dispose initiates a nonblocking stop.</summary>
     public interface IUIPopupQueue:IDisposable
     {
-        /// <summary>Enqueue one independent request; duplicate waiting/active keys return Duplicate.</summary>
-        UniTask<PopupQueueResult> Enqueue(IPopupRequest request,int priority=0,string deduplicationKey=null);
+        /// <summary>Enqueue one independent request; duplicate waiting/active keys return Duplicate. Caller cancellation waits for rollback/Closed.</summary>
+        UniTask<PopupQueueResult> Enqueue(IPopupRequest request,int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default);
+        /// <summary>Enqueue a registered non-Page View; cancellation waits for rollback/Closed before throwing.</summary>
+        UniTask<PopupQueueResult> Enqueue(UIViewTypeKey type,UIArguments arguments,int priority=0,string deduplicationKey=null,CancellationToken cancellationToken=default);
         /// <summary>Acquire an independent idempotent lease preventing the next item from starting.</summary>
         IDisposable AcquirePause();
         /// <summary>Stop permanently and await active cleanup; repeated calls share completion.</summary>

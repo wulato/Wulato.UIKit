@@ -476,6 +476,7 @@ namespace Wulato.UIKit
             completions.Post(() => session.Completion.TrySetResult(result));
         }
 
+        internal bool InCallback=>callbacks.Depth!=0;
         internal UIContextId ContextId=>id;
         internal UniTask<UICompletion> CloseAsync(IUISession session,UICloseReason reason=UICloseReason.Owner)
         {

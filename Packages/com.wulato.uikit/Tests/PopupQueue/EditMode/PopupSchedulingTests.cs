@@ -9,11 +9,13 @@ namespace Wulato.UIKit.PopupQueue.Tests
     public class PopupView:UIView<int>
     {
         public static readonly List<int> Opened=new List<int>();
-        public static UniTaskCompletionSource OpenGate;public static Action Closing;
+        public static UniTaskCompletionSource OpenGate,CloseGate;public static Action Closing;public static bool FailClose;
         protected override UniTask OnOpenAsync(int args,UISessionScope scope,CancellationToken ct){Opened.Add(args);return args==99&&OpenGate!=null?OpenGate.Task:UniTask.CompletedTask;}
-        protected override UniTask OnCloseAsync(UICloseReason reason,CancellationToken ct){Closing?.Invoke();return UniTask.CompletedTask;}
+        protected override UniTask OnCloseAsync(UICloseReason reason,CancellationToken ct){Closing?.Invoke();if(FailClose)throw new InvalidOperationException("close");return CloseGate?.Task??UniTask.CompletedTask;}
         public void Dismiss()=>RequestClose();
     }
+    public sealed class PopupRoot : UIView { }
+    public sealed class EmptyPopup : UIView { public void Dismiss()=>RequestClose(); }
     [Category("popup_queue")]
     public class PopupSchedulingTests
     {
@@ -25,7 +27,9 @@ namespace Wulato.UIKit.PopupQueue.Tests
         }
         UIFlowTestHarness Fixture()
         {
-            PopupView.Opened.Clear();PopupView.OpenGate=null;PopupView.Closing=null;var registry=new UIRegistryBuilder();registry.Add<PopupView,int>(new UIViewTypeKey("popup"),UIViewAsset.Resources("popup"),UILayer.Modal,closePolicy:UIClosePolicy.CacheOne);
+            PopupView.Opened.Clear();PopupView.OpenGate=null;PopupView.CloseGate=null;PopupView.Closing=null;PopupView.FailClose=false;var registry=new UIRegistryBuilder();registry.Add<PopupView,int>(new UIViewTypeKey("popup"),UIViewAsset.Resources("popup"),UILayer.Modal,closePolicy:UIClosePolicy.CacheOne);
+            registry.Add<PopupRoot>(new UIViewTypeKey("root"),UIViewAsset.Resources("root"));
+            registry.Add<EmptyPopup>(new UIViewTypeKey("empty"),UIViewAsset.Resources("empty"),UILayer.Modal);
             return new UIFlowTestHarness(registry.Build());
         }
         void Close(UIFlowTestHarness f)=>((PopupView)f.LastView).Dismiss();
@@ -35,6 +39,96 @@ namespace Wulato.UIKit.PopupQueue.Tests
             internal StoppingRequest(Action read){this.read=read;}
             public UIViewTypeKey ViewType{get{read();return new UIViewTypeKey("popup");}}
             public UIArguments Arguments=>UIArguments.From(1);
+        }
+        [Test] public void InvalidPopupRegistration_DoesNotLoadOrCreatePageHistory()
+        {
+            using(var f=Fixture())
+            {
+                Assert.That(f.UI.PopupAsync<PopupRoot>().GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Failed));
+                var queue=f.UI.GetService<IUIPopupQueue>();Assert.That(queue.Enqueue(new UIViewTypeKey("popup"),UIArguments.None).GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Failed));Assert.That(f.Creates,Is.Zero);
+                var next=f.UI.PopupAsync<PopupView,int>(1);Close(f);Assert.That(next.GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Completed));
+            }
+        }
+        [Test] public void GenericFacade_UsesTheDefaultQueueForTypedAndParameterlessViews()
+        {
+            using(var f=Fixture())
+            {
+                var first=f.UI.PopupAsync<PopupView,int>(7);var next=f.UI.PopupAsync<EmptyPopup>();
+                Assert.That(PopupView.Opened,Is.EqualTo(new[]{7}));Close(f);Assert.That(first.GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Completed));
+                Assert.That(f.LastView,Is.TypeOf<EmptyPopup>());((EmptyPopup)f.LastView).Dismiss();
+                Assert.That(next.GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Completed));
+            }
+        }
+        [Test] public void WaitingCancellation_RemovesOnlyItsItemAndReleasesTheKey()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                var queue=f.UI.GetService<IUIPopupQueue>();var a=queue.AcquirePause();var b=queue.AcquirePause();
+                var canceled=f.UI.PopupAsync<PopupView,int>(1,deduplicationKey:"one",cancellationToken:caller.Token);
+                var next=f.UI.PopupAsync<PopupView,int>(2);caller.Cancel();Assert.Throws<OperationCanceledException>(()=>canceled.GetAwaiter().GetResult());
+                var reused=f.UI.PopupAsync<PopupView,int>(3,deduplicationKey:"one");a.Dispose();Assert.That(PopupView.Opened,Is.Empty);b.Dispose();
+                Assert.That(PopupView.Opened,Is.EqualTo(new[]{2}));Close(f);next.GetAwaiter().GetResult();Close(f);reused.GetAwaiter().GetResult();
+                Assert.That(PopupView.Opened,Is.EqualTo(new[]{2,3}));
+            }
+        }
+        [Test] public void OpeningCancellation_RollsBackAndAdvancesWhileLateCleanupRemainsIsolated()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                PopupView.OpenGate=new UniTaskCompletionSource();var canceled=f.UI.PopupAsync<PopupView,int>(99,deduplicationKey:"same",cancellationToken:caller.Token);
+                var next=f.UI.PopupAsync<PopupView,int>(2);caller.Cancel();Assert.Throws<OperationCanceledException>(()=>canceled.GetAwaiter().GetResult());
+                Assert.That(PopupView.Opened,Is.EqualTo(new[]{99,2}));Assert.That(f.UI.GetDiagnostics().PendingCleanupCount,Is.GreaterThan(0));
+                var reused=f.UI.PopupAsync<PopupView,int>(3,deduplicationKey:"same");PopupView.OpenGate.TrySetResult();Assert.That(f.Releases,Is.EqualTo(1));
+                Close(f);next.GetAwaiter().GetResult();Close(f);reused.GetAwaiter().GetResult();
+            }
+        }
+        [Test] public void DisplayedCancellation_HoldsTheClosedAndDeduplicationBarriers()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                var gate=new UniTaskCompletionSource();PopupView.CloseGate=gate;
+                var canceled=f.UI.PopupAsync<PopupView,int>(1,deduplicationKey:"same",cancellationToken:caller.Token);var next=f.UI.PopupAsync<PopupView,int>(2);
+                caller.Cancel();Assert.That(canceled.Status.IsCompleted(),Is.False);Assert.That(next.Status.IsCompleted(),Is.False);
+                Assert.That(f.UI.PopupAsync<PopupView,int>(3,deduplicationKey:"same").GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Duplicate));
+                PopupView.CloseGate=null;gate.TrySetResult();Assert.Throws<OperationCanceledException>(()=>canceled.GetAwaiter().GetResult());
+                var reused=f.UI.PopupAsync<PopupView,int>(4,deduplicationKey:"same");Close(f);next.GetAwaiter().GetResult();Close(f);reused.GetAwaiter().GetResult();
+                Assert.That(PopupView.Opened,Is.EqualTo(new[]{1,2,4}));
+            }
+        }
+        [Test] public void CancelFromCloseHook_DoesNotNestACommandOrReleaseTheKeyEarly()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                var canceled=f.UI.PopupAsync<PopupView,int>(1,deduplicationKey:"key",cancellationToken:caller.Token);
+                PopupView.Closing=()=>{caller.Cancel();Assert.That(f.UI.PopupAsync<PopupView,int>(3,deduplicationKey:"key").GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Duplicate));};
+                Close(f);Assert.Throws<OperationCanceledException>(()=>canceled.GetAwaiter().GetResult());Assert.That(f.Errors,Is.Empty);
+            }
+        }
+        [Test] public void PreCanceledPopup_DoesNotLoadAndDoesNotStopTheQueue()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                caller.Cancel();Assert.Throws<OperationCanceledException>(()=>f.UI.PopupAsync<PopupView,int>(1,cancellationToken:caller.Token).GetAwaiter().GetResult());Assert.That(f.Creates,Is.Zero);
+                var next=f.UI.PopupAsync<PopupView,int>(2);Close(f);Assert.That(next.GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.Completed));
+            }
+        }
+        [Test] public void CloseErrorsAndPendingCleanup_RemainVisibleInTheResult()
+        {
+            using(var f=Fixture())
+            {
+                PopupView.FailClose=true;var failed=f.UI.PopupAsync<PopupView,int>(1);Close(f);var result=failed.GetAwaiter().GetResult();Assert.That(result.Status,Is.EqualTo(PopupQueueStatus.Failed));Assert.That(result.Completion.Errors,Is.Not.Empty);
+                PopupView.FailClose=false;PopupView.CloseGate=new UniTaskCompletionSource();var pending=f.UI.PopupAsync<PopupView,int>(2);Close(f);f.Clock.Advance(3);
+                result=pending.GetAwaiter().GetResult();Assert.That(result.Status,Is.EqualTo(PopupQueueStatus.Failed));Assert.That(result.Completion.HasPendingCleanup,Is.True);PopupView.CloseGate.TrySetResult();
+            }
+        }
+        [Test] public void Shutdown_OverridesCancellationWhileTheClosedBarrierIsPending()
+        {
+            using(var f=Fixture())using(var caller=new CancellationTokenSource())
+            {
+                PopupView.CloseGate=new UniTaskCompletionSource();var item=f.UI.PopupAsync<PopupView,int>(1,cancellationToken:caller.Token);caller.Cancel();
+                var stop=f.UI.ShutdownAsync();f.Clock.Advance(3);stop.GetAwaiter().GetResult();
+                Assert.That(item.GetAwaiter().GetResult().Status,Is.EqualTo(PopupQueueStatus.ContextStopped));PopupView.CloseGate.TrySetResult();
+            }
         }
         [Test] public void StopWhileReadingDescriptor_DoesNotLeaveUnfinishedRequest()
         {
