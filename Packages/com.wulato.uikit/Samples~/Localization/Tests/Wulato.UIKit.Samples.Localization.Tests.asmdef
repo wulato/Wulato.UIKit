@@ -1,0 +1,27 @@
+{
+  "name": "Wulato.UIKit.Samples.Localization.Tests",
+  "references": [
+    "Wulato.UIKit",
+    "UniTask",
+    "UnityEngine.UI",
+    "Unity.Localization",
+    "Wulato.UIKit.Samples.Localization",
+    "Unity.Addressables",
+    "Unity.ResourceManager"
+  ],
+  "defineConstraints": [
+    "WULATO_UIKIT_LOCALIZATION",
+    "WULATO_LOCALIZATION_AVAILABLE",
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.unity.localization",
+      "expression": "[1.4.5,2.0.0)",
+      "define": "WULATO_LOCALIZATION_AVAILABLE"
+    }
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

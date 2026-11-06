@@ -6,6 +6,7 @@ MODULES={'navigation':'navigation','dialogs':'dialogs','presentation':'presentat
 TEST_GROUPS={
     ('EditMode','diagnostics'): 'DiagnosticsTests SnapshotDiagnosticsTests',
     ('PlayMode','controls-input'): 'RuntimeInputScenarios',
+    ('PlayMode','focus-controls'): 'RuntimeInputScenarios',
     ('PlayMode','input-runtime'): 'InputArbitrationTests LegacyInputArbitrationTests RuntimeInputIntents RuntimeInputScenarios InputEventSpy RawInput ForegroundTests',
     ('PlayMode','transitions'): 'TransitionTests NavigationTransactionTests TransactionBoundaryTests',
     ('PlayMode','generated-integration'): 'GeneratedRegistryIntegrationTests',
@@ -31,6 +32,8 @@ def select_suites(paths):
             add('PlayMode','dotween','legacy');add('EditMode','package-install','legacy');continue
         if '/Samples~/FancyScrollView' in path and not path.endswith('.md'):
             add('PlayMode','fancy-list','legacy');add('EditMode','package-install','legacy');continue
+        if '/Samples~/Localization' in path and not path.endswith('.md'):
+            add('PlayMode','localization','legacy');add('EditMode','package-install','legacy');continue
         if '/Samples~/R3' in path and not path.endswith('.md'):
             add('PlayMode','r3-binding','legacy');add('EditMode','package-install','legacy');continue
         if path.endswith('/PreviewRoutingTests.cs') or path.endswith('/PreviewRoutingTests.cs.meta'):
@@ -245,7 +248,7 @@ def command_evidence(row,log,chosen):
             if row['command']=='tests':
                 if (record.get('mode'),record.get('suite'))!=(row['mode'],row['suite']):raise ValueError('test-command-scope')
                 snap=run.snapshot(row['editor'],row['backend'],host)
-                matrix=run.applicable_suites(json.loads((run.C/'matrix.json').read_text())[row['editor']][row['backend']][row['mode']],snap['manifest'],dotween=__import__('dotween_sdk').integration_enabled(host),r3=__import__('r3_sdk').integration_enabled(host),fancy=__import__('fancy_sdk').integration_enabled(host))
+                matrix=run.applicable_suites(json.loads((run.C/'matrix.json').read_text())[row['editor']][row['backend']][row['mode']],snap['manifest'],dotween=__import__('dotween_sdk').integration_enabled(host),r3=__import__('r3_sdk').integration_enabled(host),fancy=__import__('fancy_sdk').integration_enabled(host),localization=__import__('localization_sdk').integration_enabled(host))
                 required=sum(matrix.values(),[]) if row['suite']=='all' else matrix[row['suite']]
                 errors+=verify(record,folder,required,snap,acceptance=True)['errors']
             if row['command']=='play-reset':

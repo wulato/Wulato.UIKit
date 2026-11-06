@@ -330,6 +330,16 @@
         ],
         "preview-addressables": [
           "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
+        ],
+        "localization": [
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.CachedReopen_DetachesEachOpeningAndKeepsReferenceUsable",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LateOldSession_CannotOverwriteReopenedLabel",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LocaleSwitch_LatePreviousLanguageIsDiscardedByNativeSdk",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.OpenRollback_AndShutdownDetachPendingSubscriptions"
+        ],
+        "focus-controls": [
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Focus_ModalRestoresSavedSelectableAndFallsBackWhenInactive",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Focus_LockedSelectionRestoresWithoutReplayingHeldSubmit"
         ]
       },
       "EditMode": {
@@ -925,6 +935,16 @@
         ],
         "preview-addressables": [
           "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
+        ],
+        "localization": [
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.CachedReopen_DetachesEachOpeningAndKeepsReferenceUsable",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LateOldSession_CannotOverwriteReopenedLabel",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LocaleSwitch_LatePreviousLanguageIsDiscardedByNativeSdk",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.OpenRollback_AndShutdownDetachPendingSubscriptions"
+        ],
+        "focus-controls": [
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Focus_ModalRestoresSavedSelectableAndFallsBackWhenInactive",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Focus_LockedSelectionRestoresWithoutReplayingHeldSubmit"
         ]
       },
       "EditMode": {
@@ -1524,6 +1544,16 @@
         ],
         "preview-addressables": [
           "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
+        ],
+        "localization": [
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.CachedReopen_DetachesEachOpeningAndKeepsReferenceUsable",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LateOldSession_CannotOverwriteReopenedLabel",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LocaleSwitch_LatePreviousLanguageIsDiscardedByNativeSdk",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.OpenRollback_AndShutdownDetachPendingSubscriptions"
+        ],
+        "focus-controls": [
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Focus_ModalRestoresSavedSelectableAndFallsBackWhenInactive",
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.Focus_LockedSelectionRestoresWithoutReplayingHeldSubmit"
         ]
       },
       "EditMode": {
@@ -2119,6 +2149,16 @@
         ],
         "preview-addressables": [
           "Wulato.UIKit.Verification.Addressables.Tests.PreviewRoutingTests.DefaultAddressablesRoute_OpensWithoutLoaderAdapter"
+        ],
+        "localization": [
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.CachedReopen_DetachesEachOpeningAndKeepsReferenceUsable",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LateOldSession_CannotOverwriteReopenedLabel",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.LocaleSwitch_LatePreviousLanguageIsDiscardedByNativeSdk",
+          "Wulato.UIKit.Samples.Localization.Tests.LocalizationSessionTests.OpenRollback_AndShutdownDetachPendingSubscriptions"
+        ],
+        "focus-controls": [
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Focus_ModalRestoresSavedSelectableAndFallsBackWhenInactive",
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.Focus_LockedSelectionRestoresWithoutReplayingHeldSubmit"
         ]
       },
       "EditMode": {

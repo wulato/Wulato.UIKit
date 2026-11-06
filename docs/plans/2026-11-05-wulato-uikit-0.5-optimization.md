@@ -959,10 +959,41 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 原生保存取消两后端均通过实际 Cancel 点击与 `save-cancel.json` 的四项证明（脏场景保留、未进入Play、未创建预览、PASS）。点击后测试夹具才清理脏标记并进行两次正常预览，不把后续预览误当取消失败。
 - [x] 集中自审：单一 Package/程序集边界、依赖与版本不变，无生产 Scene/Prefab/ProjectSettings/已有GUID变更，不修改MC。Runtime改动限诊断值投影和有界记录；无新生命周期、Loader、历史管理器或可写诊断对象。旧 Profile 默认Immediate，旧恢复记录不要求 terminal 字段。
 - [x] 实现提交 `736b1c8a2f6e8f02e3d68cdf3e2812c7e9aaf3d5` 已推送，创建 [任务 4.2 PR #14](https://github.com/wulato/Wulato.UIKit/pull/14)（main ← feat/uikit-0.5-diagnostics-preview）。
-- [ ] 等待用户确认合并 PR #14；不开始5.1。
+- [x] 用户确认后普通合并 PR #14，merge commit `f89377a7aae1a3165a9353630505d64f8a6d27d6`；从更新 main 开始5.1。
 
 环境修复（1轮）：首轮交互保存取消的行为与双次Play报告均 PASS，但 `20261106T072224757366-preview-reset-980b24` 指纹门禁 FAIL，未计验收。GUI 首次打开自动将空 Standalone applicationIdentifier 补为 com.Wulato.UIKitPreflight，并新建 ProjectSettings/PackageManagerSettings.asset；不是生产代码失败。只恢复该已比对单字段，将新文件移入本任务忽略证据目录，原 headless 宿主恢复到已通过的完整指纹。为原生验证另复制两个任务宿主（仅Assets/Packages/ProjectSettings），预置已观察的GUI默认值/文件，未复制Library、未改MC；稳定宿主两次验证通过。保留原始失败/raw snapshot，不改已有证据或放宽 runner，原界面应用自动退出后的 CUA noWindowsAvailable 不记为测试通过，最终以原始报告及指纹验收。
 
 主要原始索引：Preview Reload默认 `20261106T071308746280-preview-reset-611c86`，其余Legacy `20261106T071925640180-preview-reset-fcd26a`、`20261106T071935438190-preview-reset-043d62`、`20261106T071945293928-preview-reset-e978ac`，Input `20261106T071955207799-preview-reset-18ea9d`；Host六组 `20261106T072016454028-host-reset-6e2442`；compile两组 `20261106T072115909786-preview-reset-6f94f0`；稳定cancel Legacy `20261106T072600259184-preview-reset-f437d5`、Input `20261106T072930342713-preview-reset-808cec`。模块十五组逐项索引在 verification.json，均为本地忽略材料，不冒充远端 artifact。
 
 未运行 suite all、其他编辑器、Both专项、完整远端CI、Player/IL2CPP、真机或移动性能。普通Snapshot展示最多128行但数据为原值集合；错误仅包含被报告到Context Sink的有界摘要。终态不更新物理清理计数；暂停/清除只影响面板。回退整项 revert，保留用户修改过的临时资产与恢复记录；旧代码忽略新的纯值 terminal 字段，不把它用于资产删除授权。
+
+
+### 5.1 执行记录（2026-11-06）
+
+- 用户确认后核对 PR #14 固定 head `3fd9c89d7256a6367c1e8cc1c0b4926e5962bb12` / CLEAN，普通合并，无管理员绕过/分支删除。基线 `f89377a7aae1a3165a9353630505d64f8a6d27d6`，分支 `feat/uikit-0.5-localization-focus-guides`；复用当前干净 worktree，无子代理/新增工作区。smart-development STANDARD / L2，复用既有计划与 executing-plans。
+- 用户单独授权 Localization 1.4.5 及必需依赖仅用于 `Artifacts/uikit/` 隔离宿主；官方 registry 解析，不改 MC、不安装 Evo、不提交第三方源码/DLL、不增加主包必需依赖。SDK 官方归档 SHA256 `36b48f5c9bdc8e431975e92a92a49ad0ac96dec690a1f3a4eb57d0e0d73c87b4`；两个 SDK 宿主的实际 Runtime C#/asmdef/package.json 均与归档逐文件比对。实际闭包 Localization1.4.5 / Addressables1.21.21 / SBP1.21.25 / Newtonsoft Json3.2.1。
+- 新增 `Samples~/Localization/LocalizationView.cs`、可选 sample/test asmdef 和包 samples 条目。原生 `LocalizedString.StringChanged` 负责语言切换/句柄；每次 OnOpen 捕获 scope，先 Track 退订对象再订阅，回调检查当前 scope；不手工 Release SDK 事件句柄、不销毁业务引用、不新建生命周期或 Loader。SDK 缺席或显式宏关闭均隔离；版本 define 范围不等于全范围兼容性声明。
+- 新增 `Documentation~/Integrations/Localization.md`、`ThemeAndFocus.md`：优先官方组件，明确组件激活与 Session 的区别、缓存重开/迟到结果、字体与表内容项目责任；Theme 保留项目侧 Evo1.x/其他 Styler，不升级或迁移；Focus 使用原生 Selectable 与现有恢复逻辑，明确保存控件仅检查层级/激活的既有边界、门控与动态导航责任。基础 Runtime、Shell、公共 API 未改，无 Breaking Changes。
+- 专项使用真实 LocalizedString、StringTable、原生条目查找/格式化、Locale 事件和 Addressables 引用计数，仅替换可控表加载来源来制造迟到；覆盖缓存三次重开/退订、旧 Session 迟到不覆盖新标签、旧语言迟到丢弃、打开回滚与 Shutdown。新增两后端真实输入/原生 Button 的 Modal 焦点恢复及隐藏回退、锁内持有 Submit 解锁不重放/新按一次点击。
+- runner/matrix 增加可选 localization 与 focus-controls 专项，CI selector/证据选择同步可选标志；`localization_sdk.py` 只在忽略的隔离宿主显式准备示例/可选安装声明，不自动安装 SDK。PackageInstallTests 检查实际程序集、1.4.5 版本与基础 IL 隔离。没有启动远端 CI。
+
+最终验收（准确 Unity 2022.3.62f2，输入稳定后执行；不同宿主互不覆盖）：
+
+| 范围 | 组合 | 结果 |
+| --- | --- | --- |
+| package-install | 无 SDK/宏关闭 Legacy 与 Input；无 SDK/宏启用 Legacy；SDK安装/宏关闭 Legacy；SDK安装/宏启用 Legacy | 5组，20/20 PASS |
+| localization | SDK/示例启用，Legacy | 4/4 PASS |
+| focus-controls | Legacy + Input System | 4/4 PASS |
+| controls-input | Legacy + Input System 既有真实 ScrollRect/Modal 门控 | 2/2 PASS |
+| Python | test_localization_sdk、test_ci_suites、test_runtime、test_release_gate、test_evidence | 93/93 PASS |
+
+- [x] 合计10组30/30 Unity 用例 PASS，零跳过/零缺失；[verification.json](../../Artifacts/uikit/phase5-1/verification.json) 为 PASS。`verify-final.py` 逐组执行现有 evidence.verify(acceptance=True)，核对当前绝对宿主 snapshot/指纹、命令/索引/hash、原始 XML/逐例 trace、所有实际用例和官方 SDK 源码及实际依赖闭包。原始命令/退出码见 `Artifacts/uikit/phase5-1/final-commands.json`、`*-final.log`、`*-final.exit`、Python和verify输出。均为本地忽略材料，不冒充远端 artifact。
+- [x] 集中审查差异、元文件/GUID、主包必需依赖、两个可选 asmdef 与生命周期所有权；`git diff --check` PASS。远端 main 仍为本次基线，目标远端分支不存在。
+- [x] 实现提交 `2c564f3` 已推送，创建 [任务5.1 PR #15](https://github.com/wulato/Wulato.UIKit/pull/15)（main ← feat/uikit-0.5-localization-focus-guides）。
+- [ ] 等待用户确认合并 PR #15；不开始6.1。
+
+失败与修复记录（均未删除测试或放宽 runner/生产断言，同因最多一次修复）：初次 prepare 的测试限定名误写为 UnityEngine.UnityEngine，修复1轮；SDK宿主脚本误定位第一个 Standalone 字段，限定到 scriptingDefineSymbols，并加包含其他 Standalone 字段的回归，修复1轮；测试数据库误当 ScriptableObject 创建，按真实 SDK 普通类型修复1轮；测试 UIRoot 未设 Overlay，按既有夹具修复1轮。SDK首次解析更新 packages-lock、Input首次导入生成样例父目录meta，各轮用例通过但 runner 正确拒绝输入变化，稳定后各补跑1轮。原始失败分别保留 `20261106T075019627733-prepare-e5ae4c`、`20261106T075507489771-tests-3885a2`、`20261106T075627436229-tests-51a6ba`、`20261106T075711618560-tests-717ac3`、`20261106T075435300257-tests-c5beaf`、`20261106T080011929785-tests-00057d`（以各 pilot/repair 日志中 EVIDENCE 为准）。聚合审计初将 SDK package.json 的 Newtonsoft3.0.2 要求误当实际解析版本，检查两份 lock 与官方包依赖后按实际 registry3.2.1核对；未改 lock/runner，无需重跑 Unity。Python首次模块调用路径及退出码脚本使用 zsh只读变量各作一次调用修正；最终保留正确退出码0与93项证据。没有未解决失败，原有历史失败计数继续保留。
+
+未运行额外编辑器、完整 Suite、Both 输入专门组合、Reload、Player/IL2CPP、真机或远端 CI；本任务未改静态重置/运行时生命周期。受控表来源不证明真实项目的 Addressables 表打包、字体/RTL、翻译资源或厂商主题控件兼容性；Gamepad 项目映射仍需项目验证。回退本项示例/指南/相关专项即可，不迁移主题资产、不改变业务表或 MC。
+
+最终原始索引：no-sdk-off-legacy `20261106T075949214459-tests-ff263b`；no-sdk-off-input `20261106T080103841161-tests-7fa1af`；no-sdk-on `20261106T080120799050-tests-f62e56`；sdk-off `20261106T080142624468-tests-2a853b`；sdk-on `20261106T080157963392-tests-28b3a6`；localization `20261106T080215379042-tests-91b401`；legacy-focus-controls `20261106T080223536794-tests-59d3df`；legacy-controls-input `20261106T080237252295-tests-3ca0d4`；input-focus-controls `20261106T080247415708-tests-2b97dc`；input-controls-input `20261106T080257685643-tests-cacc10`。

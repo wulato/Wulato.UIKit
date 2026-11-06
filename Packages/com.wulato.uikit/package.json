@@ -48,6 +48,11 @@
       "displayName": "FancyScrollView Catalog",
       "description": "Optional FancyScrollView 1.9.0: bounded fixed-size cells, asynchronous reuse and session cancellation.",
       "path": "Samples~/FancyScrollView"
+    },
+    {
+      "displayName": "Localization Session",
+      "description": "Optional Unity Localization 1.4.5: session-owned native string subscriptions; SDK installation is separate.",
+      "path": "Samples~/Localization"
     }
   ]
 }
