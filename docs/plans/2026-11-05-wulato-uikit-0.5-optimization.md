@@ -746,7 +746,8 @@ GitHub 交付：连接器创建 PR 返回 403 Resource not accessible by integra
 - [x] Popup 逐项 token：等待移除、打开回滚/迟到隔离、显示 Owner 关闭；Closed 前不释放 key、不启动下一项；后台回调只标记取消并回到主线程。停止覆盖未完成取消，普通结果保留错误/未决清理。
 - [x] 新增 false/null、旧 responder、暂停/打开/显示取消、close hook、去重、其他请求推进、错误/PendingCleanup、Shutdown 及真实后台取消联合测试；补必需用例，保留既有精确集合检查。
 - [x] 最终专项验证、原始证据/指纹审计：13 组 / 233 项 Unity、125 项 Python，精确用例集合与当前指纹通过；[verification.json](../../Artifacts/uikit/phase2-4/verification.json)。
-- [ ] 提交并创建 PR；等待用户合并确认，不进入 Phase 3。
+- [x] 实现提交 `0f918f5def8c0ab7b5d382387bbd0d69848ec206` 已推送，创建 [任务 2.4 PR #9](https://github.com/wulato/Wulato.UIKit/pull/9)（main ← feat/uikit-0.5-dialog-popup）。
+- [ ] 等待用户确认合并 PR #9；不进入 Phase 3。
 
 Ruling：保留 IPopupRequest 高级描述符入口，普通业务使用泛型入口；新增 key/arguments 重载与逐项 token，避免为普通请求创建包装类。Popup 拒绝 Page 注册，防止队列隐式重建导航历史；业务页面仍用 Open/Push。队列取消采用标准 OperationCanceledException，不新增 Canceled 结果状态；Context/Queue Stop 覆盖未发布的取消。逻辑回滚/Closed 终结后可复用 key，迟到资源仍由原隔离清理拥有，不等待物理销毁。Dialog 既有取消通道无需重写，仅增加入口并补验证。
 
@@ -773,3 +774,5 @@ Unity 2022.3.62f2；无 SDK Legacy 与仅 Input System 1.17.0 两个隔离宿主
 相关 Python 十个模块 125 项通过：results/evidence/integrity/integrated_package/runtime/package_test_boundary/ci_suites/contract_probe/runner/preflight。集中自审完成，按项目约定未启动代理。回调取消原因第 2 轮后 dialogs 15/15、flow-integration 9/9 均通过，并完成全部上述专项；未解决新失败 0。历史 samples 分类问题计数 1 原样保留，不处理该独立维护事项。
 
 没有新增依赖、程序集、Unity 资产或生成器规则；既有 meta/GUID 未变，没有修改 ProjectSettings、根 manifest/lock、CI 工作流或原用户脏目录。Engine 只增加只读回调深度，不修改队列、guard 或生命周期实现。未运行完整 Suite、额外编辑器、Reload 矩阵、远端 CI、Player/IL2CPP 或真机。回退为整项 revert；Phase 3 必须等本 PR 经用户确认合并后再从更新 main 开始。
+
+交付状态：PR #9 已创建；沿用本机已授权 gh（连接器先前创建 PR 返回 403，不重复尝试该权限阻塞），未扩张凭据。main 保持 `f9df977f5c47ddceed23bd03d1b5c21c09a9585a`，本 PR 未合并。
