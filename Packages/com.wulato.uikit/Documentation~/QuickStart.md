@@ -80,3 +80,5 @@ Host 主入口为 `host.UI`（Initialize 返回相同 Context）；Navigation/Di
 3.1 起 Host 可配置单界面与页面配对 Preset；空字段仍使用 Immediate。可选 [DOTween](Integrations/DOTween.md) 提供 Fade/Scale/Slide，使用者按需安装 SDK 并显式启用。
 
 需要响应式状态时，可选导入 [R3 Session Binding](Integrations/R3.md)；每次打开的订阅由 Session.Track 管理，业务持有 Model。简单界面无需引入 R3。
+
+大数据固定尺寸列表可选导入 FancyScrollView Catalog；普通列表继续使用 ScrollRect。安装、输入与资源边界见 [Controls](Integrations/Controls.md)。

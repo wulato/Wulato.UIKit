@@ -289,3 +289,9 @@ python3 Tools/Verification/run.py prepare-samples --editor all --backend all --q
 `r3-binding` 为 PlayMode 九例，仅在 `WULATO_UIKIT_R3` 启用时纳入适用集合；无 SDK 默认组合不要求它。显式请求该 suite 必须装有真实 R3/R3.Unity 1.3.1、完整 NuGet DLL 和导入示例，不能通过跳过替代。SDK 安装需要单独授权。`Tools/Verification/r3_sdk.py --directory <已批准下载目录> --host Artifacts/uikit/ci-selected/hosts/<任务>/u2022-legacy` 只校验固定 SHA 并部署到忽略宿主，不下载、不全局安装；`--disabled` 保留 SDK 并关闭示例符号。
 
 按该宿主运行既有 `run.py tests --editor 2022.3.62f2 --backend legacy --mode PlayMode --suite r3-binding --host-root <任务宿主根>`，并补充 EditMode `presentation` / `package-install`。可选组合为：导入示例但无 SDK/无符号，SDK 存在但符号关闭，SDK 和符号均启用。每个 PlayMode 用例必须产出实际 SDK 版本 trace；使用原始 XML、当前指纹、索引/哈希和必需集合验收。SDK/示例指纹变化后旧证据不能算最终通过。
+
+## FancyScrollView / 控件专项（3.3）
+
+`fancy-list` 为七例 PlayMode，只在 `WULATO_UIKIT_FANCY_SCROLL` 启用时进入适用集合；显式请求缺 SDK/示例应失败，不计跳过。`controls-input` 为真实 ScrollRect / Modal 的输入专项，分别 legacy / input，各一个必需用例，不要求 Fancy SDK。两者均使用原始 XML、当前指纹、每例 trace 与 index/hash 验收。
+
+SDK 安装另行授权：`python3 Tools/Verification/fancy_sdk.py --archive <官方v1.9.0归档> --host Artifacts/uikit/ci-selected/hosts/<任务>/u2022-legacy`；固定 SHA，仅复制原样 Runtime 到忽略宿主，无下载/全局安装，`--disabled` 关闭符号保留 SDK。先 prepare 稳定导入/自动 meta，再从根目录调用 `run.py tests --editor 2022.3.62f2 --backend legacy --mode PlayMode --suite fancy-list --host-root <任务宿主根>`。验证无 SDK/已装但关闭/启用三组合的 package-install。局部性能 trace 只用于该 Editor 跳转测量，不代替 Player/移动性能回归。

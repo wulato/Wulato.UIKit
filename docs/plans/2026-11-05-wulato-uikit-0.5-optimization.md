@@ -850,10 +850,46 @@ Python 实际运行 13 个相关模块 151 项通过（dotween_sdk/integrated_pa
 - [x] [verification.json](../../Artifacts/uikit/phase3-2/verification.json) PASS：当前 snapshot/fingerprint、原始 XML、实际/必需精确用例集合、每例 trace、run/batch/index/hash、六个 NuGet 归档、原样 SDK Runtime 字节以及三个宿主中的示例文件逐一校验。命令/日志/退出码见 `Artifacts/uikit/phase3-2/final-commands.sh`、`binding-final.log`、`python-final.log` 和 `verify-final.py`。
 - [x] 最终自审：无 UIKit Runtime / Editor 生产实现、核心 API、场景、Prefab、ProjectSettings 或已有资产 GUID 变更；package.json 仅增加 sample 元数据、依赖和版本不变；SDK/DLL/归档仅留忽略目录。main/远端 main 均为 `74e3ae237634f8a884ed815baefde2de73a08eda`。
 - [x] 实现提交 `4dee81a6123f56f4a031927877b9ff4245406f7b` 已推送，创建 [任务 3.2 PR #11](https://github.com/wulato/Wulato.UIKit/pull/11)（main ← feat/uikit-0.5-r3-session-sample）。
-- [ ] 等待用户确认合并 PR #11；不启动 3.3。
+- [x] 用户确认后正常合并 PR #11；main=`bf226c5f5a87b9772a2329bbcf7e4c4a98f0968a`，从更新 main 开始 3.3。
 
 最终原始证据：绑定 `20261106T052340237325-tests-0658b9`；package-install 三组合依次 `20261106T052551591604-tests-f55448`、`20261106T052558921520-tests-bb221f`、`20261106T052605934486-tests-b4bded`；presentation 无/有 SDK `20261106T052613239912-tests-7c7465`、`20261106T052620313540-tests-cdb861`。有 SDK 启用宿主还保留 Addressables 1.21.21 / SBP 1.21.25（并存编译通过，不扩展该 SDK 运行专项），所有宿主均无 Input System SDK。当前只证明该编辑器/TFM/R3 版本；不宣称其他 SDK 格式、版本、输入后端或移动裁剪已验证。
 
 额外准备记录：空宿主先复制示例使目录存在但缺少 manifest，prepare `20261106T052434349800-prepare-3a73c3` 明确失败；按 runner 原有隔离宿主布局补齐初始配置后一次修复，通过 `20261106T052508358053-prepare-adde68`。SDK 关闭组合 prepare `20261106T052532714298-prepare-06ea8e`、启用组合 `20261106T052322094825-prepare-c59adc` 均通过。先前失败不计验收且原始证据保留；无同原因超过两轮修复。
 
 未运行 suite all、额外编辑器、完整输入矩阵/Reload、远端 CI、Player/IL2CPP、真机或移动性能；本任务无相应变更且不在该发布门禁。回退为整项 revert 示例/文档/专项工具，不自动卸载用户 SDK；业务 Model 线程安全由业务负责，ObserveOnMainThread 仅负责 UI 调度。
+
+
+### 3.3 执行记录（2026-11-06）
+
+- 基线 `bf226c5f5a87b9772a2329bbcf7e4c4a98f0968a`；核对 PR #11 head `408ff3bac09a92c69957eb9b975cff7269b06144` / CLEAN 后按用户确认普通合并，从最新 main 建立 `feat/uikit-0.5-fancy-scroll-sample`，复用干净 worktree。
+- smart-development STANDARD / L2，当前 Agent 执行与集中自审，不启动代理/新 worktree。不修改核心 Runtime/Editor/API，不增加必需依赖或通用列表控制器。
+- 用户单独授权官方 FancyScrollView 1.9.0，仅安装至本任务 Artifacts/uikit/ 隔离宿主。tag commit `e5d10d3e5961848f93be43c2911344750b509a88`；官方归档 SHA256 `2f3fa1a69f6bbcd8b91a7a864cfad99df4fde5a3e1e1669b418ebe99fbe79247`。Runtime 源码/asmdef/meta 原样安装；不改 MC、不提交 SDK、不全局安装。
+- 复用 SDK FancyCell / 原生池 / Scroller；Sample 仅包含固定行高 Catalog，换项/隐藏取消 + Session.Token + 绑定序号 + 主线程回投后身份检查。Session.Track 管理列表清理，无第二套 Session。UI Extensions 仅指南，不安装或包装，不宣称整库兼容。
+- SDK 原池不按数据量增实例；扩大视口后保留高水位，不自研池收缩/可变行高引擎。局部测量只记录 Editor 300 次跳转耗时、内存差与实例数，不做移动/零 GC 声明。
+- 真实编译首轮 `20261106T054024330947-prepare-175698` 发现测试直接调用显式接口，改为接口调用（同因修复1轮），prepare `20261106T054128932582-prepare-fdd2d2` PASS。首轮列表 6/7 PASS，原生拖拽发现 SDK viewport 未赋值：`20261106T054150283986-tests-0046c5`。SDK 无公开 setter，改为正常序列化连接的 Prefab（同因修复1轮），不修改 SDK、不做运行时私有反射。
+- Prefab 由精确 Unity 2022.3.62f2 在隔离宿主生成并复制进示例；临时生成器已移除。最初 delayCall 在 batch prepare 退出前未运行，改为显式 executeMethod 后 exit0；日志 `Artifacts/uikit/phase3-3/prefab-generation-editor.log` 保留且脱敏。资产生成不是测试证据。
+- 输入 pilot `20261106T054600339292-tests-18825d` 的 ScrollRect trace 无事件，定位背景测试 Canvas 截获射线/测试 Page 未拉伸；只修夹具并增加实际命中断言、真实两步拖拽（同因修复1轮，复验 PASS）。不改生产输入逻辑或放宽业务断言。
+- 最终最小范围：fancy-list 7、三种 SDK/符号组合 package-install、default Inventory 无 SDK 编译、真实 ScrollRect/Modal controls-input 两后端各1；不跑全 Suite / Reload / Player / 远端 CI。最终验收如下；本 PR 等待用户审核合并。
+
+
+3.3 最终验收：
+
+| Unity 2022.3.62f2 隔离组合 | 专项 | 实际结果 |
+| --- | --- | --- |
+| Legacy / Fancy SDK 与符号启用 | fancy-list 7、controls-input 1、package-install 4 | 12/12 PASS |
+| Legacy / 无 Fancy SDK、关闭符号、已导入示例与默认 Inventory | package-install 4 | 4/4 PASS；Inventory 实际编译，Fancy SDK/示例程序集均不存在 |
+| Legacy / SDK 已安装、关闭符号、已导入示例 | package-install 4 | 4/4 PASS；SDK 存在、示例程序集不存在 |
+| Input System 1.17.0 / 无 Fancy SDK、关闭符号 | controls-input 1 | 1/1 PASS |
+
+- [x] 六组 21/21 Unity 用例 PASS；相关九个 Python 模块 101/101 PASS。七例列表覆盖真实 SDK 程序集/核心隔离、1万→10万数据与视口扩容、异步换项取消、相同 ID 重绑、Session 结束/缓存重开、Shutdown 迟到结果、原生拖拽与位置呈现。
+- [x] 两后端真实 ScrollRect/Modal trace 均确认中断仅一次 endDrag、无 drop、持有不重放、释放后新按下可重新拖拽；最终正常释放允许 uGUI 正常 drop，不把该事件混作 Modal 取消错误。Legacy 修复后的专项当前指纹未变，直接复核使用，不无故重跑。
+- [x] [verification.json](../../Artifacts/uikit/phase3-3/verification.json) PASS：当前 snapshot/fingerprint、实际/必需精确用例集合、原始 XML/每例 trace、run/batch/index/hash、官方归档 SHA、原样 SDK Runtime 字节、四宿主示例副本一致性。SDK 未声明 AssemblyVersion（实际 0.0.0.0），候选身份由固定 v1.9.0 tag commit / 归档及安装字节验证，不伪称程序集版本为 1.9.0。
+- [x] 记录局部测量：384 高度 6 Cell，768 高度 12 Cell；300 次同步跳转 6.4231ms，GC.GetTotalMemory(false) 前后差 +352256 字节。仅该机器/Editor 的函数调用测量，不含帧渲染/网络，不代表分配总量、零 GC 或 Player 帧预算，不设跨机器阈值。
+- [x] 无生产 Runtime/Editor/API、必需依赖、版本、已有资产 GUID、ProjectSettings 或 MC 变更；新增 Prefab 限于 Samples~/FancyScrollView，SDK viewport 正常序列化绑定。UI Extensions 仅接入指南，未安装/编译，不宣称兼容性验收。SDK/原始证据/临时生成器不提交，临时生成器已从宿主移除。
+- [ ] 提交并创建本任务 PR，等待用户确认合并；不启动 4.1。
+
+命令及全部退出码/日志：`Artifacts/uikit/phase3-3/final-commands.sh`、`input-legacy-repair1.log`、`python-final.log`、`verify-final.py`。最终原始证据：fancy-list `20261106T054912398608-tests-f43e48`；controls-input Legacy `20261106T054736767542-tests-4b2cd2`、Input `20261106T055029129211-tests-e2129c`；package-install 无/关闭/启用 SDK `20261106T055039762358-tests-0224aa`、`20261106T055049922780-tests-887840`、`20261106T055100032695-tests-245be5`。prepare 及原始失败保留在本地，均不作为额外通过计数；无同原因超过两轮修复。
+
+所有宿主未安装 DOTween/R3/Addressables，只有 Input 宿主安装 Input System 1.17.0。未运行 suite all、其他编辑器、Both 输入、Reload、远端 CI、Player/IL2CPP、真机或移动性能。回退整项 revert 示例/指南/专项，继续原 ScrollRect，不卸载用户 SDK；不扩展后续 Workbench 或高级列表范围。
+
+L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 YAML 字段保留行尾空格，首次 staged diff-check 因此退出2、未提交。保留引擎序列化原样，逐行确认仅 m_Name/m_EditorClassIdentifier/userData/assetBundleName/assetBundleVariant 的空值字段；这三份资产仅豁免 blank-at-eol，其余 diff-check 项及其他文件全部正常检查。无生产输入变化、无行为测试断言或证据校验放宽。
