@@ -1,0 +1,5 @@
+{
+  "name": "Wulato.UIKit.Samples.FancyScrollView",
+  "references": ["Wulato.UIKit", "UniTask", "UnityEngine.UI", "FancyScrollView"],
+  "defineConstraints": ["WULATO_UIKIT_FANCY_SCROLL"]
+}

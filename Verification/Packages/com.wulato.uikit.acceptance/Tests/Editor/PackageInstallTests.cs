@@ -33,13 +33,17 @@ namespace Wulato.UIKit.Acceptance.Tests
             bool sample=System.IO.File.Exists(System.IO.Path.Combine(Application.dataPath,"UIKitR3Sample/CounterView.cs"));
             if(sample) Assert.That(runtime.Contains("Wulato.UIKit.Samples.R3"),Is.EqualTo(r3));
             if(r3) Assert.That(runtime.Contains("R3.Unity"),Is.True);
+            bool fancy=UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(UnityEditor.BuildTargetGroup.Standalone).Split(';').Contains("WULATO_UIKIT_FANCY_SCROLL");
+            bool fancySample=System.IO.File.Exists(System.IO.Path.Combine(Application.dataPath,"UIKitFancySample/CatalogView.cs"));
+            if(fancySample) Assert.That(runtime.Contains("Wulato.UIKit.Samples.FancyScrollView"),Is.EqualTo(fancy));
+            if(fancy) Assert.That(runtime.Contains("FancyScrollView"),Is.True);
             var input=packages.Any(p=>p.name=="com.unity.inputsystem");
             Assert.That(runtime.Contains("Wulato.UIKit.Addressables"),Is.EqualTo(addressables));
             Assert.That(editor.Contains("Wulato.UIKit.Addressables.Editor"),Is.EqualTo(addressables));
             Assert.That(runtime.Contains("Wulato.UIKit.InputSystem"),Is.EqualTo(input));
             var folder=System.Environment.GetEnvironmentVariable("UIKIT_EVIDENCE_DIR");
             if(!string.IsNullOrEmpty(folder))System.IO.File.WriteAllText(System.IO.Path.Combine(folder,"optional-integrations.trace.json"),
-                "{\"addressables\":"+addressables.ToString().ToLowerInvariant()+",\"inputSystem\":"+input.ToString().ToLowerInvariant()+",\"dotween\":"+tween.ToString().ToLowerInvariant()+",\"r3\":"+r3.ToString().ToLowerInvariant()+",\"r3SampleImported\":"+sample.ToString().ToLowerInvariant()+",\"runtimeAssemblies\":["+string.Join(",",runtime.Select(n=>"\""+n+"\""))+"]}");
+                "{\"addressables\":"+addressables.ToString().ToLowerInvariant()+",\"inputSystem\":"+input.ToString().ToLowerInvariant()+",\"dotween\":"+tween.ToString().ToLowerInvariant()+",\"r3\":"+r3.ToString().ToLowerInvariant()+",\"r3SampleImported\":"+sample.ToString().ToLowerInvariant()+",\"fancy\":"+fancy.ToString().ToLowerInvariant()+",\"fancySampleImported\":"+fancySample.ToString().ToLowerInvariant()+",\"runtimeAssemblies\":["+string.Join(",",runtime.Select(n=>"\""+n+"\""))+"]}");
         }
         [Test] public void ResolvedDependencies_MatchPinnedVersions()
         {
@@ -52,6 +56,7 @@ namespace Wulato.UIKit.Acceptance.Tests
         {
             Assert.That(typeof(IUIContext).Assembly.GetName().Name,Is.EqualTo("Wulato.UIKit"));
             var names=typeof(IUIContext).Assembly.GetReferencedAssemblies().Select(a=>a.Name).ToArray();
+            Assert.That(names,Does.Not.Contain("FancyScrollView"));
             Assert.That(names,Does.Not.Contain("R3"));Assert.That(names,Does.Not.Contain("R3.Unity"));
             Assert.That(names,Does.Not.Contain("DOTween"));Assert.That(names,Does.Not.Contain("DOTween.Modules"));Assert.That(names,Does.Not.Contain("Wulato.UIKit.DOTween"));
             Assert.That(names,Does.Not.Contain("Unity.InputSystem"));Assert.That(names,Does.Not.Contain("Unity.TextMeshPro"));

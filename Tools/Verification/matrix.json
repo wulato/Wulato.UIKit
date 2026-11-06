@@ -312,6 +312,18 @@
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
+        ],
+        "fancy-list": [
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.CoreDoesNotReferenceTheSdk",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.PoolDependsOnViewportInsteadOfItemCount",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.RecycledCell_CancelsAndRejectsAnIgnoringLoader",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SameItemId_RebindStillRejectsAnOlderRequest",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SessionClose_CancelsAndCachedReopenRejectsOldResults",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.Shutdown_CancelsBeforeLateCompletion",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.NativeScroller_UsesDragAndPositionDrivenPresentation"
+        ],
+        "controls-input": [
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
         ]
       },
       "EditMode": {
@@ -873,6 +885,18 @@
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
+        ],
+        "fancy-list": [
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.CoreDoesNotReferenceTheSdk",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.PoolDependsOnViewportInsteadOfItemCount",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.RecycledCell_CancelsAndRejectsAnIgnoringLoader",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SameItemId_RebindStillRejectsAnOlderRequest",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SessionClose_CancelsAndCachedReopenRejectsOldResults",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.Shutdown_CancelsBeforeLateCompletion",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.NativeScroller_UsesDragAndPositionDrivenPresentation"
+        ],
+        "controls-input": [
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
         ]
       },
       "EditMode": {
@@ -1438,6 +1462,18 @@
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
+        ],
+        "fancy-list": [
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.CoreDoesNotReferenceTheSdk",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.PoolDependsOnViewportInsteadOfItemCount",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.RecycledCell_CancelsAndRejectsAnIgnoringLoader",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SameItemId_RebindStillRejectsAnOlderRequest",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SessionClose_CancelsAndCachedReopenRejectsOldResults",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.Shutdown_CancelsBeforeLateCompletion",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.NativeScroller_UsesDragAndPositionDrivenPresentation"
+        ],
+        "controls-input": [
+          "Wulato.UIKit.Tests.Input.Legacy.LegacyInputArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
         ]
       },
       "EditMode": {
@@ -1999,6 +2035,18 @@
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.Shutdown_UnbindsWhileTheModelRemainsUsable",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.OpenFailure_RollsBackAlreadyCreatedSubscriptions",
           "Wulato.UIKit.Samples.R3Binding.Tests.R3SessionBindingTests.CanceledOpen_UnbindsBeforeLateCleanupCompletes"
+        ],
+        "fancy-list": [
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.CoreDoesNotReferenceTheSdk",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.PoolDependsOnViewportInsteadOfItemCount",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.RecycledCell_CancelsAndRejectsAnIgnoringLoader",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SameItemId_RebindStillRejectsAnOlderRequest",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.SessionClose_CancelsAndCachedReopenRejectsOldResults",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.Shutdown_CancelsBeforeLateCompletion",
+          "Wulato.UIKit.Samples.FancyList.Tests.FancyListTests.NativeScroller_UsesDragAndPositionDrivenPresentation"
+        ],
+        "controls-input": [
+          "Wulato.UIKit.InputSystem.Tests.InputSystemArbitrationTests.ScrollRect_ModalInterruptsDragAndRequiresFreshPress"
         ]
       },
       "EditMode": {

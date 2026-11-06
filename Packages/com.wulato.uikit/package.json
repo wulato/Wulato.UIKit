@@ -43,6 +43,11 @@
       "displayName": "R3 Session Binding",
       "description": "Optional R3 SDK: native uGUI bindings owned by each UI session; SDK installation is separate.",
       "path": "Samples~/R3"
+    },
+    {
+      "displayName": "FancyScrollView Catalog",
+      "description": "Optional FancyScrollView 1.9.0: bounded fixed-size cells, asynchronous reuse and session cancellation.",
+      "path": "Samples~/FancyScrollView"
     }
   ]
 }

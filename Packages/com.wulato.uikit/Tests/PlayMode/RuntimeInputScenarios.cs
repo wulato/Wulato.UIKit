@@ -126,6 +126,35 @@ namespace Wulato.UIKit.Tests.Input
                 Assert.That(f.UI.GetService<IUINavigator>().History.Count,Is.EqualTo(2));Assert.That(peer.GetService<IUINavigator>().History.Count,Is.EqualTo(2));Assert.That(RuntimeBackPage.Checks,Is.Zero);
             }finally{await f.DisposeAsync();}
         });
+        [UnityTest,Category("controls_input")] public IEnumerator ScrollRect_ModalInterruptsDragAndRequiresFreshPress()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);InputEventSpy spy=null;
+            try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await f.UI.PushAsync<RuntimeBackPage>();
+                foreach(var owner in Scene.Spies)owner.GetComponent<Image>().raycastTarget=false;
+                var page=UnityEngine.Object.FindObjectOfType<RuntimeBackPage>();
+                var pageRect=(RectTransform)page.transform;pageRect.anchorMin=Vector2.zero;pageRect.anchorMax=Vector2.one;pageRect.offsetMin=pageRect.offsetMax=Vector2.zero;
+                var viewport=new GameObject("ScrollRect",typeof(RectTransform),typeof(Image),typeof(ScrollRect),typeof(InputEventSpy));viewport.transform.SetParent(page.transform,false);
+                var rect=(RectTransform)viewport.transform;rect.anchorMin=Vector2.zero;rect.anchorMax=Vector2.one;rect.offsetMin=rect.offsetMax=Vector2.zero;
+                var content=new GameObject("Content",typeof(RectTransform));content.transform.SetParent(viewport.transform,false);
+                var cr=(RectTransform)content.transform;cr.anchorMin=new Vector2(0,1);cr.anchorMax=Vector2.one;cr.pivot=new Vector2(.5f,1);cr.sizeDelta=new Vector2(0,3000);
+                var scroll=viewport.GetComponent<ScrollRect>();scroll.content=cr;scroll.viewport=rect;scroll.horizontal=false;scroll.inertia=false;scroll.movementType=ScrollRect.MovementType.Clamped;
+                spy=viewport.GetComponent<InputEventSpy>();Canvas.ForceUpdateCanvases();
+                var raw=At();raw.Position=new Vector2(Screen.width*.5f,Screen.height*.5f);await BackFrame(raw);
+                var hits=new System.Collections.Generic.List<RaycastResult>();Scene.Events.RaycastAll(new PointerEventData(Scene.Events){position=raw.Position},hits);
+                Assert.That(hits.Count,Is.GreaterThan(0));Assert.That(hits[0].gameObject,Is.SameAs(viewport),"Fixture must raycast the real ScrollRect before injecting a press");
+                raw.Pointer=true;await BackFrame(raw);raw.Position+=Vector2.up*30;await BackFrame(raw);raw.Position+=Vector2.up*30;await BackFrame(raw);
+                Assert.That(spy.Count("beginDrag"),Is.EqualTo(1));var moved=cr.anchoredPosition.y;Assert.That(moved,Is.GreaterThan(0));
+                var modal=await f.UI.OpenAsync<RuntimeBackModal>();
+                Assert.That(spy.Count("endDrag"),Is.EqualTo(1));Assert.That(spy.Count("drop"),Is.Zero);
+                raw.Position+=Vector2.up*60;await BackFrame(raw);Assert.That(cr.anchoredPosition.y,Is.EqualTo(moved).Within(.1f));
+                await modal.CloseAsync();await BackFrame(raw);Assert.That(spy.Count("beginDrag"),Is.EqualTo(1));
+                raw.Pointer=false;await BackFrame(raw);raw.Pointer=true;await BackFrame(raw);raw.Position+=Vector2.up*60;await BackFrame(raw);
+                Assert.That(spy.Count("beginDrag"),Is.EqualTo(2));raw.Pointer=false;await BackFrame(raw);
+            }
+            finally{if(spy)spy.Save(TestContext.CurrentContext.Test.MethodName);await f.DisposeAsync();}
+        });
         [UnityTest,Category("input_runtime")] public IEnumerator ArbiterDisposed_CancelsHeldPressAndDragExactlyOnce()
         {
             yield return Step(At(down:true));var drag=At(down:true);drag.Position+=new Vector2(40,0);yield return Step(drag);

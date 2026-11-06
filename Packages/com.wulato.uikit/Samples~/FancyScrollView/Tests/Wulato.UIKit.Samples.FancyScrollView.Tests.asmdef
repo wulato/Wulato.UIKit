@@ -1,0 +1,6 @@
+{
+  "name": "Wulato.UIKit.Samples.FancyScrollView.Tests",
+  "references": ["Wulato.UIKit", "Wulato.UIKit.Samples.FancyScrollView", "UniTask", "UnityEngine.UI", "FancyScrollView"],
+  "defineConstraints": ["WULATO_UIKIT_FANCY_SCROLL", "UNITY_INCLUDE_TESTS"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
