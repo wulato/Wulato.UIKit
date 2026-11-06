@@ -124,7 +124,7 @@ def unity(args,ver,host,out,test=False):
  actual=re.search(r'(?:Unity Editor version:|Initialize engine version:)\s*(\d+\.\d+\.\w+)',log)
  return rc,timeout,log,actual.group(1) if actual else None
 
-def applicable_suites(matrix,manifest,dotween=False,r3=False,fancy=False):
+def applicable_suites(matrix,manifest,dotween=False,r3=False,fancy=False,localization=False):
  optional={'samples','performance','performance-markers','flow-samples'}
  mapping={suite:package for package,suite in EXTENSIONS.items()}
  mapping.update({suite:'com.wulato.uikit' for suite in ('navigation','presentation','dialogs','popup-queue')})
@@ -132,12 +132,13 @@ def applicable_suites(matrix,manifest,dotween=False,r3=False,fancy=False):
  mapping['addressables-integration']='com.wulato.uikit.verification.addressables'
  mapping['addressables-runtime']='com.unity.addressables'
  mapping['input-package']='com.unity.inputsystem'
+ mapping['localization']='com.unity.localization'
  mapping['addressables-preflight']='com.wulato.uikit.verification.addressables'
  mapping['preview-addressables']='com.wulato.uikit.verification.addressables'
  mapping['flow-integration']='com.wulato.uikit.acceptance.flows'
  mapping['flow-samples']='com.wulato.uikit.acceptance.flows'
  mapping['quickstart-only']='com.wulato.uikit.acceptance.quickstart'
- return {name:cases for name,cases in matrix.items() if (name!='dotween' or dotween) and (name!='r3-binding' or r3) and (name!='fancy-list' or fancy) and (name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']) and (name not in mapping or mapping[name] in manifest['dependencies'])}
+ return {name:cases for name,cases in matrix.items() if (name!='localization' or localization) and (name!='dotween' or dotween) and (name!='r3-binding' or r3) and (name!='fancy-list' or fancy) and (name not in optional or 'com.wulato.uikit.acceptance.samples' in manifest['dependencies']) and (name not in mapping or mapping[name] in manifest['dependencies'])}
 
 def _run_locked(args):
  from evidence import seal,sha256
@@ -184,7 +185,8 @@ def _run_locked(args):
     dump(host/'Packages/manifest.json',manifest)
    else:
     from dotween_sdk import integration_enabled
-    matrix=applicable_suites(json.loads((C/'matrix.json').read_text())[ver][backend][mode],json.loads((host/'Packages/manifest.json').read_text()),dotween=integration_enabled(host),r3=__import__('r3_sdk').integration_enabled(host),fancy=__import__('fancy_sdk').integration_enabled(host))
+    matrix=applicable_suites(json.loads((C/'matrix.json').read_text())[ver][backend][mode],json.loads((host/'Packages/manifest.json').read_text()),dotween=integration_enabled(host),r3=__import__('r3_sdk').integration_enabled(host),fancy=__import__('fancy_sdk').integration_enabled(host),localization=__import__('localization_sdk').integration_enabled(host))
+    if suite=='localization' and 'localization' not in matrix:raise ValueError('Localization suite requires WULATO_UIKIT_LOCALIZATION, imported sample and official SDK')
     if suite=='fancy-list' and 'fancy-list' not in matrix:raise ValueError('Fancy list suite requires WULATO_UIKIT_FANCY_SCROLL, imported sample and official SDK')
     if suite=='r3-binding' and 'r3-binding' not in matrix:raise ValueError('R3 binding suite requires WULATO_UIKIT_R3, imported R3 sample and the official SDK')
     if suite=='dotween' and 'dotween' not in matrix:raise ValueError('DOTween suite requires WULATO_UIKIT_DOTWEEN and the official SDK')

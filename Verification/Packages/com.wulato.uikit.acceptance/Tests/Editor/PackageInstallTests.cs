@@ -37,6 +37,11 @@ namespace Wulato.UIKit.Acceptance.Tests
             bool fancySample=System.IO.File.Exists(System.IO.Path.Combine(Application.dataPath,"UIKitFancySample/CatalogView.cs"));
             if(fancySample) Assert.That(runtime.Contains("Wulato.UIKit.Samples.FancyScrollView"),Is.EqualTo(fancy));
             if(fancy) Assert.That(runtime.Contains("FancyScrollView"),Is.True);
+            bool localization=UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(UnityEditor.BuildTargetGroup.Standalone).Split(';').Contains("WULATO_UIKIT_LOCALIZATION");
+            bool localizationSdk=packages.Any(p=>p.name=="com.unity.localization");
+            if(localizationSdk)Assert.That(packages.Single(p=>p.name=="com.unity.localization").version,Is.EqualTo("1.4.5"));
+            if(System.IO.File.Exists(System.IO.Path.Combine(Application.dataPath,"UIKitLocalizationSample/LocalizationView.cs")))
+                Assert.That(runtime.Contains("Wulato.UIKit.Samples.Localization"),Is.EqualTo(localization&&localizationSdk));
             var input=packages.Any(p=>p.name=="com.unity.inputsystem");
             Assert.That(runtime.Contains("Wulato.UIKit.Addressables"),Is.EqualTo(addressables));
             Assert.That(editor.Contains("Wulato.UIKit.Addressables.Editor"),Is.EqualTo(addressables));
@@ -56,6 +61,7 @@ namespace Wulato.UIKit.Acceptance.Tests
         {
             Assert.That(typeof(IUIContext).Assembly.GetName().Name,Is.EqualTo("Wulato.UIKit"));
             var names=typeof(IUIContext).Assembly.GetReferencedAssemblies().Select(a=>a.Name).ToArray();
+            Assert.That(names,Does.Not.Contain("Unity.Localization"));
             Assert.That(names,Does.Not.Contain("FancyScrollView"));
             Assert.That(names,Does.Not.Contain("R3"));Assert.That(names,Does.Not.Contain("R3.Unity"));
             Assert.That(names,Does.Not.Contain("DOTween"));Assert.That(names,Does.Not.Contain("DOTween.Modules"));Assert.That(names,Does.Not.Contain("Wulato.UIKit.DOTween"));

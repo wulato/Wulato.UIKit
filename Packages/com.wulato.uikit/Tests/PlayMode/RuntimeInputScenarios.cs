@@ -87,6 +87,38 @@ namespace Wulato.UIKit.Tests.Input
         {
             await UniTask.NextFrame();Inject(raw);Module.UpdateModule();Module.Process();await UniTask.NextFrame();
         }
+        [UnityTest,Category("focus_controls")] public IEnumerator Focus_ModalRestoresSavedSelectableAndFallsBackWhenInactive()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await BackFrame(At());
+                var home=UnityEngine.Object.FindObjectOfType<RuntimeBackHome>();
+                var first=home.GetComponentInChildren<Button>();
+                var extra=new GameObject("Saved focus",typeof(RectTransform),typeof(Image),typeof(Button));extra.transform.SetParent(home.transform,false);
+                await BackFrame(At());Scene.Events.SetSelectedGameObject(extra);
+                var modal=await f.UI.OpenAsync<RuntimeBackModal>();await BackFrame(At());
+                Assert.That(Scene.Events.currentSelectedGameObject.transform.IsChildOf(UnityEngine.Object.FindObjectOfType<RuntimeBackModal>().transform),Is.True);
+                Assert.That(home.GetComponent<CanvasGroup>().interactable,Is.False);
+                await modal.CloseAsync();await BackFrame(At());Assert.That(Scene.Events.currentSelectedGameObject,Is.SameAs(extra));
+                modal=await f.UI.OpenAsync<RuntimeBackModal>();await BackFrame(At());extra.SetActive(false);
+                await modal.CloseAsync();await BackFrame(At());Assert.That(Scene.Events.currentSelectedGameObject,Is.SameAs(first.gameObject));
+                Assert.That(home.GetComponent<CanvasGroup>().interactable,Is.True);
+            }finally{await f.DisposeAsync();}
+        });
+        [UnityTest,Category("focus_controls")] public IEnumerator Focus_LockedSelectionRestoresWithoutReplayingHeldSubmit()=>UniTask.ToCoroutine(async()=>
+        {
+            var f=new RuntimeBackFixture(Scene);try
+            {
+                await f.UI.OpenAsync<RuntimeBackHome>();await BackFrame(At());
+                var button=UnityEngine.Object.FindObjectOfType<RuntimeBackHome>().GetComponentInChildren<Button>();var clicks=0;
+                button.onClick.AddListener(()=>clicks++);
+                using(f.Arbiter.AcquireLock(f.UI.ContextId))
+                {await BackFrame(At(submit:true));Assert.That(Scene.Events.currentSelectedGameObject,Is.Null);Assert.That(clicks,Is.Zero);}
+                await BackFrame(At(submit:true));Assert.That(clicks,Is.Zero);
+                await BackFrame(At());Assert.That(Scene.Events.currentSelectedGameObject,Is.SameAs(button.gameObject));
+                await BackFrame(At(submit:true));Assert.That(clicks,Is.EqualTo(1));await BackFrame(At());
+            }finally{await f.DisposeAsync();}
+        });
         [UnityTest,Category("input_runtime")] public IEnumerator Cancel_ClosesModalThenBacksPageOnlyAfterFreshEdges()=>UniTask.ToCoroutine(async()=>
         {
             var f=new RuntimeBackFixture(Scene);try
