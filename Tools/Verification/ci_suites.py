@@ -86,7 +86,7 @@ def changed_paths(base,root=R):
 def plan(paths,editor=None,backend='auto',full=False):
     from editor_targets import DEFAULT,editors
     versions=editors(editor or ('all' if full else DEFAULT))
-    tests={};warnings=[];tools=False
+    tests={};warnings=[];tools=full
     for original in paths:
         path=original
         for section in ('Runtime','Editor','Tests'):
@@ -159,7 +159,7 @@ def plan(paths,editor=None,backend='auto',full=False):
         if full or suites & {'preview-runtime','preview-authoring'}:scopes.append('preview')
         if full or any(p.removesuffix('.meta').endswith(('/RuntimeResetTests.cs','/UIPlayModeResetCheck.cs','/UIResourceResolver.cs','/AddressablesUIBootstrap.cs')) for p in paths):scopes.append('integration')
         for scope in scopes:reload.append(dict(command='play-reset',editor=ver,backend=back,scope=scope,reason=sorted(suites)))
-    return dict(schema=2,paths=paths,tools=tools or full,warnings=warnings,tests=rows,prepare=prepare,reload=reload,full=full,host_root=None if full else str(CI_DIR/'hosts'))
+    return dict(schema=2,paths=paths,tools=tools or full,warnings=warnings,tests=rows,prepare=prepare,reload=reload,full=full,host_root=str(CI_DIR/'hosts'))
 
 def binding():
     from build import source_fingerprint
@@ -191,7 +191,7 @@ def command_args(row,chosen):
     cmd=[sys.executable,str(R/'Tools/Verification/run.py'),row['command']]
     for key in ('editor','backend','mode','suite','phase','package_set','sample_set','scope','name'):
         if key in row:cmd+=['--'+key.replace('_','-'),row[key]]
-    if chosen['host_root'] and row['command']!='gate':cmd+=['--host-root',chosen['host_root']]
+    if chosen['host_root']:cmd+=['--host-root',chosen['host_root']]
     return cmd
 
 def execute(chosen,prepare=False):
@@ -288,11 +288,14 @@ def main():
     group=parser.add_mutually_exclusive_group();group.add_argument('--write-plan',type=Path);group.add_argument('--read-plan',type=Path)
     parser.add_argument('--full',action='store_true',default=os.environ.get('UIKIT_CI_FULL')=='true')
     parser.add_argument('--check-evidence',action='store_true')
+    parser.add_argument('--smoke',action='store_true',default=os.environ.get('UIKIT_CI_SMOKE')=='true')
     args=parser.parse_args()
     try:
         if args.read_plan:chosen=load_plan(args.read_plan)
         else:
-            chosen=plan(changed_paths(args.base),('all' if args.full and args.editor==DEFAULT else args.editor),args.backend,args.full)
+            if args.smoke and args.full:parser.error('--smoke and --full are mutually exclusive')
+            paths=['Packages/com.wulato.uikit/Tests/EditMode/ContextApiTests.cs','Tools/Verification/ci_suites.py'] if args.smoke else changed_paths(args.base)
+            chosen=plan(paths,('all' if args.full and args.editor==DEFAULT else args.editor),args.backend,args.full)
             if args.write_plan:freeze(chosen,args.write_plan,args.base)
     except (OSError,ValueError,KeyError,subprocess.CalledProcessError) as e:parser.error(str(e))
     if args.check_evidence:

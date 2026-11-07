@@ -14,7 +14,8 @@ def seal(folder):
     index=folder/'evidence-index.json';index.write_text(json.dumps(data,indent=2)+'\n')
     return sha256(index)
 
-def verify(record,folder,required,current_snapshot,acceptance=False):
+def verify(record,folder,required,current_snapshot,acceptance=False,recorded_folder=None):
+    origin=Path(recorded_folder) if recorded_folder is not None else folder
     errors=[]
     def check(condition,message):
         if not condition: errors.append(message)
@@ -24,7 +25,7 @@ def verify(record,folder,required,current_snapshot,acceptance=False):
         check(record.get('status')=='PASS','summary-not-pass')
         check(record.get('mode') in ('PlayMode','EditMode') if acceptance else record.get('mode')=='PlayMode','wrong-test-mode')
         check(record.get('fingerprint')==current_snapshot['fingerprint'],'stale-fingerprint')
-        check(Path(record['evidence']).resolve()==folder.resolve(),'evidence-path-mismatch')
+        check(Path(record['evidence']).resolve()==origin.resolve(),'evidence-path-mismatch')
         index=folder/'evidence-index.json'
         check(sha256(index)==record.get('evidence_index_sha256'),'index-hash-mismatch')
         manifest=read('evidence-index.json');check(manifest.get('schema')==1,'index-schema')
@@ -59,8 +60,8 @@ def verify(record,folder,required,current_snapshot,acceptance=False):
         check('-runTests' in command and '-batchmode' in command and '-quit' not in command,'not-a-test-command')
         check(arg('-projectPath')==current_snapshot['host'],'command-host-mismatch')
         check(arg('-testPlatform')==record['mode'],'command-mode-mismatch')
-        check(Path(arg('-testResults')).resolve()==(folder/'results.xml').resolve(),'command-xml-mismatch')
-        check(Path(arg('-logFile')).resolve()==(folder/'editor.log').resolve(),'command-log-mismatch')
+        check(Path(arg('-testResults')).resolve()==(origin/'results.xml').resolve(),'command-xml-mismatch')
+        check(Path(arg('-logFile')).resolve()==(origin/'editor.log').resolve(),'command-log-mismatch')
         if record['suite']=='all':check('-testCategory' not in command,'unexpected-category')
         else:check(arg('-testCategory')==record['suite'].replace('-','_'),'command-suite-mismatch')
         log=(folder/'editor.log').read_text(errors='replace')

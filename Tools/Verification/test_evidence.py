@@ -62,3 +62,15 @@ class EvidenceTests(unittest.TestCase):
     def test_release_acceptance_rejects_invalid_mode(self):
         self.record['mode']='Unknown'
         self.assertIn('wrong-test-mode',verify(self.record,self.out,self.required,self.snapshot,acceptance=True)['errors'])
+
+    def test_downloaded_evidence_preserves_raw_bytes_and_requires_explicit_origin(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as destination:
+            moved=Path(destination)/self.out.parent.name/self.out.name
+            shutil.copytree(self.out.parent,moved.parent)
+            self.assertEqual('FAIL',verify(self.record,moved,self.required,self.snapshot)['status'])
+            result=verify(self.record,moved,self.required,self.snapshot,recorded_folder=self.out)
+            self.assertEqual('PASS',result['status'],result['errors'])
+            self.assertEqual((self.out/'command.json').read_bytes(),(moved/'command.json').read_bytes())
+            (moved/'editor.log').write_text('tampered')
+            self.assertEqual('FAIL',verify(self.record,moved,self.required,self.snapshot,recorded_folder=self.out)['status'])

@@ -257,7 +257,7 @@ def main():
  sub.choices['play-reset'].add_argument('--interactive',action='store_true')
  sub.choices['play-reset'].add_argument('--preview-action',choices=['window','compile','cancel'],default='window')
  q=sub.add_parser('compile-probe');q.add_argument('--editor',choices=[*VERSIONS,'all'],default=DEFAULT);q.add_argument('--backend',choices=['legacy','input','all'],default='legacy');q.add_argument('--editor-path');q.add_argument('--timeout',type=int,default=600)
- q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')
+ q=sub.add_parser('gate');q.add_argument('--name',choices=['preflight','release'],required=True);q.add_argument('--host-root');q.add_argument('--phase',choices=['phase1','phase2'],default='phase1')
  for name in ('build',):
   q=sub.add_parser(name);q.add_argument('--editor',choices=[*VERSIONS,'all'],required=True);q.add_argument('--backend',choices=['legacy','input','all'],required=True);q.add_argument('--target',choices=['Android','iOS','all'],required=True);q.add_argument('--profile',choices=['smoke','clean'],required=True);q.add_argument('--phase',choices=['phase1','phase2','phase3'],default='phase1');q.add_argument('--package-set',choices=['all','main','navigation','dialogs','presentation','popup-queue','addressables'],default='all');q.add_argument('--prepare-only',action='store_true');q.add_argument('--timeout',type=int,default=3600);q.add_argument('--editor-path')
  q=sub.add_parser('smoke');q.add_argument('--build',required=True);q.add_argument('--device',required=True);q.add_argument('--timeout',type=int,default=180)
@@ -283,10 +283,11 @@ def main():
   from contract_probe import run_probe
   return run_probe(a)
  if a.command=='gate' and a.name=='release':
+  if a.host_root:p.error('release gate does not accept --host-root')
   from release_gate import release
   return release(R,a.phase)
  if a.command=='gate':
   from gates import preflight
-  return preflight(R)
+  return preflight(R,a.host_root)
  return run(a)
 if __name__=='__main__':sys.exit(main())

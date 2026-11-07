@@ -1025,8 +1025,53 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 集中审查改动：仅文档、缺失meta、主包版本、验证身份/本地声明及对应断言；基础Runtime/API/SDK版本/工作流/MC未改。历史phase2/phase3、Migration-0.4正文保留，现行README/Installation/Migration-0.5明确替代旧步骤；既有GUID不变。
 - [x] 实现提交 `59e3f3e2953106dc002d7552945325ea5c8ad829`；`committed-package.json` PASS，实际Git提交含711个包文件，与四个安装快照逐文件完全一致，包含全部文档/九项样例/meta。根README提供此完整固定SHA地址，后续记录提交不改变该包快照。
 - [x] 已推送任务分支，创建 [任务6.1 PR #16](https://github.com/wulato/Wulato.UIKit/pull/16)（main ← chore/uikit-0.5-release-documentation）。
-- [ ] 等待用户确认合并PR #16；不开始6.2，不创建发布tag/Release。
+- [x] 按用户确认普通合并PR #16，merge commit `abc8ded418f29b11a94adfcbb7d6929e91c5160f`；从更新main开始6.2，不创建发布tag/Release。
 
 原始命令/日志/退出码：`Artifacts/uikit/phase6-1/commands.json`、`*.log`/`*.exit`、`verify-final.py`、`sdk-warm.json`；Git安装日志 `install-main.log` / `install-addressables.log`。本次没有代码/测试失败或自动修复（计数0），prepare-only的预期退出码按原安装字段明确解释。未运行其他编辑器、完整Suite/Reload、远端CI、Android/iOS Player/IL2CPP、真机/性能/Release Gate；6000 profile只同步本地包版本声明，不是支持验收。回退为不发布，消费保持旧审核提交，在消费项目迁移分支恢复其manifest/lock/生成文件，不自动回滚用户资产。
 
 6.1 最终原始索引：dotween-package-install `20261106T132106402324-tests-34b899`；dotween-dotween `20261106T132116769679-tests-c8e549`；r3-binding-package-install `20261106T132127029013-tests-670402`；r3-binding-r3-binding `20261106T132138573805-tests-de1dcf`；fancy-list-package-install `20261106T132151570863-tests-3f6ef1`；fancy-list-fancy-list `20261106T132203134610-tests-435b2f`；localization-package-install `20261106T132213850017-tests-823c92`；localization-localization `20261106T132224838467-tests-8f7aff`；quickstart-runtime `20261106T132533512846-tests-381aa9`；legacy-flow-samples `20261106T132831835910-tests-2e4787`；legacy-samples `20261106T132842054046-tests-4985e0`；input-flow-samples `20261106T132852422259-tests-010e63`；input-samples `20261106T132903200989-tests-c0865c`；addressables-integration `20261106T133129579018-tests-64e81d`。
+
+
+### 6.2 执行记录（2026-11-06，2026-11-07收尾）
+
+- 核对 PR #16 固定 head `7797c5c701ff2c9bde93727ec23f0043a356d497` / CLEAN后普通合并；基线 `abc8ded418f29b11a94adfcbb7d6929e91c5160f`，分支 `chore/uikit-0.5-editor-ci`。smart-development STANDARD，按明确计划L3；使用executing-plans既有计划，不启动子代理/新worktree。
+- 仓库Actions已启用，runner API total_count=0。用户单独授权本任务临时官方Actions Runner2.338.2（macOS ARM64）及仓库级短时注册token；仅Artifacts/uikit/phase6-2/runner，不安装服务/启动项、不扩展GitHub scope；每次ephemeral一作业后注销，主动派发前核对固定SHA和队列。官方archive SHA256 `25a065af409ffa317ab4d5a3b614dd15fc9c40f2172bc1b35a1b1258e919a388`，约123MB，诊断日志保留；不能把同账号runner当安全沙箱。
+- CI拆分hosted计划/Python与专用macOS原生作业；工具修改无需等待Unity机器；同仓库可信PR/dispatch，fork PR不执行；两个作业固定事件SHA，checkout不持久化凭据。smoke显式现有Context API contracts/integration专项，full明确两后端完整适用Editor、20组Reload/40次真实Play及G0；不安装可选商业/DLL SDK，不进入移动6.3。
+- 修正full的Python证据强制要求；新增原始artifact收集/跨路径离线复核，仅GitHub当前workspace可export，排除host/Library/Temp/SDK/runner凭据，下载后绑定GitHubrun ID/SHA、源码指纹、所有字节/原始XML/trace/索引/完整命令与Reload。evidence.verify默认本地严格路径不变，迁移核验必须显式提供原记录路径，不改写JSON/log。
+- Python首轮全回归242项中2失败：旧workflow结构断言，以及Localization新增后包测试图遗漏Unity.Localization的可选引用。各修复1轮；Localization仍强制sample路径/显式宏/VersionDefine隔离，未放宽基础图。修复后248项PASS；补充workspace保护后全回归249项PASS；随后隐藏文件/symlink保护等相关65项PASS。最终冻结输入由真实hosted Python复验，原始日志/退出码在Artifacts/uikit/phase6-2；当前未声明远端或全门禁通过。
+
+- 首个真实远端专项 [run42231259000](https://github.com/wulato/Wulato.UIKit/actions/runs/42231259000) 的hosted Python250/250、原生contracts/integration及上传前当前宿主审计均成功；runner自动注销（API total_count回到0）。计划artifact下载digest与跨Linux/macOS冻结绑定复核PASS。原生artifact ZIP digest匹配，但离线审计FAIL：Actions默认忽略隐藏文件，collector却把非证据`.verification.lock`纳入字节清单，下载后缺失。保留原ZIP/API/receipt/失败报告，不修改原始材料；从collector排除这个临时锁，并增加缺文件与排除锁用例，传输同因修复1轮，等待复验。没有放宽RAW/必需用例/索引，也不把远端作业成功等同端到端验收。
+
+- 传输修复1轮复验 [run42233141320](https://github.com/wulato/Wulato.UIKit/actions/runs/42233141320) PASS，固定源码 `e7dcf49ea67f7ec2b81c2334bc3a3fa02576d4ff`：hosted Python251/251，原生contracts30/integration24，共54项；ZIP digest、安全解压及 `ci_artifact.verify` PASS。原始JSON/log未改写，`.verification.lock`仅从非证据上传清单排除；此因已解决，修复计数1。runner再次自动注销。
+- 同一源码完整门禁 [run42234297368](https://github.com/wulato/Wulato.UIKit/actions/runs/42234297368) 已派发，hosted计划成功，正在执行默认2022.3.62f2两后端完整适用Editor/Reload及G0；当前不声明最终通过。原始计划、runner诊断、下载ZIP/API/receipt与审计报告均位于Artifacts/uikit/phase6-2，旧失败run与下载字节保留。
+
+- 首次full run42234297368 FAIL，发生在准备Input宿主，尚未运行all测试：canonical `Verification/Projects` 的历史Assets/Samples/BusinessFlow仍调用0.4 UseNavigation/私有DialogRegistry。真实失败ZIP/digest/审计报告保留。修复方案为full同专项使用空Assets隔离宿主，G0新增相同host-root参数并保持最新注册/原始证据严格校验，拒绝超出忽略宿主范围；不删除/覆盖历史样例、不保留旧API。此因修复1轮；对应97项Python（含隔离G0正向、缺原始XML仍FAIL、越界Root拒绝）PASS。新增测试最初对macOS /var与/private/var别名比较失败，按实际resolve路径修正1轮；未改变Gate断言。冻结新输入后继续最终full门禁，之前专项对UI代码的证明由最终full中同一必需用例集补齐到当前指纹。
+
+- full隔离修复run42235868429证明12条准备均PASS、Legacy EditMode233/PlayMode248全部PASS；Input EditMode仅 AdapterManifest_PinsCoreAndInputVersions FAIL，仍有两处主包版本期望0.4.0（实际0.5.0）。这是独立于历史宿主污染的遗漏身份断言，按已批准0.5身份更新为精确0.5.0，保留Input SDK1.17.0、基础IL隔离及无必需SDK的原断言。该因修复1轮；原input-package专项2/2及即时current snapshot/原始索引审计PASS，原始batch复制保存在外层Artifacts/uikit/phase6-2/input-package-targeted-raw，未修改既有CI证据。全部Packages测试源码的0.4.0遗留版本值已查无其他。首轮full失败artifact/digest及Legacy通过记录保留。
+- 本门禁要求最终源码指纹完整，因此在输入包专项通过后以新固定提交重跑两后端最终full；这是当前明确门禁的必要指纹复验，不扩展其他编辑器/SDK/Player，也不以旧Legacy绿色结果替当前来源。
+
+
+6.2 最终验收（冻结源码 `da7f625d192cb136d5a73ddacb94b463b64dc60c`）：
+
+| 范围 | 结果 |
+| --- | --- |
+| 真实远端专项 | run42233141320 hosted Python251，contracts30 / integration24，作业与下载原始审计PASS；最终full覆盖相同必需用例到最终指纹 |
+| 最终hosted Python | 253/253 PASS |
+| Legacy all | EditMode233 / PlayMode248 PASS |
+| Input System all | EditMode236 / PlayMode253 PASS |
+| 实际Reload | integration两后端各4配置，context-host/preview各Legacy4+Input2；共20组、40次真实Play/退出，全部PASS |
+| G0 / 上传前审计 | 最新注册/原始证据/当前隔离宿主指纹与自动退出检查PASS |
+| 下载原始复核 | 1108个文件，GitHub ZIP digest/安全路径/完整字节清单/原始XML/逐例trace/索引/命令完整性/冻结计划与Reload报告PASS |
+
+- [x] 最终真实远端完整链路 [run42238552176](https://github.com/wulato/Wulato.UIKit/actions/runs/42238552176) completed/success，默认Unity2022.3.62f2两后端四组适用all共970/970用例执行PASS，零跳过/零缺证据。
+- [x] 下载artifact ID `13515007523`，ZIP SHA256 `3caa19ff2507cc2f085905cf7967e51503990401145926ca25908701768156c1` 与GitHub API digest一致。`full-final-artifact-verification.json`、`full-summary-42238552176.json` PASS；源码指纹 `e43b5d1d73b88ffc7f995b478cb530602e092f63fcc6a27a4367bde3d56ebae2`，准确包身份0.5.0。下载后不改任何JSON/log字节。
+- [x] 临时runner每次单作业自动注销，最终API total_count=0，`.runner`/`.credentials`/服务配置不存在；没有安装服务/开机项或扩大GitHub scope。后续Unity CI仍需标签uikit-05-editor的专用或临时runner，hosted Python不依赖它。
+- [x] 集中差异审查：CI拆分/冻结/可信分支条件、可移植原始审计、full隔离/G0同宿主、严格Localization图边界、两处Input测试0.5常量及回归/文档；基础Runtime/API/SDK版本/MC未改。未放宽RAW、必需用例、零匹配/跳过/失败、hash/注册/输入变化规则；evidence.verify默认本地路径行为不变。
+- [x] 已推送最终记录并创建 [任务6.2 PR #17](https://github.com/wulato/Wulato.UIKit/pull/17)（main ← chore/uikit-0.5-editor-ci）；受验代码仍为da7f625，记录提交不改变源码指纹。
+- [ ] 等待用户确认合并PR #17；不执行6.3或发布。
+
+原始来源：`Artifacts/uikit/phase6-2/downloads/<GitHubRunID>/`保存ZIP/API/receipt/完整产物；`full-final-run.json`、`runners-final.json`记录远端状态，runner配置/监听日志保留。官方归档及哈希receipt保留；只删除本任务已合成归档的冗余Range缓冲，不清理用户文件或旧证据。短时token通过官方遮蔽环境输入传入，没有token命令行或明文输出。
+
+失败账：collector隐藏临时锁1轮、canonical旧样例污染1轮、Input旧版本断言1轮，均已解决；前期Python工作流断言/Localization程序集清单各1轮、G0单测macOS路径别名1轮均已解决，同因未超过两轮。旧失败run42231259000（下载审计）、42234297368（宿主准备）、42235868429（版本断言）及下载数据保留，不改写为PASS。最终验证完成后写记录时自动审批审查因用量上限未能完成，写入未执行；2026-11-07用户要求继续后收尾，不重复已通过门禁。
+
+限制：本full仅默认2022.3.62f2与legacy/input，包含Addressables/Input SDK；DOTween/R3/Fancy/Localization未在本full宿主启用，不属于当前适用全集；6.1独立证据保留但不冒称本次重验。未执行其他Unity、Both独立配置、Android/iOS Player/IL2CPP、真机/性能/Release Gate。临时runner不是常驻隔离机器；6.3仍受前置PR审核合并及工具链/设备/签名授权约束。可revert本CI/验证改动，保留失败，不降低门禁。
