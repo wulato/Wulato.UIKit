@@ -1,5 +1,5 @@
 """Install and launch the exact smoke build; archive raw transport and Player report."""
-import json,os,re,subprocess,time,uuid
+import json,os,re,shutil,subprocess,time,uuid
 from pathlib import Path
 from build import command,source_fingerprint,file_index,verify_files
 from release_gate import assess_mobile,assess_build
@@ -20,6 +20,12 @@ def android_report_path(package,user):
 
 def validate_player_report(raw,summary):
     return ['raw-player-report:'+key for key in ('build_id','status','cases','phase','performance') if raw.get(key)!=summary.get(key)]
+
+def ios_signing_project(export,out):
+    # Xcode rewrites IL2CPP profiling output while compiling. Keep build evidence immutable.
+    destination=out/('SigningProject-'+uuid.uuid4().hex)
+    shutil.copytree(export,destination)
+    return destination/'Unity-iPhone.xcodeproj'
 
 def reset_ios_report(device,package,out):
     """Verify a unique pending marker before launch; old PASS must never be reused."""
@@ -85,7 +91,9 @@ def smoke(args):
                         result['status']='BLOCKED';raise ValueError('iOS-device-details-probe-failed')
                     result['physical_device']=True;result['signing_team_id']=team
                     derived=out/'DerivedData'
-                    result['compiled']=command(['xcodebuild','-project',str(Path(build['output'])/'Unity-iPhone.xcodeproj'),'-scheme','Unity-iPhone','-configuration','Release','-destination','id='+args.device,'-derivedDataPath',str(derived),'DEVELOPMENT_TEAM='+team,'CODE_SIGN_STYLE=Automatic','build'],out/'xcodebuild.log',args.timeout)==0
+                    project=ios_signing_project(Path(build['output']),out)
+                    result['signing_project']=str(project.parent)
+                    result['compiled']=command(['xcodebuild','-project',str(project),'-scheme','Unity-iPhone','-configuration','Release','-destination','id='+args.device,'-derivedDataPath',str(derived),'DEVELOPMENT_TEAM='+team,'CODE_SIGN_STYLE=Automatic','build'],out/'xcodebuild.log',args.timeout)==0
                     if not result['compiled']:raise ValueError('xcode-compile-sign-failed')
                     app=derived/'Build/Products/Release-iphoneos/UIKit.app'
                     apps=list((derived/'Build/Products/Release-iphoneos').glob('*.app'))

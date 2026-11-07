@@ -60,3 +60,19 @@ class IOSReportFreshnessTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'reset-mismatch'):reset_ios_report('device','test.package',out)
             with patch('smoke.command',return_value=1):
                 with self.assertRaisesRegex(ValueError,'cannot-reset'):reset_ios_report('device','test.package',out)
+
+class IOSExportIsolationTests(unittest.TestCase):
+    def test_native_signing_mutations_do_not_rewrite_unsigned_build_evidence(self):
+        from smoke import ios_signing_project
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);export=root/'export';out=root/'device';out.mkdir()
+            relative=Path('Il2CppOutputProject/Source/il2cppOutput/profile.json')
+            original=export/relative;original.parent.mkdir(parents=True);original.write_text('unsigned-profile')
+            (export/'Unity-iPhone.xcodeproj').mkdir()
+            project=ios_signing_project(export,out)
+            (project.parent/relative).write_text('signed-profile')
+            self.assertEqual('unsigned-profile',original.read_text())
+            self.assertEqual('signed-profile',(project.parent/relative).read_text())
+            self.assertNotEqual(project,ios_signing_project(export,out))

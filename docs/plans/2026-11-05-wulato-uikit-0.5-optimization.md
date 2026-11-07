@@ -1097,3 +1097,9 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - 冻结候选19b7075已推送。Legacy iOS ARM64 IL2CPP+实际unsigned原生编译PASS（`20261107T025406090276-a6c935`），native_signed=false；Android Input构建与真机20/20 PASS（`20261107T025727778780-e702a4`）。首次Input安装由手机取消，原始证据归档 `phase6-3/android-input-install-attempt1`；用户明确要求重装并手动允许后通过，不修改手机安全设置，不计Runtime自动修复。
 - 执行器审查发现iOS同构建重跑可能读取旧报告：启动前写入随机nonce的PENDING标记并读回验证，再等待Player结果；写入/读回失败或旧PASS均拒绝。补充两项反陈旧测试，完整Python263项PASS（`python-freshness.*`）。这是门禁修复，不修改业务Runtime。源码指纹因此更新，此前移动结果只保留为专项依据，不冒充最终发布矩阵。
 - 旧冻结候选远端full run42331904011已完成hosted计划/Python，原生editor尚在排队；主动取消旧候选的未开始作业，避免输入已更新后重复跑全量。准备新冻结提交后只运行一次稳定完整门禁，保留旧run结果。
+
+- 最终候选a2b4b0e，源码指纹 `9a6c58d35e362047ccb748423cce1fee0cc992afeeea67a544135fed446450aa`。iOS Legacy实际ARM64原生编译、现有Team签名/安装、PENDING随机标记读回及真人点击后20/20 PASS，证据 `Artifacts/uikit/mobile/20261107T030533362836-d35d63`。iPhone13/iOS18.4，50采样p50 33.3636ms、p95 35.0624ms、max35.6508ms，三项资源收敛为0；包含等待帧，非CPU/FPS/零分配承诺。
+- 首次iOS目的地使用CoreDevice UUID而Xcode只接受该机硬件UDID；xcdevice只读枚举确认后改用UDID，环境调用修正1轮通过，无源码变更。原始失败归档 `phase6-3/ios-legacy-coreid-attempt1`，不覆盖日志、不改签名身份、不更新门户。最终Android两后端smoke、四个clean、Input iOS smoke及Git安装/完整Editor门禁继续执行中；尚未宣称Release Gate通过。
+- iOS签名后完整索引审计实际失败：唯一变化为 `Xcode/Il2CppOutputProject/Source/il2cppOutput/profile.json`，Xcode脚本`--profiler-report`在第二次编译重写该文件。`ios-legacy-post-sign-integrity-failure.json`保留期望/实际hash及错误，原文件不恢复或重新索引以掩盖失败；a2b4b0e真机20项不替代构建完整性PASS。
+- 同因修复1轮：签名时拷贝完整Xcode项目到设备证据下唯一SigningProject目录，利用原脚本PROJECT_DIR相对路径隔离编译写入；无签名导出保持原始字节。新增副本写入隔离测试，完整Python264项PASS（`python-isolation-repair1.*`）；待新冻结iOS真实签名+20项及两份索引审计后才认定修复通过。尚未启动任何原生full Editor作业，避免不稳定输入先跑全量。
+- a2b4b0e最终Android两后端smoke均构建PASS（`20261107T031240321931-bfce28`），因门禁输入继续修正只保留为专项历史，不用于新的最终指纹矩阵。full run42332931948 hosted计划/Python通过、editor尚排队，取消原生未开始作业后改用新冻结提交。
