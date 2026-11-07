@@ -1068,10 +1068,54 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 临时runner每次单作业自动注销，最终API total_count=0，`.runner`/`.credentials`/服务配置不存在；没有安装服务/开机项或扩大GitHub scope。后续Unity CI仍需标签uikit-05-editor的专用或临时runner，hosted Python不依赖它。
 - [x] 集中差异审查：CI拆分/冻结/可信分支条件、可移植原始审计、full隔离/G0同宿主、严格Localization图边界、两处Input测试0.5常量及回归/文档；基础Runtime/API/SDK版本/MC未改。未放宽RAW、必需用例、零匹配/跳过/失败、hash/注册/输入变化规则；evidence.verify默认本地路径行为不变。
 - [x] 已推送最终记录并创建 [任务6.2 PR #17](https://github.com/wulato/Wulato.UIKit/pull/17)（main ← chore/uikit-0.5-editor-ci）；受验代码仍为da7f625，记录提交不改变源码指纹。
-- [ ] 等待用户确认合并PR #17；不执行6.3或发布。
+- [x] 用户确认后普通合并 PR #17，merge `249b0975b9a0ab2901438dc842f4351cca5f0907`；从最新 main 开始 6.3，不发布。
 
 原始来源：`Artifacts/uikit/phase6-2/downloads/<GitHubRunID>/`保存ZIP/API/receipt/完整产物；`full-final-run.json`、`runners-final.json`记录远端状态，runner配置/监听日志保留。官方归档及哈希receipt保留；只删除本任务已合成归档的冗余Range缓冲，不清理用户文件或旧证据。短时token通过官方遮蔽环境输入传入，没有token命令行或明文输出。
 
 失败账：collector隐藏临时锁1轮、canonical旧样例污染1轮、Input旧版本断言1轮，均已解决；前期Python工作流断言/Localization程序集清单各1轮、G0单测macOS路径别名1轮均已解决，同因未超过两轮。旧失败run42231259000（下载审计）、42234297368（宿主准备）、42235868429（版本断言）及下载数据保留，不改写为PASS。最终验证完成后写记录时自动审批审查因用量上限未能完成，写入未执行；2026-11-07用户要求继续后收尾，不重复已通过门禁。
 
 限制：本full仅默认2022.3.62f2与legacy/input，包含Addressables/Input SDK；DOTween/R3/Fancy/Localization未在本full宿主启用，不属于当前适用全集；6.1独立证据保留但不冒称本次重验。未执行其他Unity、Both独立配置、Android/iOS Player/IL2CPP、真机/性能/Release Gate。临时runner不是常驻隔离机器；6.3仍受前置PR审核合并及工具链/设备/签名授权约束。可revert本CI/验证改动，保留失败，不降低门禁。
+
+
+### 6.3 执行记录（2026-11-07，进行中）
+
+- 基线 `249b0975b9a0ab2901438dc842f4351cca5f0907`，分支 `chore/uikit-0.5-mobile-release-gate`；STANDARD，复用已批准设计，按发布门禁选择验证，不启动子代理/新 worktree，不修改 MC。
+- 工具链：Unity 2022.3.62f2 的 AndroidPlayer/iOSSupport 模块、Android SDK34/NDK23.1.7779620/JDK、Xcode26.0.1 均存在。磁盘最初约10–12GiB，按单构建监测，不清理用户内容。Android M2012K11AC / Android13 / ARM64 真机可达；iPhone13 / iOS18.4 初始 tunnel unavailable，用户连接解锁后 connected。设备标识与签名详情仅保存权限600的 private 日志。
+- 只读签名检查确认4个有效身份、16个现有描述文件；开发通配配置覆盖已连接设备，UIKit专用配置临近过期。尚未执行iOS签名、Apple门户更新或安装；既有6.2临时runner授权不扩大为6.3。
+- 新增明确 `uikit05` 验收阶段，保留 phase1/phase2/phase3历史契约；单包、两输入、实际 Addressables SDK。应用使用 `com.wulato.uikit.acceptance.v05.<backend>.<profile>`，避免覆盖旧测试应用。核心 Runtime/API 不变。
+- 移动夹具覆盖当前页面 API、Popup取消、缓存 Session隔离、真实Addressables租约的缓存/取消/迟到释放；Player采集5次预热+50次缓存Open/Close的p50/p95/max和资源收敛。该采样不是游戏帧率/全局零分配承诺。TouchClose仍要求真人屏幕点击。
+- 新增iOS导出后 unsigned ARM64 xcodebuild，禁止把Unity导出当native compile；设备执行器不再带 `-allowProvisioningUpdates`。0.5 Release Gate校验单Runtime、完整20项设备用例/性能和当前源码绑定的full Editor/Reload/G0原始artifact，缺失即失败。
+- 首次Unity prepare-only真实编译通过，证据 `Artifacts/uikit/install-checks/20261107T023552674568-fba8da`；预期退出1仅表示未构建Player，install PASS/generation compiled，不能算移动通过。
+- Python首轮259项：258通过、1新增测试自身mock错误（空Git样本）；复用已有真实样本fixture修复1轮，相关6项通过。记录 `Artifacts/uikit/phase6-3/python-initial.*`、`python-repair1.*`，未放宽断言。
+- 当前Android Legacy smoke真实ARM64 IL2CPP构建进行中：`Artifacts/uikit/mobile/20261107T024106235850-18679b`。其余构建/真机/性能/最终Editor与Release Gate尚未验收；待结果追加，不提前标记完成。
+- Android首次真机：基础7项与历史业务6项共13项PASS，新增页面夹具误用Single页面触发AlreadyOpen；按契约改为PopTo关闭Settings后再Replace、验证根Back及重新打开隔离，夹具同因修复1轮。原始Player报告 `Artifacts/uikit/phase6-3/android-legacy-player-probe.json`、设备报告与日志保留。该轮未完成性能，不计移动验收通过。
+- APK内容审查发现既有构建执行器未在Unity启动时选平台，Addressables实际打包StandaloneOSX bundle（APK中可复核），为独立原因；补齐uikit05的`-buildTarget`，并要求实际APK/Xcode目录含目标平台bundle和catalog，防止仅BuildPlayer成功即PASS。Android平台原因修复1轮进行中。消费项目编译探针限Editor，避免进入clean Player。
+- Python完整259项PASS（`python-final.*`）；新增平台资源断言后相关64项PASS（`python-platform-repair1.*`），尚待最终稳定输入全集。未自动修复Runtime或放宽测试；未执行iOS签名/门户更新，未发布。
+- 平台修复后 Android Legacy ARM64 IL2CPP构建及真机20/20项PASS：`Artifacts/uikit/mobile/20261107T024940495242-cca79a`；APK含Android bundle/catalog。真人再次点击TouchClose，SDK缓存/取消/迟到释放全部通过；Single场景修复同因1轮、目标平台修复同因1轮，均已针对性通过。原始两轮APK/日志保留，不以其旧指纹作为最终冻结矩阵。
+- 本机Xiaomi M2012K11AC / Android13 / Adreno650，5预热+50缓存Open/Close：p50 33.0578ms、p95 35.6452ms、max36.5314ms，managed 1482752→1712128字节；清缓存后lease/pending/inputLock均0。不是FPS或零分配验收。最终Python261项PASS与diff check PASS，`Artifacts/uikit/phase6-3/python-frozen.*`。先冻结实现提交，再执行剩余矩阵与最终门禁；此处不声明完整发布通过。
+- 用户明确授权：6.3可复用已校验Runner2.338.2，临时ephemeral、无服务/新scope；可使用现有Team YQT997BSB9开发身份与覆盖iPhone13的通配描述文件，仅签名安装两个v05 smoke应用，无私钥导出/门户更新。Runner归档再次SHA256核对一致；配置与设备详情不提交。6.3 runner将使用独立工作目录，保留6.2工作目录和归档。
+- 冻结候选19b7075已推送。Legacy iOS ARM64 IL2CPP+实际unsigned原生编译PASS（`20261107T025406090276-a6c935`），native_signed=false；Android Input构建与真机20/20 PASS（`20261107T025727778780-e702a4`）。首次Input安装由手机取消，原始证据归档 `phase6-3/android-input-install-attempt1`；用户明确要求重装并手动允许后通过，不修改手机安全设置，不计Runtime自动修复。
+- 执行器审查发现iOS同构建重跑可能读取旧报告：启动前写入随机nonce的PENDING标记并读回验证，再等待Player结果；写入/读回失败或旧PASS均拒绝。补充两项反陈旧测试，完整Python263项PASS（`python-freshness.*`）。这是门禁修复，不修改业务Runtime。源码指纹因此更新，此前移动结果只保留为专项依据，不冒充最终发布矩阵。
+- 旧冻结候选远端full run42331904011已完成hosted计划/Python，原生editor尚在排队；主动取消旧候选的未开始作业，避免输入已更新后重复跑全量。准备新冻结提交后只运行一次稳定完整门禁，保留旧run结果。
+
+- 最终候选a2b4b0e，源码指纹 `9a6c58d35e362047ccb748423cce1fee0cc992afeeea67a544135fed446450aa`。iOS Legacy实际ARM64原生编译、现有Team签名/安装、PENDING随机标记读回及真人点击后20/20 PASS，证据 `Artifacts/uikit/mobile/20261107T030533362836-d35d63`。iPhone13/iOS18.4，50采样p50 33.3636ms、p95 35.0624ms、max35.6508ms，三项资源收敛为0；包含等待帧，非CPU/FPS/零分配承诺。
+- 首次iOS目的地使用CoreDevice UUID而Xcode只接受该机硬件UDID；xcdevice只读枚举确认后改用UDID，环境调用修正1轮通过，无源码变更。原始失败归档 `phase6-3/ios-legacy-coreid-attempt1`，不覆盖日志、不改签名身份、不更新门户。最终Android两后端smoke、四个clean、Input iOS smoke及Git安装/完整Editor门禁继续执行中；尚未宣称Release Gate通过。
+- iOS签名后完整索引审计实际失败：唯一变化为 `Xcode/Il2CppOutputProject/Source/il2cppOutput/profile.json`，Xcode脚本`--profiler-report`在第二次编译重写该文件。`ios-legacy-post-sign-integrity-failure.json`保留期望/实际hash及错误，原文件不恢复或重新索引以掩盖失败；a2b4b0e真机20项不替代构建完整性PASS。
+- 同因修复1轮：签名时拷贝完整Xcode项目到设备证据下唯一SigningProject目录，利用原脚本PROJECT_DIR相对路径隔离编译写入；无签名导出保持原始字节。新增副本写入隔离测试，完整Python264项PASS（`python-isolation-repair1.*`）；待新冻结iOS真实签名+20项及两份索引审计后才认定修复通过。尚未启动任何原生full Editor作业，避免不稳定输入先跑全量。
+- a2b4b0e最终Android两后端smoke均构建PASS（`20261107T031240321931-bfce28`），因门禁输入继续修正只保留为专项历史，不用于新的最终指纹矩阵。full run42332931948 hosted计划/Python通过、editor尚排队，取消原生未开始作业后改用新冻结提交。
+
+- cdac3ee签名隔离第1轮真实复验通过：iOS Legacy20/20、原构建3205文件与设备3175文件hash全部PASS，完整复合审计 `phase6-3/ios-isolation-repair1-audit.json`，源码指纹 `a92685d8be801358b0876f0aa58708a7265b0b8d1a18b79d2ce18f5a0d16ed18`。实际签名strict/deep验证、Team YQT997BSB9及v05.legacy.smoke bundle ID再次只读核对PASS（`ios-legacy-signature-audit.json`），不修改原导出文件、不重索引旧失败。
+- 用户同意自行释放磁盘空间，df现17GiB；本任务只清理自身完成的Library缓存。两批旧iOS候选已按全文件hash验证后压缩，5065/12749文件分别约637.2/1107.2MiB，保留于 `Artifacts/uikit/phase6-3/archives/`，每份receipt含SHA256/原始清单/恢复命令；原始文件字节完整保留，未更改历史报告内容。恢复后旧失败仍按原hash失败，不被改写为PASS。
+- 最终Android 4个ARM64 IL2CPP构建均PASS：clean `20261107T033307476388-58c8f1`，smoke `20261107T033928421543-cc197d`。两后端clean均有单基础Runtime、无旧拆分/测试/Smoke/Codegen编译探针，Input适配仅Input宿主，审计`phase6-3/android-clean-audit.json`。两后端真机各20/20，真人点击完成；50样本Legacy p50/p95/max 33.1087/35.5154/41.4336ms，Input 33.0496/35.5227/35.7728ms，三项收敛均0。构建/设备索引在移除完成宿主的可重建Library缓存前后均保持通过。
+- 最终full run [42334522342](https://github.com/wulato/Wulato.UIKit/actions/runs/42334522342) 固定cdac3ee，hosted计划/Python成功，原生Editor待本机移动组合完成后启动；尚未宣称Editor全门禁通过。
+- iOS Input最终unsigned构建PASS（`20261107T035036717549-75c7a8`）。首次签名与安装成功，启动由iPhone锁屏拒绝，原始日志与签名产物归档 `phase6-3/ios-input-locked-attempt1`，停止无效等待并保留退出码；这是环境原因，无代码修复。用户确认解锁后做同一冻结构建的1次复验，未更改手机设置。
+- 用户解锁后同一iOS Input构建重试一次通过，20/20真实触摸与专项；PENDING重置读回、启动日志和最终Player报告均保留。`ios-input-signature-audit.json`确认Team与bundle ID、strict签名均PASS；环境同因未改代码。iOS Legacy/Input最终50样本p50/p95/max分别33.3404/35.6558/36.0449ms、33.3384/35.7671/36.1722ms，三项收敛均0。四真机组合80/80，汇总 `phase6-3/final-device-performance.json`，无额外真机操作待做。
+
+6.3 最终验收（冻结源码 `cdac3ee964fddc1172a44bd22de1fca874dd1ef1`）
+
+- [x] Unity 2022.3.62f2 的 Android/iOS × Legacy/Input × smoke/clean 共 8 个 ARM64 IL2CPP 构建通过。最后一批 iOS clean 为 `20261107T041000503371-f13384`。`phase6-3/native-matrix-supplement.json` 保留 APK 实际 ABI、iOS Mach-O 架构及四个 clean 的程序集排除审计。
+- [x] Xiaomi M2012K11AC / Android 13 与 iPhone 13 / iOS 18.4 的四个 smoke 组合共 80/80 项通过。性能原始数据见 `phase6-3/final-device-performance.json`。采样范围为开发验证 Player 的缓存 Open/Close，涵盖等待帧。iOS 实际签名由已授权的现有开发身份完成，商店签名与发布另行处理。
+- [x] 两后端 Git 安装/生成/编译审计通过。原始批次 `install-checks/20261107T041521206022-995c65`，审计 `phase6-3/git-install-stable-audit.json`。prepare-only 原始退出码 1 符合预期，唯一原因是该命令仅做安装和编译。
+- [x] [远端完整 Editor 作业](https://github.com/wulato/Wulato.UIKit/actions/runs/42334522342) 通过。Python 264 项，Unity 970 项（Legacy 233 EditMode / 248 PlayMode，Input 236 / 253），20 组 Reload、40 次实际 Play 和 G0。artifact `13560841544` 的 1,108 个文件已下载并核验，ZIP SHA256 为 `30c2820484cc578f509e5242a60a371680ae5f9d547d74b6351a4e0ecd376af7`。原始证据与摘要位于 `Artifacts/uikit/phase6-3/`。临时 runner 已自动注销，仓库 runner 数为 0。
+- [x] 最终 Release Gate 11/11 PASS，报告 `Artifacts/uikit/release-20261107T070138716527/release-report.json`，源码指纹 `a92685d8be801358b0876f0aa58708a7265b0b8d1a18b79d2ce18f5a0d16ed18`。此后的验收记录提交只更新本计划。
+- [ ] 6.3 PR 等待用户审核与合并确认。发布和打标签由后续明确指令触发。

@@ -66,7 +66,7 @@ namespace Wulato.UIKit.Acceptance.Editor
                 if(!mapping.Get(new UIViewTypeKey("generated-"+name)).Accepts(MobileSmokeRunner.GeneratedArguments(name)))throw new InvalidOperationException("Mobile fixture argument mismatch: "+name);
             var request=JsonUtility.FromJson<Wulato.UIKit.Editor.Verification.UIPlayerBuild.Request>(File.ReadAllText(Environment.GetEnvironmentVariable("UIKIT_BUILD_REQUEST")));
             runner.buildId=request.build_id;runner.phase=string.IsNullOrEmpty(request.phase)?"phase1":request.phase;
-            if(runner.phase=="phase2")runner.flowRegistry=AssetDatabase.LoadAssetAtPath<UIRegistry>("Assets/Samples/Wulato UIKit/BusinessFlow/BusinessFlowRegistry.asset");
+            if(runner.phase=="phase2"||runner.phase=="uikit05")runner.flowRegistry=AssetDatabase.LoadAssetAtPath<UIRegistry>("Assets/Samples/Wulato UIKit/BusinessFlow/BusinessFlowRegistry.asset");
             EditorSceneManager.SaveScene(scene,"Assets/UIKitMobileSmokeScene.unity");AssetDatabase.SaveAssets();
         }
     }

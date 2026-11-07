@@ -52,3 +52,22 @@ class PhaseTwoGateTests(unittest.TestCase):
         from release_gate import assess_build
         report=dict(status='PASS',phase='phase2',fingerprint='current',source_after='current',generation_compiled=True,profile='clean',build_id='build',architecture='ARM64',scripting_backend='IL2CPP',player_assemblies=['Wulato.UIKit.dll'])
         self.assertIn('phase2-runtime-assemblies',assess_build(report,'current',phase='phase2'))
+
+class UIKit05GateTests(unittest.TestCase):
+    def test_old_cases_cannot_satisfy_current_phase(self):
+        r=ReleaseGateTests().report();r['phase']='uikit05'
+        errors=assess_mobile(r,'build','current','uikit05')
+        self.assertIn('smoke-cases',errors);self.assertIn('missing-device-performance',errors)
+    def test_performance_requires_finite_ordered_samples_and_convergence(self):
+        from release_gate import assess_performance
+        r=dict(model='device',os='os',cpu='cpu',gpu='gpu',unity='2022.3.62f2',architecture='ARM64',scope='cached-open-close',samples=50,warmup=5,p50Ms=1,p95Ms=2,maxMs=3,activeLeasesAfterClear=0,pendingCleanupAfterClear=0,inputLocksAfterClear=0)
+        self.assertEqual([],assess_performance(r))
+        for key,value in [('p50Ms',float('nan')),('p95Ms',4),('samples',0),('inputLocksAfterClear',1)]:
+            bad=dict(r);bad[key]=value;self.assertTrue(assess_performance(bad))
+    def test_ios_export_cannot_satisfy_native_build(self):
+        from release_gate import assess_build
+        self.assertIn('ios-export-is-not-native-compile',assess_build({'phase':'uikit05','target':'iOS'},'now','uikit05'))
+    def test_missing_full_editor_envelope_fails_closed(self):
+        import tempfile
+        from release_gate import assess_editor_artifact
+        with tempfile.TemporaryDirectory() as d:self.assertTrue(assess_editor_artifact(d))

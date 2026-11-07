@@ -4,14 +4,14 @@ on:
     inputs:
       phase:
         type: choice
-        options: [phase2, phase1]
-        default: phase2
+        options: [uikit05, phase2, phase1]
+        default: uikit05
         description: Explicit acceptance contract
       scope:
         type: choice
         options: [android, release]
         default: release
-        description: Android merge gate or full eight-combination release gate
+        description: Android merge gate or full configured release matrix
 permissions:
   contents: read
 concurrency:
@@ -22,6 +22,7 @@ jobs:
     runs-on: [self-hosted, macOS, uikit-phase1-mobile]
     timeout-minutes: 720
     env:
+      UIKIT_EDITOR_ARTIFACT: ${{ vars.UIKIT_EDITOR_ARTIFACT }}
       UIKIT_IOS_TEAM: ${{ vars.UIKIT_IOS_TEAM }}
       UIKIT_ANDROID_DEVICE: ${{ vars.UIKIT_ANDROID_DEVICE }}
       UIKIT_IOS_DEVICE: ${{ vars.UIKIT_IOS_DEVICE }}
@@ -55,3 +56,4 @@ jobs:
             Artifacts/uikit/**/*.command.json
             Artifacts/uikit/**/command.json
             Artifacts/uikit/**/trace.json
+            !Artifacts/uikit/**/*private*

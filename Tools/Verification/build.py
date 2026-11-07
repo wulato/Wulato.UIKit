@@ -1,6 +1,6 @@
 from editor_targets import PROFILES
 """Pinned Git consumer installation and staged ARM64/IL2CPP builds."""
-import datetime,hashlib,io,json,os,re,shutil,subprocess,tarfile,uuid
+import datetime,hashlib,io,json,os,re,shutil,subprocess,tarfile,uuid,zipfile
 from pathlib import Path
 
 def merge_player_report(result,report):
@@ -119,7 +119,7 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
     from runtime import EXTENSIONS
     selected=selected_packages(phase,package_set)
     for name in selected:deps[name]='git+'+source.as_uri()+'?path=Packages/'+name+'#'+revision
-    if phase=='phase3' and package_set!='main':
+    if phase in ('phase3','uikit05') and package_set!='main':
         from addressables_content import VERSIONS as ADDRESSABLES_VERSIONS
         deps.update(dict(zip(('com.unity.addressables','com.unity.scriptablebuildpipeline'),ADDRESSABLES_VERSIONS[ver])))
     if profile=='smoke':
@@ -130,23 +130,45 @@ def prepare_consumer(host,ver,backend,source,revision,profile,phase="phase1",pac
         # Enable this copied, non-TestAssemblies entry only in dedicated smoke consumers.
         definition=host/'Assets/UIKitMobileSmoke/Wulato.UIKit.MobileSmoke.asmdef'
         data=json.loads(definition.read_text());data.pop('defineConstraints',None)
-        if phase=='phase2':
+        if phase in ('phase2','uikit05'):
             data['references']+=['Wulato.UIKit.Samples.BusinessFlow']
             data['versionDefines']=[dict(name='com.wulato.uikit',expression='0.5.0',define='UIKIT_PHASE2_SMOKE')]
+            if phase=='uikit05':
+                data['references']+=['Wulato.UIKit.Addressables','Unity.Addressables','Unity.ResourceManager','Wulato.UIKit.Samples.Addressables']
+                data['versionDefines'].append(dict(name='com.wulato.uikit',expression='0.5.0',define='UIKIT_05_SMOKE'))
         run.dump(definition,data)
         editor=host/'Assets/UIKitMobileSmoke/Editor';editor.mkdir()
         body=(run.V/'Packages/com.wulato.uikit.acceptance/Editor/MobileSmokeSceneBuilder.cs').read_text().replace('#if UIKIT_MOBILE_SMOKE','').replace('#endif','')
         (editor/'MobileSmokeSceneBuilder.cs').write_text(body)
         run.dump(editor/'Wulato.UIKit.MobileSmoke.Editor.asmdef',dict(name='Wulato.UIKit.MobileSmoke.Editor',references=['Wulato.UIKit.MobileSmoke','Wulato.UIKit','Wulato.UIKit.Editor','UnityEngine.UI'],includePlatforms=['Editor']))
     run.dump(host/'Packages/manifest.json',dict(dependencies=deps))
-    if phase in ('phase2','phase3') and package_set=='all':copy_sample('com.wulato.uikit','BusinessFlow')
-    if phase=='phase3' and package_set!='main':
+    if phase in ('phase2','phase3','uikit05') and package_set=='all':copy_sample('com.wulato.uikit','BusinessFlow')
+    if phase in ('phase3','uikit05') and package_set!='main':
         copy_sample('com.wulato.uikit','LocalInventory')
         probe=host/'Assets/AddressablesCompileProbe';probe.mkdir()
-        run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit','Wulato.UIKit.Addressables']))
+        run.dump(probe/'AddressablesCompileProbe.asmdef',dict(name='UIKit.AddressablesConsumer',references=['Wulato.UIKit','Wulato.UIKit.Addressables'],**({'includePlatforms':['Editor']} if phase=='uikit05' else {})))
         (probe/'Probe.cs').write_text('public static class AddressablesCompileProbe { public static Wulato.UIKit.UIContextBuilder Compose(Wulato.UIKit.UIContextBuilder b) => b.WithLoader(new Wulato.UIKit.AddressablesUIViewLoader()); }\n')
     for name in ('QuickStart','Modals','Inventory'):
         copy_sample('com.wulato.uikit',name)
+
+def addressables_payload(output,target):
+    output=Path(output)
+    if target=='Android':
+        with zipfile.ZipFile(output) as archive:names=archive.namelist()
+    else:names=[p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file()]
+    names=[n for n in names if '/aa/' in '/'+n]
+    if not any('/aa/'+target+'/' in '/'+n and n.endswith('.bundle') for n in names):
+        raise ValueError('missing-target-addressables-bundle:'+target)
+    if not any(Path(n).name.startswith('catalog.') for n in names):raise ValueError('missing-addressables-catalog')
+    return sorted(names)
+
+def compile_ios_native(output,out,timeout):
+    """Compile the exported ARM64 project without accessing signing accounts."""
+    cmd=['xcodebuild','-project',str(Path(output)/'Unity-iPhone.xcodeproj'),
+         '-scheme','Unity-iPhone','-configuration','Release','-sdk','iphoneos',
+         '-destination','generic/platform=iOS','-derivedDataPath',str(out/'UnsignedDerivedData'),
+         'ARCHS=arm64','CODE_SIGNING_ALLOWED=NO','build']
+    return command(cmd,out/'ios-native-compile.log',timeout)==0
 
 def run_build(args):
     import run
@@ -179,7 +201,7 @@ def run_build(args):
                         env=os.environ.copy();env.update(UIKIT_BUILD_REQUEST=str((out/'request.json').resolve()),UIKIT_EVIDENCE_DIR=str(out.resolve()))
                         def addressable_stage(name,method):
                             log=out/(name+'.log')
-                            cmd=[str(exe),'-batchmode','-quit','-projectPath',str(host),'-executeMethod','Wulato.UIKit.Samples.Addressables.Editor.LocalInventorySetup.'+method,'-logFile',str(log)]
+                            cmd=[str(exe),'-batchmode','-quit',*(['-buildTarget',target] if phase=='uikit05' else []),'-projectPath',str(host),'-executeMethod','Wulato.UIKit.Samples.Addressables.Editor.LocalInventorySetup.'+method,'-logFile',str(log)]
                             rc=command(cmd,out/(name+'-stdout.log'),args.timeout,env)
                             body=log.read_text(errors='replace') if log.exists() else ''
                             body=re.sub(r'(Serial number assigned to: ).*',r'\1[REDACTED]',body);log.write_text(body)
@@ -187,12 +209,12 @@ def run_build(args):
                         # Generate and complete run in distinct editor invocations; build only validates.
                         for step,method in [('01-import','PrepareSamples'),('02-generate','Generate'),('03-complete','Complete'),('04-wire','Wire'),('05-compile-validate','Validate'),('06-build','Build')]:
                             if args.prepare_only and method=='Build':continue
-                            log=out/(step+'.log');cmd=[str(exe),'-batchmode','-quit','-projectPath',str(host),'-executeMethod','Wulato.UIKit.Editor.Verification.UIPlayerBuild.'+method,'-logFile',str(log)]
+                            log=out/(step+'.log');cmd=[str(exe),'-batchmode','-quit',*(['-buildTarget',target] if phase=='uikit05' else []),'-projectPath',str(host),'-executeMethod','Wulato.UIKit.Editor.Verification.UIPlayerBuild.'+method,'-logFile',str(log)]
                             rc=command(cmd,out/(step+'-stdout.log'),args.timeout,env)
                             body=log.read_text(errors='replace') if log.exists() else ''
                             body=re.sub(r'(Serial number assigned to: ).*',r'\1[REDACTED]',body);log.write_text(body)
                             if rc or re.search(r'error CS\d+|Scripts have compiler errors',body) or 'UIKIT_BUILD_STAGE_OK' not in body:raise ValueError('stage-failed:'+step)
-                            if phase=='phase3' and package_set!='main':
+                            if phase in ('phase3','uikit05') and package_set!='main':
                                 if method=='PrepareSamples':addressable_stage('01-addressables-author','Author')
                                 if method=='Wire':addressable_stage('04-addressables-scene','FinalizeSample')
                             if method=='Generate' and args.profile=='smoke':
@@ -206,12 +228,19 @@ def run_build(args):
                             result.update(status='BLOCKED',install_status='PASS',errors=['prepare-only; no mobile Player built'])
                         else:
                             report=json.loads((out/'build-report.json').read_text());result=merge_player_report(result,report)
+                        if not args.prepare_only and phase=='uikit05':
+                            result['addressables_content']=addressables_payload(result['output'],target)
+                            result['addressables_platform']=target
+                        if not args.prepare_only and phase=='uikit05' and target=='iOS':
+                            result['native_compiled']=compile_ios_native(result['output'],out,args.timeout)
+                            result['native_signed']=False
+                            if not result['native_compiled']:raise ValueError('ios-unsigned-native-compile-failed')
                         result['generation_compiled']=True
                         lock=host/'Packages/packages-lock.json';shutil.copy2(lock,out/'packages-lock.json')
                         dependencies=json.loads(lock.read_text())['dependencies']
                         for name in ('com.wulato.uikit',):
                             if dependencies[name].get('source')!='git' or revision not in dependencies[name].get('version',''):raise ValueError('not-pinned-git-install:'+name)
-                        if phase=='phase3':validate_phase3_install(out,ver,backend,package_set,revision)
+                        if phase in ('phase3','uikit05'):validate_phase3_install(out,ver,backend,package_set,revision)
                         result['dependency_lock_sha256']=hashlib.sha256(lock.read_bytes()).hexdigest()
                 except (OSError,ValueError,subprocess.SubprocessError,KeyError) as e:
                     result.update(status='FAIL',install_status='FAIL');result['errors'].append(str(e))
@@ -228,6 +257,8 @@ def run_build(args):
 def validate_build_scope(args):
     phase=getattr(args,'phase','phase1');scope=getattr(args,'package_set','all')
     if scope in ('navigation','dialogs','presentation','popup-queue'):return ['Package migration: business modules are included in main; remove old package references.']
+    if phase=='uikit05':
+        return [] if scope=='all' else ['uikit05 mobile contract requires single main package plus Addressables SDK (all scope)']
     if phase=='phase3':
         return [] if args.profile=='clean' and args.prepare_only and scope in ('main','addressables','all') else ['phase3 requires clean prepare-only and main/addressables/all']
     if scope=='addressables' or (scope!='all' and (phase!='phase2' or not args.prepare_only or args.profile!='clean')):return ['single-package scope requires phase2 clean prepare-only']
