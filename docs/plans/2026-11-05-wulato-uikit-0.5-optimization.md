@@ -1093,3 +1093,7 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - Python完整259项PASS（`python-final.*`）；新增平台资源断言后相关64项PASS（`python-platform-repair1.*`），尚待最终稳定输入全集。未自动修复Runtime或放宽测试；未执行iOS签名/门户更新，未发布。
 - 平台修复后 Android Legacy ARM64 IL2CPP构建及真机20/20项PASS：`Artifacts/uikit/mobile/20261107T024940495242-cca79a`；APK含Android bundle/catalog。真人再次点击TouchClose，SDK缓存/取消/迟到释放全部通过；Single场景修复同因1轮、目标平台修复同因1轮，均已针对性通过。原始两轮APK/日志保留，不以其旧指纹作为最终冻结矩阵。
 - 本机Xiaomi M2012K11AC / Android13 / Adreno650，5预热+50缓存Open/Close：p50 33.0578ms、p95 35.6452ms、max36.5314ms，managed 1482752→1712128字节；清缓存后lease/pending/inputLock均0。不是FPS或零分配验收。最终Python261项PASS与diff check PASS，`Artifacts/uikit/phase6-3/python-frozen.*`。先冻结实现提交，再执行剩余矩阵与最终门禁；此处不声明完整发布通过。
+- 用户明确授权：6.3可复用已校验Runner2.338.2，临时ephemeral、无服务/新scope；可使用现有Team YQT997BSB9开发身份与覆盖iPhone13的通配描述文件，仅签名安装两个v05 smoke应用，无私钥导出/门户更新。Runner归档再次SHA256核对一致；配置与设备详情不提交。6.3 runner将使用独立工作目录，保留6.2工作目录和归档。
+- 冻结候选19b7075已推送。Legacy iOS ARM64 IL2CPP+实际unsigned原生编译PASS（`20261107T025406090276-a6c935`），native_signed=false；Android Input构建与真机20/20 PASS（`20261107T025727778780-e702a4`）。首次Input安装由手机取消，原始证据归档 `phase6-3/android-input-install-attempt1`；用户明确要求重装并手动允许后通过，不修改手机安全设置，不计Runtime自动修复。
+- 执行器审查发现iOS同构建重跑可能读取旧报告：启动前写入随机nonce的PENDING标记并读回验证，再等待Player结果；写入/读回失败或旧PASS均拒绝。补充两项反陈旧测试，完整Python263项PASS（`python-freshness.*`）。这是门禁修复，不修改业务Runtime。源码指纹因此更新，此前移动结果只保留为专项依据，不冒充最终发布矩阵。
+- 旧冻结候选远端full run42331904011已完成hosted计划/Python，原生editor尚在排队；主动取消旧候选的未开始作业，避免输入已更新后重复跑全量。准备新冻结提交后只运行一次稳定完整门禁，保留旧run结果。

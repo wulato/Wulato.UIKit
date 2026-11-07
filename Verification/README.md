@@ -354,3 +354,5 @@ python3 Tools/Verification/run.py gate --name release --phase uikit05
 ```
 
 The gate revalidates the full Editor/Reload/G0 envelope and all mobile/build/device/install evidence against the current source fingerprint. A previous 6.2 artifact with a different fingerprint cannot substitute. The optional mobile workflow continues from that envelope; it does not create or register a runner, install SDKs, grant signing permission, or publish a release. Configure a dedicated authorized runner and matching artifact first. Keep private device/signing inventories outside uploaded evidence and never upload signing keys or credentials.
+
+Before each iOS launch, the executor writes a unique `PENDING` marker to this test application's report path and verifies it by copying it back. It waits for the Player to replace the marker with the final report; a retained report from an earlier launch cannot satisfy the physical-tap gate. Failed reset or mismatched readback stops validation. No other application data is cleared.

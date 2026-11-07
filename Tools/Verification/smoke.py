@@ -1,5 +1,5 @@
 """Install and launch the exact smoke build; archive raw transport and Player report."""
-import json,os,re,subprocess,time
+import json,os,re,subprocess,time,uuid
 from pathlib import Path
 from build import command,source_fingerprint,file_index,verify_files
 from release_gate import assess_mobile,assess_build
@@ -20,6 +20,17 @@ def android_report_path(package,user):
 
 def validate_player_report(raw,summary):
     return ['raw-player-report:'+key for key in ('build_id','status','cases','phase','performance') if raw.get(key)!=summary.get(key)]
+
+def reset_ios_report(device,package,out):
+    """Verify a unique pending marker before launch; old PASS must never be reused."""
+    marker=dict(status='PENDING',nonce=uuid.uuid4().hex)
+    pending=out/'pending-report.json';pending.write_text(json.dumps(marker))
+    common=['xcrun','devicectl','device','copy']
+    domain=['--device',device,'--domain-type','appDataContainer','--domain-identifier',package]
+    remote='Documents/uikit-smoke.json';verified=out/'reset-verified.json'
+    if command(common+['to',*domain,'--source',str(pending),'--destination',remote],out/'reset-write.log',30):raise ValueError('cannot-reset-iOS-device-report')
+    if command(common+['from',*domain,'--source',remote,'--destination',str(verified)],out/'reset-read.log',30):raise ValueError('cannot-verify-iOS-device-report-reset')
+    if json.loads(verified.read_text())!=marker:raise ValueError('iOS-device-report-reset-mismatch')
 
 def smoke(args):
     import run
@@ -82,13 +93,18 @@ def smoke(args):
                     app=apps[0];package=build['application_id']
                     result['installed']=command(['xcrun','devicectl','device','install','app','--device',args.device,str(app)],out/'install.log',args.timeout)==0
                     if not result['installed']:raise ValueError('iOS-install-failed')
+                    reset_ios_report(args.device,package,out)
                     result['launched']=command(['xcrun','devicectl','device','process','launch','--device',args.device,'--terminate-existing',package],out/'launch.log',60)==0
                     deadline=time.monotonic()+args.timeout
                     while time.monotonic()<deadline:
                         dest=out/'player-report.json'
                         rc=command(['xcrun','devicectl','device','copy','from','--device',args.device,'--domain-type','appDataContainer','--domain-identifier',package,'--source','Documents/uikit-smoke.json','--destination',str(dest)],out/'copy.log',30)
                         if rc==0 and dest.is_file():
-                            raw=json.loads(dest.read_text())
+                            try:raw=json.loads(dest.read_text())
+                            except json.JSONDecodeError:
+                                time.sleep(1);continue
+                            if raw.get('status')=='PENDING':
+                                time.sleep(1);continue
                             if raw.get('build_id')!=build['build_id']:raise ValueError('player-build-id-mismatch')
                             result.update(status=raw.get('status','FAIL'),cases=raw.get('cases',[]),performance=raw.get('performance'));break
                         time.sleep(1)

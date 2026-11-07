@@ -30,3 +30,33 @@ class MobileEvidenceTests(unittest.TestCase):
         from smoke import ios_device_candidates
         for connection in ({'pairingState':'paired','tunnelState':'unavailable'},{'pairingState':'unpaired','tunnelState':'connected'}):
             self.assertEqual([],ios_device_candidates([{'identifier':'physical','connectionProperties':connection}],'physical'))
+
+class IOSReportFreshnessTests(unittest.TestCase):
+    def test_reset_requires_roundtrip_of_unique_pending_marker(self):
+        from smoke import reset_ios_report
+        from unittest.mock import patch
+        import tempfile,json
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            out=Path(d);calls=[]
+            def copy(cmd,log,timeout):
+                calls.append(cmd)
+                if 'from' in cmd:
+                    (out/'reset-verified.json').write_text((out/'pending-report.json').read_text())
+                return 0
+            with patch('smoke.command',side_effect=copy):reset_ios_report('device','test.package',out)
+            marker=json.loads((out/'pending-report.json').read_text())
+            self.assertEqual('PENDING',marker['status']);self.assertTrue(marker['nonce'])
+            self.assertEqual(['to','from'],[cmd[4] for cmd in calls])
+            for cmd in calls:self.assertIn('appDataContainer',cmd);self.assertIn('test.package',cmd)
+    def test_old_pass_and_failed_reset_are_rejected(self):
+        from smoke import reset_ios_report
+        from unittest.mock import patch
+        import tempfile,json
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as d:
+            out=Path(d);(out/'reset-verified.json').write_text(json.dumps({'status':'PASS'}))
+            with patch('smoke.command',return_value=0):
+                with self.assertRaisesRegex(ValueError,'reset-mismatch'):reset_ios_report('device','test.package',out)
+            with patch('smoke.command',return_value=1):
+                with self.assertRaisesRegex(ValueError,'cannot-reset'):reset_ios_report('device','test.package',out)
