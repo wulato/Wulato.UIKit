@@ -1,4 +1,4 @@
-#if UIKIT_PHASE2_SMOKE
+#if UIKIT_PHASE2_SMOKE || UIKIT_05_SMOKE
 using System;
 using System.Linq;
 using System.Threading;

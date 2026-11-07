@@ -1068,10 +1068,28 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 临时runner每次单作业自动注销，最终API total_count=0，`.runner`/`.credentials`/服务配置不存在；没有安装服务/开机项或扩大GitHub scope。后续Unity CI仍需标签uikit-05-editor的专用或临时runner，hosted Python不依赖它。
 - [x] 集中差异审查：CI拆分/冻结/可信分支条件、可移植原始审计、full隔离/G0同宿主、严格Localization图边界、两处Input测试0.5常量及回归/文档；基础Runtime/API/SDK版本/MC未改。未放宽RAW、必需用例、零匹配/跳过/失败、hash/注册/输入变化规则；evidence.verify默认本地路径行为不变。
 - [x] 已推送最终记录并创建 [任务6.2 PR #17](https://github.com/wulato/Wulato.UIKit/pull/17)（main ← chore/uikit-0.5-editor-ci）；受验代码仍为da7f625，记录提交不改变源码指纹。
-- [ ] 等待用户确认合并PR #17；不执行6.3或发布。
+- [x] 用户确认后普通合并 PR #17，merge `249b0975b9a0ab2901438dc842f4351cca5f0907`；从最新 main 开始 6.3，不发布。
 
 原始来源：`Artifacts/uikit/phase6-2/downloads/<GitHubRunID>/`保存ZIP/API/receipt/完整产物；`full-final-run.json`、`runners-final.json`记录远端状态，runner配置/监听日志保留。官方归档及哈希receipt保留；只删除本任务已合成归档的冗余Range缓冲，不清理用户文件或旧证据。短时token通过官方遮蔽环境输入传入，没有token命令行或明文输出。
 
 失败账：collector隐藏临时锁1轮、canonical旧样例污染1轮、Input旧版本断言1轮，均已解决；前期Python工作流断言/Localization程序集清单各1轮、G0单测macOS路径别名1轮均已解决，同因未超过两轮。旧失败run42231259000（下载审计）、42234297368（宿主准备）、42235868429（版本断言）及下载数据保留，不改写为PASS。最终验证完成后写记录时自动审批审查因用量上限未能完成，写入未执行；2026-11-07用户要求继续后收尾，不重复已通过门禁。
 
 限制：本full仅默认2022.3.62f2与legacy/input，包含Addressables/Input SDK；DOTween/R3/Fancy/Localization未在本full宿主启用，不属于当前适用全集；6.1独立证据保留但不冒称本次重验。未执行其他Unity、Both独立配置、Android/iOS Player/IL2CPP、真机/性能/Release Gate。临时runner不是常驻隔离机器；6.3仍受前置PR审核合并及工具链/设备/签名授权约束。可revert本CI/验证改动，保留失败，不降低门禁。
+
+
+### 6.3 执行记录（2026-11-07，进行中）
+
+- 基线 `249b0975b9a0ab2901438dc842f4351cca5f0907`，分支 `chore/uikit-0.5-mobile-release-gate`；STANDARD，复用已批准设计，按发布门禁选择验证，不启动子代理/新 worktree，不修改 MC。
+- 工具链：Unity 2022.3.62f2 的 AndroidPlayer/iOSSupport 模块、Android SDK34/NDK23.1.7779620/JDK、Xcode26.0.1 均存在。磁盘最初约10–12GiB，按单构建监测，不清理用户内容。Android M2012K11AC / Android13 / ARM64 真机可达；iPhone13 / iOS18.4 初始 tunnel unavailable，用户连接解锁后 connected。设备标识与签名详情仅保存权限600的 private 日志。
+- 只读签名检查确认4个有效身份、16个现有描述文件；开发通配配置覆盖已连接设备，UIKit专用配置临近过期。尚未执行iOS签名、Apple门户更新或安装；既有6.2临时runner授权不扩大为6.3。
+- 新增明确 `uikit05` 验收阶段，保留 phase1/phase2/phase3历史契约；单包、两输入、实际 Addressables SDK。应用使用 `com.wulato.uikit.acceptance.v05.<backend>.<profile>`，避免覆盖旧测试应用。核心 Runtime/API 不变。
+- 移动夹具覆盖当前页面 API、Popup取消、缓存 Session隔离、真实Addressables租约的缓存/取消/迟到释放；Player采集5次预热+50次缓存Open/Close的p50/p95/max和资源收敛。该采样不是游戏帧率/全局零分配承诺。TouchClose仍要求真人屏幕点击。
+- 新增iOS导出后 unsigned ARM64 xcodebuild，禁止把Unity导出当native compile；设备执行器不再带 `-allowProvisioningUpdates`。0.5 Release Gate校验单Runtime、完整20项设备用例/性能和当前源码绑定的full Editor/Reload/G0原始artifact，缺失即失败。
+- 首次Unity prepare-only真实编译通过，证据 `Artifacts/uikit/install-checks/20261107T023552674568-fba8da`；预期退出1仅表示未构建Player，install PASS/generation compiled，不能算移动通过。
+- Python首轮259项：258通过、1新增测试自身mock错误（空Git样本）；复用已有真实样本fixture修复1轮，相关6项通过。记录 `Artifacts/uikit/phase6-3/python-initial.*`、`python-repair1.*`，未放宽断言。
+- 当前Android Legacy smoke真实ARM64 IL2CPP构建进行中：`Artifacts/uikit/mobile/20261107T024106235850-18679b`。其余构建/真机/性能/最终Editor与Release Gate尚未验收；待结果追加，不提前标记完成。
+- Android首次真机：基础7项与历史业务6项共13项PASS，新增页面夹具误用Single页面触发AlreadyOpen；按契约改为PopTo关闭Settings后再Replace、验证根Back及重新打开隔离，夹具同因修复1轮。原始Player报告 `Artifacts/uikit/phase6-3/android-legacy-player-probe.json`、设备报告与日志保留。该轮未完成性能，不计移动验收通过。
+- APK内容审查发现既有构建执行器未在Unity启动时选平台，Addressables实际打包StandaloneOSX bundle（APK中可复核），为独立原因；补齐uikit05的`-buildTarget`，并要求实际APK/Xcode目录含目标平台bundle和catalog，防止仅BuildPlayer成功即PASS。Android平台原因修复1轮进行中。消费项目编译探针限Editor，避免进入clean Player。
+- Python完整259项PASS（`python-final.*`）；新增平台资源断言后相关64项PASS（`python-platform-repair1.*`），尚待最终稳定输入全集。未自动修复Runtime或放宽测试；未执行iOS签名/门户更新，未发布。
+- 平台修复后 Android Legacy ARM64 IL2CPP构建及真机20/20项PASS：`Artifacts/uikit/mobile/20261107T024940495242-cca79a`；APK含Android bundle/catalog。真人再次点击TouchClose，SDK缓存/取消/迟到释放全部通过；Single场景修复同因1轮、目标平台修复同因1轮，均已针对性通过。原始两轮APK/日志保留，不以其旧指纹作为最终冻结矩阵。
+- 本机Xiaomi M2012K11AC / Android13 / Adreno650，5预热+50缓存Open/Close：p50 33.0578ms、p95 35.6452ms、max36.5314ms，managed 1482752→1712128字节；清缓存后lease/pending/inputLock均0。不是FPS或零分配验收。最终Python261项PASS与diff check PASS，`Artifacts/uikit/phase6-3/python-frozen.*`。先冻结实现提交，再执行剩余矩阵与最终门禁；此处不声明完整发布通过。

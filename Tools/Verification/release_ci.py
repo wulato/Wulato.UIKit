@@ -15,9 +15,41 @@ def assess_install_record(record,folder,phase,current_fingerprint):
     if record.get('errors')!=['prepare-only; no mobile Player built']:errors.append('unexpected-install-blocker')
     return errors
 
+def uikit05():
+    """Mobile continuation of an independently verified, matching full Editor run."""
+    import release_gate
+    errors=release_gate.assess_editor_artifact(os.environ.get('UIKIT_EDITOR_ARTIFACT',''))
+    if errors:
+        print('BLOCKED full Editor/Reload/G0 artifact',errors);return 1
+    failures=[]
+    target='all' if os.environ.get('UIKIT_RELEASE_SCOPE','release')=='release' else 'Android'
+    from build import latest_attempt,source_fingerprint
+    for backend in ('legacy','input'):
+        cli('build','--phase','uikit05','--editor','2022.3.62f2','--backend',backend,'--target','Android','--profile','smoke','--prepare-only')
+        folder=latest_attempt(run.A/'install-checks','2022.3.62f2',backend,'Android','smoke','uikit05')
+        try:
+            record=json.loads((folder/'summary.json').read_text())
+            if assess_install_record(record,folder,'uikit05',source_fingerprint()):failures.append('Git install:'+backend)
+        except (OSError,ValueError,TypeError):failures.append('missing Git install:'+backend)
+        for profile in ('smoke','clean'):
+            if cli('build','--phase','uikit05','--editor','2022.3.62f2','--backend',backend,'--target',target,'--profile',profile):
+                failures.append('build:'+backend+'/'+profile)
+    # Physical taps remain required. Never synthesize TouchClose in CI.
+    from build import latest_attempt
+    for ver,backend,platform in release_gate.combinations():
+        if target=='Android' and platform!='Android':continue
+        folder=latest_attempt(run.A/'mobile',ver,backend,platform,'smoke','uikit05')
+        device=os.environ.get('UIKIT_ANDROID_DEVICE' if platform=='Android' else 'UIKIT_IOS_DEVICE')
+        if not folder or not device:failures.append('missing-build-or-device:'+backend+'/'+platform);continue
+        if cli('smoke','--build',str(folder),'--device',device,'--timeout','900'):failures.append('smoke:'+backend+'/'+platform)
+    if target=='all' and cli('gate','--name','release','--phase','uikit05'):failures.append('release')
+    print('CI FAILURES',failures)
+    return int(bool(failures))
+
 def main():
     failures=[]
     phase=os.environ.get('UIKIT_ACCEPTANCE_PHASE','phase1')
+    if phase=='uikit05':return uikit05()
     if phase not in ('phase1','phase2'):raise ValueError('Unknown acceptance phase')
     tools=run.A/'phase2/ci-tools.log';tools.parent.mkdir(parents=True,exist_ok=True)
     with tools.open('w') as log:

@@ -332,3 +332,25 @@ python3 Tools/Verification/ci_artifact.py verify --folder <下载目录> --revis
 官方依据：[self-hosted runner与ephemeral生命周期](https://docs.github.com/en/actions/reference/runners/self-hosted-runners)、[可信代码与最小权限](https://docs.github.com/en/actions/reference/security/secure-use)。
 
 full与专项均从空Assets的隔离宿主准备，不启动带历史样例副本的canonical Assets。G0通过同一冻结host-root读取实际当前宿主、复核最新已注册结果及全部原始索引；缺失注册/原始文件/新失败仍阻断旧绿色结果，不用清理历史目录获取通过。未指定host-root的历史G0入口仍保留canonical行为。
+
+### UIKit 0.5 mobile release contract (`uikit05`)
+
+Historical `phase1`/`phase2` evidence is retained; it does not satisfy 0.5. Use the default editor 2022.3.62f2, both `legacy` and `input`, both Android/iOS, and `smoke`/`clean` profiles:
+
+```sh
+python3 Tools/Verification/run.py build --phase uikit05 --editor 2022.3.62f2 --backend legacy --target Android --profile smoke
+```
+
+The consumer imports one UIKit Git package and the pinned optional Addressables SDK; the Input SDK is installed only for the Input backend. Build identifiers, dependency lock, generated assembly graph, raw logs and hashes remain mandatory. A smoke Player contains 20 required cases, including current page navigation, Popup cancellation, Session isolation and real Addressables late lease disposal. `TouchClose` requires a person to tap the displayed button. Do not substitute programmatic clicks. The dedicated application identifier is `com.wulato.uikit.acceptance.v05.<backend>.<profile>`; inspect it before installation. Smoke Players are development builds; clean Players must exclude acceptance/test assemblies and contain the single foundation Runtime.
+
+Performance is measured inside the actual Player: five warmups, fifty cached Open/Close cycles, p50/p95/max wall time, managed memory snapshots and resource convergence after ClearCache. Record the device/OS/CPU/GPU/editor and sample scope. These numbers do not establish a game FPS budget or zero allocations. Missing, non-finite or incomplete samples fail the gate.
+
+An iOS Unity export is followed by an unsigned `xcodebuild` for generic physical iOS/ARM64 with `CODE_SIGNING_ALLOWED=NO`; export alone is not native compilation. Device smoke requires a connected, trusted physical device and separately authorized local signing identity/team/profile. The executor does not pass `-allowProvisioningUpdates`: creating/updating App IDs, device registrations or provisioning profiles needs separate authorization. Missing tools, disk space, signing or devices are blockers, not passes.
+
+For the final gate, set `UIKIT_EDITOR_ARTIFACT` to the **complete source-matching full Editor CI artifact directory** (`artifact.json` and unchanged raw evidence), then run:
+
+```sh
+python3 Tools/Verification/run.py gate --name release --phase uikit05
+```
+
+The gate revalidates the full Editor/Reload/G0 envelope and all mobile/build/device/install evidence against the current source fingerprint. A previous 6.2 artifact with a different fingerprint cannot substitute. The optional mobile workflow continues from that envelope; it does not create or register a runner, install SDKs, grant signing permission, or publish a release. Configure a dedicated authorized runner and matching artifact first. Keep private device/signing inventories outside uploaded evidence and never upload signing keys or credentials.

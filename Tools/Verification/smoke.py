@@ -19,7 +19,7 @@ def android_report_path(package,user):
     return '/storage/emulated/'+user+'/Android/data/'+package+'/files/uikit-smoke.json'
 
 def validate_player_report(raw,summary):
-    return ['raw-player-report:'+key for key in ('build_id','status','cases','phase') if raw.get(key)!=summary.get(key)]
+    return ['raw-player-report:'+key for key in ('build_id','status','cases','phase','performance') if raw.get(key)!=summary.get(key)]
 
 def smoke(args):
     import run
@@ -53,7 +53,7 @@ def smoke(args):
                             try:
                                 report=json.loads(raw.stdout);(out/'player-report.json').write_text(raw.stdout)
                                 if report.get('build_id')!=build['build_id']:raise ValueError('player-build-id-mismatch')
-                                result.update(cases=report.get('cases',[]),status=report.get('status','FAIL'));break
+                                result.update(cases=report.get('cases',[]),status=report.get('status','FAIL'),performance=report.get('performance'));break
                             except json.JSONDecodeError:pass
                         time.sleep(1)
                     else:raise ValueError('device-report-timeout (TouchClose requires a physical tap)')
@@ -74,7 +74,7 @@ def smoke(args):
                         result['status']='BLOCKED';raise ValueError('iOS-device-details-probe-failed')
                     result['physical_device']=True;result['signing_team_id']=team
                     derived=out/'DerivedData'
-                    result['compiled']=command(['xcodebuild','-project',str(Path(build['output'])/'Unity-iPhone.xcodeproj'),'-scheme','Unity-iPhone','-configuration','Release','-destination','id='+args.device,'-derivedDataPath',str(derived),'DEVELOPMENT_TEAM='+team,'CODE_SIGN_STYLE=Automatic','-allowProvisioningUpdates','build'],out/'xcodebuild.log',args.timeout)==0
+                    result['compiled']=command(['xcodebuild','-project',str(Path(build['output'])/'Unity-iPhone.xcodeproj'),'-scheme','Unity-iPhone','-configuration','Release','-destination','id='+args.device,'-derivedDataPath',str(derived),'DEVELOPMENT_TEAM='+team,'CODE_SIGN_STYLE=Automatic','build'],out/'xcodebuild.log',args.timeout)==0
                     if not result['compiled']:raise ValueError('xcode-compile-sign-failed')
                     app=derived/'Build/Products/Release-iphoneos/UIKit.app'
                     apps=list((derived/'Build/Products/Release-iphoneos').glob('*.app'))
@@ -90,7 +90,7 @@ def smoke(args):
                         if rc==0 and dest.is_file():
                             raw=json.loads(dest.read_text())
                             if raw.get('build_id')!=build['build_id']:raise ValueError('player-build-id-mismatch')
-                            result.update(status=raw.get('status','FAIL'),cases=raw.get('cases',[]));break
+                            result.update(status=raw.get('status','FAIL'),cases=raw.get('cases',[]),performance=raw.get('performance'));break
                         time.sleep(1)
                     else:raise ValueError('iOS-device-report-timeout (TouchClose requires physical tap)')
                 result['errors']+=assess_mobile(result,build['build_id'],source_fingerprint(),build.get('phase','phase1'))

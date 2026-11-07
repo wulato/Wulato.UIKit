@@ -242,3 +242,40 @@ class GitSnapshotTests(unittest.TestCase):
         import run
         with patch.object(run,'R',Path(__file__).resolve().parents[2]),self.assertRaisesRegex(ValueError,'git-snapshot-missing-sample'):
             prepare_consumer(self.root/'consumer','2022.3.62f2','legacy',source,revision,'clean',phase='phase3',package_set='main')
+
+class UIKit05NativeTests(ConsumerFixtureTests):
+    def test_unsigned_ios_compile_never_updates_signing_portal(self):
+        from build import compile_ios_native
+        with patch('build.command',return_value=0) as invoke:
+            self.assertTrue(compile_ios_native('/export',Path('/evidence'),100))
+            args=invoke.call_args.args[0]
+            self.assertIn('CODE_SIGNING_ALLOWED=NO',args)
+            self.assertIn('ARCHS=arm64',args)
+            self.assertNotIn('-allowProvisioningUpdates',args)
+    def test_uikit05_fixture_has_optional_sdk_isolation(self):
+        import run
+        with tempfile.TemporaryDirectory() as d:
+            host=Path(d)/'consumer'
+            prepare_consumer(host,'2022.3.62f2','input',run.R,'a'*40,'smoke','uikit05','all')
+            definition=json.loads((host/'Assets/UIKitMobileSmoke/Wulato.UIKit.MobileSmoke.asmdef').read_text())
+            self.assertIn('Wulato.UIKit.Addressables',definition['references'])
+            self.assertTrue(any(v['define']=='UIKIT_05_SMOKE' for v in definition['versionDefines']))
+
+class MobileContentTests(unittest.TestCase):
+    def test_desktop_bundle_cannot_satisfy_android(self):
+        import zipfile
+        from build import addressables_payload
+        with tempfile.TemporaryDirectory() as d:
+            apk=Path(d)/'test.apk'
+            with zipfile.ZipFile(apk,'w') as z:
+                z.writestr('assets/aa/catalog.json','{}');z.writestr('assets/aa/StandaloneOSX/view.bundle','desktop')
+            with self.assertRaisesRegex(ValueError,'missing-target-addressables-bundle'):addressables_payload(apk,'Android')
+            with zipfile.ZipFile(apk,'a') as z:z.writestr('assets/aa/Android/view.bundle','android')
+            self.assertIn('assets/aa/Android/view.bundle',addressables_payload(apk,'Android'))
+    def test_ios_bundle_requires_catalog(self):
+        from build import addressables_payload
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);bundle=root/'Data/Raw/aa/iOS/view.bundle';bundle.parent.mkdir(parents=True);bundle.write_bytes(b'ios')
+            with self.assertRaisesRegex(ValueError,'missing-addressables-catalog'):addressables_payload(root,'iOS')
+            (root/'Data/Raw/aa/catalog.json').write_text('{}')
+            self.assertTrue(addressables_payload(root,'iOS'))

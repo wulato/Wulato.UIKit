@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 MOBILE_CASES=('DirectReference','Resources','TypeErased','CacheReopen','TouchClose','Shutdown','StrippedGeneratedMapping')
 PHASE2_CASES=('NavigationPushBack','NavigationRollback','DialogTokenCancel','PopupPauseResume','PausedQueueShutdown','PresenterCacheReopen')
+UIKIT05_CASES=('PageOpenReplacePopTo','SessionIsolation','PopupTokenCancel','AddressablesCacheOwnership','AddressablesCanceledLoad','LateLeaseCleanup','PerformanceCacheCycles')
 PHASE2_ASSEMBLIES={'Wulato.UIKit.'+name+'.dll' for name in ('Navigation','Dialogs','Presentation','PopupQueue')}
 def combinations():
     from run import VERSIONS
@@ -15,23 +16,40 @@ def assess_mobile(report,build_id,fingerprint,phase="phase1"):
         if report.get(key) is not True:errors.append(key)
     if not report.get('device'):errors.append('device')
     if report.get('phase','phase1')!=phase:errors.append('phase')
-    required=MOBILE_CASES+(PHASE2_CASES if phase=='phase2' else ())
+    required=MOBILE_CASES+(PHASE2_CASES if phase in ('phase2','uikit05') else ())+(UIKIT05_CASES if phase=='uikit05' else ())
     cases=report.get('cases',[])
     if len(cases)!=len(required) or {c.get('name') for c in cases}!=set(required) or any(c.get('status')!='PASS' for c in cases):errors.append('smoke-cases')
+    if phase=='uikit05':errors+=assess_performance(report.get('performance'))
+    return errors
+
+def assess_performance(report):
+    import math
+    if not isinstance(report,dict):return ['missing-device-performance']
+    errors=[]
+    for key in ('model','os','cpu','gpu','unity','architecture','scope'):
+        if not report.get(key):errors.append('performance-identity:'+key)
+    if report.get('samples')!=50 or report.get('warmup')!=5:errors.append('performance-samples')
+    values=[report.get(k) for k in ('p50Ms','p95Ms','maxMs')]
+    if any(type(v) not in (int,float) or not math.isfinite(v) or v<0 for v in values) or values!=sorted(values):errors.append('performance-timings')
+    for key in ('activeLeasesAfterClear','pendingCleanupAfterClear','inputLocksAfterClear'):
+        if type(report.get(key)) is not int or report[key]!=0:errors.append('performance-convergence:'+key)
     return errors
 
 def assess_build(report,fingerprint,phase="phase1"):
     errors=[]
     if report.get('status')!='PASS':errors.append('build-not-pass')
     if report.get('phase','phase1')!=phase:errors.append('phase')
-    if phase=='phase2' and report.get('package_set','all')!='all':errors.append('incomplete-package-set')
+    if phase in ('phase2','uikit05') and report.get('package_set','all')!='all':errors.append('incomplete-package-set')
     if report.get('fingerprint')!=fingerprint or report.get('source_after')!=fingerprint:errors.append('stale-build-fingerprint')
     if report.get('generation_compiled') is not True:errors.append('generation-not-compiled')
     if report.get('profile') not in ('smoke','clean'):errors.append('build-profile')
     if report.get('architecture')!='ARM64' or report.get('scripting_backend')!='IL2CPP':errors.append('build-platform')
     if not report.get('build_id'):errors.append('missing-build-id')
+    if phase=='uikit05' and (report.get('addressables_platform')!=report.get('target') or not report.get('addressables_content')):errors.append('missing-target-addressables-content')
+    if phase=='uikit05' and report.get('target')=='iOS' and report.get('native_compiled') is not True:errors.append('ios-export-is-not-native-compile')
     if report.get('profile')=='clean':
         names=report.get('player_assemblies',[])
+        if phase=='uikit05' and ('Wulato.UIKit.dll' not in names or any(n in names for n in PHASE2_ASSEMBLIES)):errors.append('uikit05-single-runtime-assemblies')
         if phase=='phase2' and not PHASE2_ASSEMBLIES.issubset(set(names)):errors.append('phase2-runtime-assemblies')
         if not names or any(any(s in n.lower() for s in ('test','acceptance','verification','nunit')) for n in names):errors.append('clean-player-assemblies')
     return errors
@@ -42,6 +60,21 @@ def assess_matrix(rows):
         matches=[r for r in rows if (r.get('editor'),r.get('backend'),r.get('target'))==(v,b,t)]
         if len(matches)!=1 or matches[0].get('status')!='PASS':errors.append('missing-or-failed:'+v+'/'+b+'/'+t)
     return errors
+
+def assess_editor_artifact(folder):
+    """Use the source-bound full CI envelope, never an old canonical host."""
+    import ci_artifact
+    try:
+        folder=Path(folder)
+        manifest=json.loads((folder/'artifact.json').read_text())
+        selection=json.loads((folder/'ci-selected/selection.json').read_text())['selection']
+        errors=[]
+        if not selection.get('full'):errors.append('editor-artifact-not-full')
+        result=ci_artifact.verify(folder,manifest['revision'],manifest['run_id'])
+        errors+=result['errors']
+        return errors
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        return ['missing-or-invalid-editor-artifact:'+str(error)]
 
 def release(root,phase="phase1"):
     import run
@@ -56,7 +89,11 @@ def release(root,phase="phase1"):
         with guard(run.A,shared=True):
             records,registration_errors=registered(run.A)
             matrix=json.loads((run.C/'matrix.json').read_text())
-            for ver in __import__("editor_targets").editors("all"):
+            if phase=='uikit05':
+                import os
+                editor_errors=assess_editor_artifact(os.environ.get('UIKIT_EDITOR_ARTIFACT',''))
+                items.append(dict(kind='EditorFullReloadG0',status='FAIL' if editor_errors else 'PASS',errors=editor_errors))
+            for ver in ([] if phase=='uikit05' else __import__("editor_targets").editors("all")):
                 short,_,_=run.VERSIONS[ver]
                 for backend in ('legacy','input'):
                     snap=run.snapshot(ver,backend,run.V/'Projects'/f'{short}-{backend}')
@@ -80,7 +117,7 @@ def release(root,phase="phase1"):
                         items.append(dict(kind='Editor',editor=ver,backend=backend,mode=mode,status='FAIL' if errors else 'PASS',errors=errors,evidence=str(folder)))
             fingerprint=source_fingerprint()
             for ver,backend,target in combinations():
-                for profile in (('smoke','clean') if target=='Android' and backend=='input' else ('smoke',)):
+                for profile in (('smoke','clean') if phase=='uikit05' or (target=='Android' and backend=='input') else ('smoke',)):
                     folder=latest_attempt(run.A/'mobile',ver,backend,target,profile,phase)
                     errors=[]
                     if folder is None:errors=['missing-build']
@@ -99,28 +136,29 @@ def release(root,phase="phase1"):
                                 errors+=assess_mobile(mobile,build['build_id'],fingerprint,phase);errors+=verify_files(folder,mobile,'device-files');errors+=validate_player_report(json.loads((folder/'device/player-report.json').read_text()),mobile)
                         except (OSError,ValueError,KeyError,TypeError) as e:errors.append('missing-or-invalid-evidence:'+str(e))
                     items.append(dict(kind=profile,editor=ver,backend=backend,target=target,status='FAIL' if errors else 'PASS',errors=errors,evidence=str(folder)))
-            # Independent G0 re-parses raw prototype runs at the current host fingerprints.
-            from gates import _preflight_locked
-            g0code=_preflight_locked(root)
-            items.append(dict(kind='G0',status='PASS' if g0code==0 else 'FAIL',errors=[] if g0code==0 else ['G0-not-pass']))
-            from play_reset import validate_report,validate_automatic_reports
-            from evidence import sha256
-            paths=sorted(run.A.glob('*-play-reset-*/summary.json'));reload_errors=[]
-            if not paths:reload_errors=['missing-reload-matrix']
-            else:
-                try:
-                    rows=json.loads(paths[-1].read_text())
-                    expected={(v,b,o) for v in __import__('editor_targets').editors('all') for b in ('legacy','input') for o in range(4)}
-                    if len(rows)!=len(expected) or {(r['editor'],r['backend'],r['option']) for r in rows}!=expected:reload_errors.append('incomplete-reload-matrix')
-                    for row in rows:
-                        folder=Path(row['evidence']);ver=row['editor'];backend=row['backend'];snap=run.snapshot(ver,backend,run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}')
-                        if row['status']!='PASS' or row['fingerprint']!=snap['fingerprint']:reload_errors.append('stale-or-failed-reload')
-                        if sha256(folder/'evidence-index.json')!=row['evidence_index_sha256']:reload_errors.append('reload-index-hash')
-                        index=json.loads((folder/'evidence-index.json').read_text())
-                        reload_errors+=verify_files(folder,{'files':index['files']})
-                        reload_errors+=validate_report(json.loads((folder/'play-reset.json').read_text()),row['option'])+validate_automatic_reports(folder)
-                except (OSError,ValueError,KeyError,TypeError) as e:reload_errors.append('invalid-reload:'+str(e))
-            items.append(dict(kind='Reload',status='FAIL' if reload_errors else 'PASS',errors=reload_errors,evidence=str(paths[-1]) if paths else None))
+            if phase!='uikit05':
+                # Independent G0 re-parses raw prototype runs at the current host fingerprints.
+                from gates import _preflight_locked
+                g0code=_preflight_locked(root)
+                items.append(dict(kind='G0',status='PASS' if g0code==0 else 'FAIL',errors=[] if g0code==0 else ['G0-not-pass']))
+                from play_reset import validate_report,validate_automatic_reports
+                from evidence import sha256
+                paths=sorted(run.A.glob('*-play-reset-*/summary.json'));reload_errors=[]
+                if not paths:reload_errors=['missing-reload-matrix']
+                else:
+                    try:
+                        rows=json.loads(paths[-1].read_text())
+                        expected={(v,b,o) for v in __import__('editor_targets').editors('all') for b in ('legacy','input') for o in range(4)}
+                        if len(rows)!=len(expected) or {(r['editor'],r['backend'],r['option']) for r in rows}!=expected:reload_errors.append('incomplete-reload-matrix')
+                        for row in rows:
+                            folder=Path(row['evidence']);ver=row['editor'];backend=row['backend'];snap=run.snapshot(ver,backend,run.V/'Projects'/f'{run.VERSIONS[ver][0]}-{backend}')
+                            if row['status']!='PASS' or row['fingerprint']!=snap['fingerprint']:reload_errors.append('stale-or-failed-reload')
+                            if sha256(folder/'evidence-index.json')!=row['evidence_index_sha256']:reload_errors.append('reload-index-hash')
+                            index=json.loads((folder/'evidence-index.json').read_text())
+                            reload_errors+=verify_files(folder,{'files':index['files']})
+                            reload_errors+=validate_report(json.loads((folder/'play-reset.json').read_text()),row['option'])+validate_automatic_reports(folder)
+                    except (OSError,ValueError,KeyError,TypeError) as e:reload_errors.append('invalid-reload:'+str(e))
+                items.append(dict(kind='Reload',status='FAIL' if reload_errors else 'PASS',errors=reload_errors,evidence=str(paths[-1]) if paths else None))
             for ver in __import__("editor_targets").editors("all"):
                 for backend in ('legacy','input'):
                     folder=latest_attempt(run.A/'install-checks',ver,backend,'Android','smoke',phase);errors=[]

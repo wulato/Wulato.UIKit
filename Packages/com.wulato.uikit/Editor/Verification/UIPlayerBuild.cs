@@ -94,7 +94,7 @@ namespace Wulato.UIKit.Editor.Verification
             PlayerSettings.SetManagedStrippingLevel(group,ManagedStrippingLevel.High);
             if(target==BuildTarget.Android)PlayerSettings.Android.targetArchitectures=AndroidArchitecture.ARM64;
             else {PlayerSettings.SetArchitecture(group,1);PlayerSettings.iOS.sdkVersion=iOSSdkVersion.DeviceSDK;}
-            var app="com.wulato.uikit.acceptance."+input.backend+"."+input.profile;
+            var app=(input.phase=="uikit05"?"com.wulato.uikit.acceptance.v05.":"com.wulato.uikit.acceptance.")+input.backend+"."+input.profile;
             PlayerSettings.SetApplicationIdentifier(group,app);
             var scenes=input.profile=="smoke"?new[]{"Assets/UIKitMobileSmokeScene.unity"}:Directory.Exists("Assets/Samples/Wulato UIKit/BusinessFlow")?new[]{"Assets/Samples/Wulato UIKit/BusinessFlow/BusinessFlowScene.unity"}:new[]{"Assets/Samples/Wulato UIKit/QuickStart/SettingsScene.unity"};
             var output=Path.Combine(Out,target==BuildTarget.Android?"UIKit.apk":"Xcode");
