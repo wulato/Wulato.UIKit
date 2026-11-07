@@ -1103,3 +1103,19 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - iOS签名后完整索引审计实际失败：唯一变化为 `Xcode/Il2CppOutputProject/Source/il2cppOutput/profile.json`，Xcode脚本`--profiler-report`在第二次编译重写该文件。`ios-legacy-post-sign-integrity-failure.json`保留期望/实际hash及错误，原文件不恢复或重新索引以掩盖失败；a2b4b0e真机20项不替代构建完整性PASS。
 - 同因修复1轮：签名时拷贝完整Xcode项目到设备证据下唯一SigningProject目录，利用原脚本PROJECT_DIR相对路径隔离编译写入；无签名导出保持原始字节。新增副本写入隔离测试，完整Python264项PASS（`python-isolation-repair1.*`）；待新冻结iOS真实签名+20项及两份索引审计后才认定修复通过。尚未启动任何原生full Editor作业，避免不稳定输入先跑全量。
 - a2b4b0e最终Android两后端smoke均构建PASS（`20261107T031240321931-bfce28`），因门禁输入继续修正只保留为专项历史，不用于新的最终指纹矩阵。full run42332931948 hosted计划/Python通过、editor尚排队，取消原生未开始作业后改用新冻结提交。
+
+- cdac3ee签名隔离第1轮真实复验通过：iOS Legacy20/20、原构建3205文件与设备3175文件hash全部PASS，完整复合审计 `phase6-3/ios-isolation-repair1-audit.json`，源码指纹 `a92685d8be801358b0876f0aa58708a7265b0b8d1a18b79d2ce18f5a0d16ed18`。实际签名strict/deep验证、Team YQT997BSB9及v05.legacy.smoke bundle ID再次只读核对PASS（`ios-legacy-signature-audit.json`），不修改原导出文件、不重索引旧失败。
+- 用户同意自行释放磁盘空间，df现17GiB；本任务只清理自身完成的Library缓存。两批旧iOS候选已按全文件hash验证后压缩，5065/12749文件分别约637.2/1107.2MiB，保留于 `Artifacts/uikit/phase6-3/archives/`，每份receipt含SHA256/原始清单/恢复命令；原始文件字节完整保留，未更改历史报告内容。恢复后旧失败仍按原hash失败，不被改写为PASS。
+- 最终Android 4个ARM64 IL2CPP构建均PASS：clean `20261107T033307476388-58c8f1`，smoke `20261107T033928421543-cc197d`。两后端clean均有单基础Runtime、无旧拆分/测试/Smoke/Codegen编译探针，Input适配仅Input宿主，审计`phase6-3/android-clean-audit.json`。两后端真机各20/20，真人点击完成；50样本Legacy p50/p95/max 33.1087/35.5154/41.4336ms，Input 33.0496/35.5227/35.7728ms，三项收敛均0。构建/设备索引在移除完成宿主的可重建Library缓存前后均保持通过。
+- 最终full run [42334522342](https://github.com/wulato/Wulato.UIKit/actions/runs/42334522342) 固定cdac3ee，hosted计划/Python成功，原生Editor待本机移动组合完成后启动；尚未宣称Editor全门禁通过。
+- iOS Input最终unsigned构建PASS（`20261107T035036717549-75c7a8`）。首次签名与安装成功，启动由iPhone锁屏拒绝，原始日志与签名产物归档 `phase6-3/ios-input-locked-attempt1`，停止无效等待并保留退出码；这是环境原因，无代码修复。用户确认解锁后做同一冻结构建的1次复验，未更改手机设置。
+- 用户解锁后同一iOS Input构建重试一次通过，20/20真实触摸与专项；PENDING重置读回、启动日志和最终Player报告均保留。`ios-input-signature-audit.json`确认Team与bundle ID、strict签名均PASS；环境同因未改代码。iOS Legacy/Input最终50样本p50/p95/max分别33.3404/35.6558/36.0449ms、33.3384/35.7671/36.1722ms，三项收敛均0。四真机组合80/80，汇总 `phase6-3/final-device-performance.json`，无额外真机操作待做。
+
+6.3 最终验收（冻结源码 `cdac3ee964fddc1172a44bd22de1fca874dd1ef1`）
+
+- [x] Unity 2022.3.62f2 的 Android/iOS × Legacy/Input × smoke/clean 共 8 个 ARM64 IL2CPP 构建通过。最后一批 iOS clean 为 `20261107T041000503371-f13384`。`phase6-3/native-matrix-supplement.json` 保留 APK 实际 ABI、iOS Mach-O 架构及四个 clean 的程序集排除审计。
+- [x] Xiaomi M2012K11AC / Android 13 与 iPhone 13 / iOS 18.4 的四个 smoke 组合共 80/80 项通过。性能原始数据见 `phase6-3/final-device-performance.json`。采样范围为开发验证 Player 的缓存 Open/Close，涵盖等待帧。iOS 实际签名由已授权的现有开发身份完成，商店签名与发布另行处理。
+- [x] 两后端 Git 安装/生成/编译审计通过。原始批次 `install-checks/20261107T041521206022-995c65`，审计 `phase6-3/git-install-stable-audit.json`。prepare-only 原始退出码 1 符合预期，唯一原因是该命令仅做安装和编译。
+- [x] [远端完整 Editor 作业](https://github.com/wulato/Wulato.UIKit/actions/runs/42334522342) 通过。Python 264 项，Unity 970 项（Legacy 233 EditMode / 248 PlayMode，Input 236 / 253），20 组 Reload、40 次实际 Play 和 G0。artifact `13560841544` 的 1,108 个文件已下载并核验，ZIP SHA256 为 `30c2820484cc578f509e5242a60a371680ae5f9d547d74b6351a4e0ecd376af7`。原始证据与摘要位于 `Artifacts/uikit/phase6-3/`。临时 runner 已自动注销，仓库 runner 数为 0。
+- [x] 最终 Release Gate 11/11 PASS，报告 `Artifacts/uikit/release-20261107T070138716527/release-report.json`，源码指纹 `a92685d8be801358b0876f0aa58708a7265b0b8d1a18b79d2ce18f5a0d16ed18`。此后的验收记录提交只更新本计划。
+- [ ] 6.3 PR 等待用户审核与合并确认。发布和打标签由后续明确指令触发。
