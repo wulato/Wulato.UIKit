@@ -1032,7 +1032,7 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 6.1 最终原始索引：dotween-package-install `20261106T132106402324-tests-34b899`；dotween-dotween `20261106T132116769679-tests-c8e549`；r3-binding-package-install `20261106T132127029013-tests-670402`；r3-binding-r3-binding `20261106T132138573805-tests-de1dcf`；fancy-list-package-install `20261106T132151570863-tests-3f6ef1`；fancy-list-fancy-list `20261106T132203134610-tests-435b2f`；localization-package-install `20261106T132213850017-tests-823c92`；localization-localization `20261106T132224838467-tests-8f7aff`；quickstart-runtime `20261106T132533512846-tests-381aa9`；legacy-flow-samples `20261106T132831835910-tests-2e4787`；legacy-samples `20261106T132842054046-tests-4985e0`；input-flow-samples `20261106T132852422259-tests-010e63`；input-samples `20261106T132903200989-tests-c0865c`；addressables-integration `20261106T133129579018-tests-64e81d`。
 
 
-### 6.2 执行记录（2026-11-06，进行中）
+### 6.2 执行记录（2026-11-06，2026-11-07收尾）
 
 - 核对 PR #16 固定 head `7797c5c701ff2c9bde93727ec23f0043a356d497` / CLEAN后普通合并；基线 `abc8ded418f29b11a94adfcbb7d6929e91c5160f`，分支 `chore/uikit-0.5-editor-ci`。smart-development STANDARD，按明确计划L3；使用executing-plans既有计划，不启动子代理/新worktree。
 - 仓库Actions已启用，runner API total_count=0。用户单独授权本任务临时官方Actions Runner2.338.2（macOS ARM64）及仓库级短时注册token；仅Artifacts/uikit/phase6-2/runner，不安装服务/启动项、不扩展GitHub scope；每次ephemeral一作业后注销，主动派发前核对固定SHA和队列。官方archive SHA256 `25a065af409ffa317ab4d5a3b614dd15fc9c40f2172bc1b35a1b1258e919a388`，约123MB，诊断日志保留；不能把同账号runner当安全沙箱。
@@ -1049,3 +1049,28 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 
 - full隔离修复run42235868429证明12条准备均PASS、Legacy EditMode233/PlayMode248全部PASS；Input EditMode仅 AdapterManifest_PinsCoreAndInputVersions FAIL，仍有两处主包版本期望0.4.0（实际0.5.0）。这是独立于历史宿主污染的遗漏身份断言，按已批准0.5身份更新为精确0.5.0，保留Input SDK1.17.0、基础IL隔离及无必需SDK的原断言。该因修复1轮；原input-package专项2/2及即时current snapshot/原始索引审计PASS，原始batch复制保存在外层Artifacts/uikit/phase6-2/input-package-targeted-raw，未修改既有CI证据。全部Packages测试源码的0.4.0遗留版本值已查无其他。首轮full失败artifact/digest及Legacy通过记录保留。
 - 本门禁要求最终源码指纹完整，因此在输入包专项通过后以新固定提交重跑两后端最终full；这是当前明确门禁的必要指纹复验，不扩展其他编辑器/SDK/Player，也不以旧Legacy绿色结果替当前来源。
+
+
+6.2 最终验收（冻结源码 `da7f625d192cb136d5a73ddacb94b463b64dc60c`）：
+
+| 范围 | 结果 |
+| --- | --- |
+| 真实远端专项 | run42233141320 hosted Python251，contracts30 / integration24，作业与下载原始审计PASS；最终full覆盖相同必需用例到最终指纹 |
+| 最终hosted Python | 253/253 PASS |
+| Legacy all | EditMode233 / PlayMode248 PASS |
+| Input System all | EditMode236 / PlayMode253 PASS |
+| 实际Reload | integration两后端各4配置，context-host/preview各Legacy4+Input2；共20组、40次真实Play/退出，全部PASS |
+| G0 / 上传前审计 | 最新注册/原始证据/当前隔离宿主指纹与自动退出检查PASS |
+| 下载原始复核 | 1108个文件，GitHub ZIP digest/安全路径/完整字节清单/原始XML/逐例trace/索引/命令完整性/冻结计划与Reload报告PASS |
+
+- [x] 最终真实远端完整链路 [run42238552176](https://github.com/wulato/Wulato.UIKit/actions/runs/42238552176) completed/success，默认Unity2022.3.62f2两后端四组适用all共970/970用例执行PASS，零跳过/零缺证据。
+- [x] 下载artifact ID `13515007523`，ZIP SHA256 `3caa19ff2507cc2f085905cf7967e51503990401145926ca25908701768156c1` 与GitHub API digest一致。`full-final-artifact-verification.json`、`full-summary-42238552176.json` PASS；源码指纹 `e43b5d1d73b88ffc7f995b478cb530602e092f63fcc6a27a4367bde3d56ebae2`，准确包身份0.5.0。下载后不改任何JSON/log字节。
+- [x] 临时runner每次单作业自动注销，最终API total_count=0，`.runner`/`.credentials`/服务配置不存在；没有安装服务/开机项或扩大GitHub scope。后续Unity CI仍需标签uikit-05-editor的专用或临时runner，hosted Python不依赖它。
+- [x] 集中差异审查：CI拆分/冻结/可信分支条件、可移植原始审计、full隔离/G0同宿主、严格Localization图边界、两处Input测试0.5常量及回归/文档；基础Runtime/API/SDK版本/MC未改。未放宽RAW、必需用例、零匹配/跳过/失败、hash/注册/输入变化规则；evidence.verify默认本地路径行为不变。
+- [ ] 提交最终记录并创建6.2 PR，等待用户审核合并；不执行6.3或发布。
+
+原始来源：`Artifacts/uikit/phase6-2/downloads/<GitHubRunID>/`保存ZIP/API/receipt/完整产物；`full-final-run.json`、`runners-final.json`记录远端状态，runner配置/监听日志保留。官方归档及哈希receipt保留；只删除本任务已合成归档的冗余Range缓冲，不清理用户文件或旧证据。短时token通过官方遮蔽环境输入传入，没有token命令行或明文输出。
+
+失败账：collector隐藏临时锁1轮、canonical旧样例污染1轮、Input旧版本断言1轮，均已解决；前期Python工作流断言/Localization程序集清单各1轮、G0单测macOS路径别名1轮均已解决，同因未超过两轮。旧失败run42231259000（下载审计）、42234297368（宿主准备）、42235868429（版本断言）及下载数据保留，不改写为PASS。最终验证完成后写记录时自动审批审查因用量上限未能完成，写入未执行；2026-11-07用户要求继续后收尾，不重复已通过门禁。
+
+限制：本full仅默认2022.3.62f2与legacy/input，包含Addressables/Input SDK；DOTween/R3/Fancy/Localization未在本full宿主启用，不属于当前适用全集；6.1独立证据保留但不冒称本次重验。未执行其他Unity、Both独立配置、Android/iOS Player/IL2CPP、真机/性能/Release Gate。临时runner不是常驻隔离机器；6.3仍受前置PR审核合并及工具链/设备/签名授权约束。可revert本CI/验证改动，保留失败，不降低门禁。

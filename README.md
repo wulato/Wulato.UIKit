@@ -9,7 +9,7 @@
 - [Workbench](Packages/com.wulato.uikit/Documentation~/Authoring-0.5.md) · [独立预览](Packages/com.wulato.uikit/Documentation~/Preview.md)
 - [0.5计划与验收记录](docs/plans/2026-11-05-wulato-uikit-0.5-optimization.md) · [验证入口](Verification/README.md) · [历史0.4记录](docs/superpowers/plans/2026-11-03-wulato-uikit-master-optimization.md)
 
-开发/本轮验收使用 Unity **2022.3.62f2**。0.5.0 是 Phase1–5 功能的文档/安装检查点；远端 CI、完整 Editor/Reload、移动/IL2CPP、真机和 Release Gate 尚须后续验收。其他编辑器 profile 与历史证据不代表当前支持声明。
+开发/本轮验收使用 Unity **2022.3.62f2**。0.5.0 是 Phase1–5 功能的文档/安装检查点；默认编辑器两后端完整 Editor/Reload 与真实远端 CI 已通过6.2验证（见计划原始记录）；移动/IL2CPP、真机和 Release Gate 仍待6.3。其他编辑器 profile 与历史证据不代表当前支持声明。
 
 开发采用 GitHub Flow：main 为默认分支与稳定基线，任务使用 feat/*、fix/*、refactor/*、chore/*，专项通过后提交 PR，main 合并由用户确认。保护禁止强推/删除及管理员绕过；不清理 master、原分支或用户工作区。
 
