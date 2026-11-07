@@ -1067,7 +1067,8 @@ L0 记录：Unity 原生生成的 Resources.meta / Prefab / Prefab.meta 在空 Y
 - [x] 下载artifact ID `13515007523`，ZIP SHA256 `3caa19ff2507cc2f085905cf7967e51503990401145926ca25908701768156c1` 与GitHub API digest一致。`full-final-artifact-verification.json`、`full-summary-42238552176.json` PASS；源码指纹 `e43b5d1d73b88ffc7f995b478cb530602e092f63fcc6a27a4367bde3d56ebae2`，准确包身份0.5.0。下载后不改任何JSON/log字节。
 - [x] 临时runner每次单作业自动注销，最终API total_count=0，`.runner`/`.credentials`/服务配置不存在；没有安装服务/开机项或扩大GitHub scope。后续Unity CI仍需标签uikit-05-editor的专用或临时runner，hosted Python不依赖它。
 - [x] 集中差异审查：CI拆分/冻结/可信分支条件、可移植原始审计、full隔离/G0同宿主、严格Localization图边界、两处Input测试0.5常量及回归/文档；基础Runtime/API/SDK版本/MC未改。未放宽RAW、必需用例、零匹配/跳过/失败、hash/注册/输入变化规则；evidence.verify默认本地路径行为不变。
-- [ ] 提交最终记录并创建6.2 PR，等待用户审核合并；不执行6.3或发布。
+- [x] 已推送最终记录并创建 [任务6.2 PR #17](https://github.com/wulato/Wulato.UIKit/pull/17)（main ← chore/uikit-0.5-editor-ci）；受验代码仍为da7f625，记录提交不改变源码指纹。
+- [ ] 等待用户确认合并PR #17；不执行6.3或发布。
 
 原始来源：`Artifacts/uikit/phase6-2/downloads/<GitHubRunID>/`保存ZIP/API/receipt/完整产物；`full-final-run.json`、`runners-final.json`记录远端状态，runner配置/监听日志保留。官方归档及哈希receipt保留；只删除本任务已合成归档的冗余Range缓冲，不清理用户文件或旧证据。短时token通过官方遮蔽环境输入传入，没有token命令行或明文输出。
 
